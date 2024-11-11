@@ -28,6 +28,8 @@ class Database:
         rel = query(s, **self._rel_cache)
         return Relation(rel)
 
+    def __getitem__(self, key):
+        return self.tables[key]
 
     def __myop__(self, other):
         if other in {'arrow', 'pandas'}:
