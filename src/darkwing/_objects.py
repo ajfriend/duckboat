@@ -2,11 +2,11 @@ import random
 import string
 
 from . import query, _sfo_con
-from . import util as u
+from ._get_if_file import _get_if_file
 
 
 
-class Databoose:
+class Database:
     """
     TODO: can we make it so we can use .dot access to tables?
     TODO: maybe a .materialize to get a copy to memory? have a databoose be nothing more than a fancy dictionary. convert to relations late. materialize does the conversion, and gives you a new databoose with dfs or arrow or pl
@@ -19,7 +19,7 @@ class Databoose:
         }
 
     def sql(self, s):
-        s = u._get_if_file(s)
+        s = _get_if_file(s)
 
         tables = {k: v._rel for k,v in self.tables.items()}
         rel = query(s, **tables)
@@ -49,7 +49,7 @@ class Databoose:
         tables = ''.join(tables)
         tables = tables or ' None'
 
-        out = 'Databoose:' + tables
+        out = 'Database:' + tables
 
         return out
     
@@ -78,7 +78,7 @@ class Relation:
             # TODONE? i think the new design does it
             s = s[3:]
             d = {s: self}
-            return Databoose(**d)
+            return Database(**d)
 
         name = '_tlb_' + ''.join(random.choices(string.ascii_lowercase, k=10))
         return Relation(
