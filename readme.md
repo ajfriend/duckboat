@@ -25,6 +25,8 @@ The library revolves around two objects and a function: `Database`, `Relation`, 
 
 ## Piping
 
+TODO: note about precedence rules. maybe add `>`, or just have one pipe operator?
+
 Semantically and syntactically `>>` and `|` are identical.
 Emotionally, I tend to use `>>` when the operation is more surprising (e.g., square peg, round hole or "just work, dammit!"), and `|` when it feels like a more natural, elegant continuation of a thought.
 Alternatively, think of `>>` as the Jack Nicholson GIF from the movie "Anger Management".
