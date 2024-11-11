@@ -5,7 +5,6 @@ from . import query, _sfo_con
 from ._get_if_file import _get_if_file
 
 
-
 class Database:
     """
     TODO: can we make it so we can use .dot access to tables?
@@ -13,15 +12,15 @@ class Database:
     TODO: materialize also gives users a more concrete way to interact with the databoose. pin fix bind hold. i like hold
     """
     def __init__(self, **tables):
-        self.tables = {**tables}
-        self._rels = {
-            k: load(v)._rel
-            for k,v in self.tables.items()
+        # maybe have the repr reflect the strings! rows x columns only if it detects a relation or table! that could help speed things up, too. that is, make it even more lazy
+        self.tables = {
+            k: load(v)._rel  # TODO: is this weird?
+            for k,v in tables.items()
         }
 
     def sql(self, s):
         s = _get_if_file(s)
-        rel = query(s, **self._rels)
+        rel = query(s, **self.tables)
         return Relation(rel)
 
 
@@ -53,15 +52,15 @@ class Database:
         return out
     
     def _yield_table_lines(self):
-        for name, rel in self._rels.items():
-            n = list(query('select count() from x', x=rel).df().loc[0])[0] # todo:  >> int
-            columns = list(query('select column_name from (describe from x)', x=rel).df()['column_name'])
+        for name in self.tables:
+            n = self >> f'select count() from {name}' >> int
+            columns = self >> f'select column_name from (describe from {name})' >> list
             yield f'{name}: {n} x {columns}'
 
 
 class Relation:
     """
-    TOOD: allow you to do `>> pd.DataFrame` or `>> list` or `>> dict` or `>> 'dataframe'`. can replace `aslist()`, `asdict()`
+    TOOD: get rid of load and just use this constructor?
     """
     def __init__(self, rel=None):
         self._rel = rel
@@ -72,8 +71,6 @@ class Relation:
     def sql(self, s):
         s = s.strip()
         if s.startswith('as '):
-            # TODO: there might be a way to do this that avoids the materialization and returns a new kind of relation
-            # TODONE? i think the new design does it
             s = s[3:]
             d = {s: self}
             return Database(**d)
@@ -84,10 +81,16 @@ class Relation:
         )
 
     def __myop__(self, other):
+        if other in {int, str, bool}:
+            return self.asitem()
+        if other is list:
+            return self.aslist()
+        if other is dict:
+            return self.asdict()
         if callable(other):
             return other(self)
-        else:
-            return self.sql(other)
+        
+        return self.sql(other)
 
     def __or__(self, other):
         return self.__myop__(other)
@@ -118,10 +121,14 @@ class Relation:
         """Transform a df with one row and one column to single element"""
         # _insist_single_row(df)
         # _insist_single_col(df)
+        return self.aslist()[0]
 
-        out = self.aslist()[0]
-
-        return out
+    def asdict(self):
+        """Transform a df with one row to a dict
+        """
+        # _insist_single_row(df)
+        df = self.df()
+        return dict(df.iloc[0])
 
 
 def _load_string(s):    
@@ -147,6 +154,7 @@ def _load(x) -> Relation:
     else:
         return _load_other(x)
 
+# TODO: do we need a separate `load`? or is this just a `Relation` constructor?
 class Load:
     def __call__(self, x):
         return _load(x)
