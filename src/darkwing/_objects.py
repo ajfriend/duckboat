@@ -12,19 +12,26 @@ class Database:
     TODO: materialize also gives users a more concrete way to interact with the databoose. pin fix bind hold. i like hold
     """
     def __init__(self, **tables):
-        # maybe have the repr reflect the strings! rows x columns only if it detects a relation or table! that could help speed things up, too. that is, make it even more lazy
-        self.tables = {
-            k: load(v)._rel  # TODO: is this weird?
-            for k,v in tables.items()
-        }
+        self.tables = {**tables}
+        self._rel_cache = {}  # TODO: oooh! maybe move the relation caching to the relation object
+
+    def _do_cache(self):
+        if not self._rel_cache:
+            self._rel_cache = {
+                k: load(v)._rel  # TODO: code smell on this ._rel thing
+                for k,v in self.tables.items()
+            }
 
     def sql(self, s):
         s = _get_if_file(s)
-        rel = query(s, **self.tables)
+        self._do_cache()
+        rel = query(s, **self._rel_cache)
         return Relation(rel)
 
 
     def __myop__(self, other):
+        if other in {'arrow', 'pandas'}:
+            return self.hold(type=other)
         if callable(other):
             return other(self)
         else:
@@ -52,10 +59,20 @@ class Database:
         return out
     
     def _yield_table_lines(self):
-        for name in self.tables:
-            n = self >> f'select count() from {name}' >> int
-            columns = self >> f'select column_name from (describe from {name})' >> list
-            yield f'{name}: {n} x {columns}'
+        for name, tbl in self.tables.items():
+            if isinstance(tbl, str):
+                yield f"{name}: '{tbl}'"
+            else:
+                n = self >> f'select count() from {name}' >> int
+                columns = self >> f'select column_name from (describe from {name})' >> list
+                yield f'{name}: {n} x {columns}'
+
+    def hold(self, type='arrow'):
+        # TODO: allow for different materialization types
+        return Database(**{
+            name: self >> f'from {name}' >> type
+            for name in self.tables
+        })
 
 
 class Relation:
@@ -81,6 +98,10 @@ class Relation:
         )
 
     def __myop__(self, other):
+        if other == 'arrow':
+            return self.arrow()
+        if other == 'pandas':
+            return self.df()
         if other in {int, str, bool}:
             return self.asitem()
         if other is list:
