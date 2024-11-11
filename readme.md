@@ -39,6 +39,15 @@ Expressions `a >> b` and `a | b` resolve to
 In the "use whichever form is most horrifying to your peers" syntax category, we have:
 - `'filename.parquet' >> dw.load` is the same as `dw.load('filename.parquet')`. 
 - `a >> 'as table_name'` resolves to a `Database(table_name = a)`
+- `a >> list`
+- `a >> dict`
+- `a >> int`
+- `a >> float`
+- `a >> str`
+- `a >> bool`
+- `a >> pd.DataFrame`
+
+Note you can always use parenthesis to specify evaluation order, or build up expressions in a fluent style like `a.sql(s1).sql(s2)`.
 
 ## Laziness
 

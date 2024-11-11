@@ -13,16 +13,15 @@ class Database:
     TODO: materialize also gives users a more concrete way to interact with the databoose. pin fix bind hold. i like hold
     """
     def __init__(self, **tables):
-        self.tables = {
-            name: load(t)
-            for name, t in tables.items()
+        self.tables = {**tables}
+        self._rels = {
+            k: load(v)._rel
+            for k,v in self.tables.items()
         }
 
     def sql(self, s):
         s = _get_if_file(s)
-
-        tables = {k: v._rel for k,v in self.tables.items()}
-        rel = query(s, **tables)
+        rel = query(s, **self._rels)
         return Relation(rel)
 
 
@@ -54,10 +53,9 @@ class Database:
         return out
     
     def _yield_table_lines(self):
-        for name, tbl in self.tables.items():
-            n = tbl.sql('select count()').asitem()
-            tbl = tbl.df()  # TODO: probably much faster if we just get the columns of the relation rather than fully materialize
-            columns = list(tbl.columns)
+        for name, rel in self._rels.items():
+            n = list(query('select count() from x', x=rel).df().loc[0])[0] # todo:  >> int
+            columns = list(query('select column_name from (describe from x)', x=rel).df()['column_name'])
             yield f'{name}: {n} x {columns}'
 
 
