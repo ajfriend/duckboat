@@ -1,5 +1,9 @@
 # Darkwing
 
+```shell
+pip install git+https://github.com/ajfriend/darkwing
+```
+
 Darkwing is an experimental data-wrangling library built on DuckDB, enabling lazy pipelining of SQL snippets into larger analytical transformations.
 
 I write a lot of SQL and Python to do data analysis. I find SQL easy to write, but it can be verbose and hard to compose.
