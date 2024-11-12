@@ -1,7 +1,7 @@
 import random
 import string
 
-from . import query, _darkwing_con
+from . import query
 from ._get_if_file import _get_if_file
 
 from duckdb import DuckDBPyRelation
@@ -165,10 +165,10 @@ class Table(metaclass=RightShiftMeta):
 
 
 def _load_string(s) -> DuckDBPyRelation:
-    return _darkwing_con.sql(f'select * from "{s}"') # TODO: this should probably just be the safe query guy
+    return query(f'select * from "{s}"')
 
 def _load_other(x) -> DuckDBPyRelation:
-    return _darkwing_con.sql('select * from x')  # TODO: this should probably just be the safe query guy
+    return query('select * from x', x=x)
 
 def _load(x) -> DuckDBPyRelation:
     """
