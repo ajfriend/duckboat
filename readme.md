@@ -1,5 +1,8 @@
 # Darkwing
 
+statelessly duckdb different kinds of tables with affordances to make it as ergonomic as possible with minimal boilerplate.
+
+
 ```shell
 pip install git+https://github.com/ajfriend/darkwing
 ```
@@ -32,6 +35,8 @@ You can use both `|` and `>>` to pipe SQL snippets and some other operations.
 Be careful When mixing `|` and `>>`, and note the operator precedence rules.
 Note you can always use parenthesis to specify evaluation order, or build up expressions in a fluent style like `a.sql(s1).sql(s2)`.
 
+these are equivalent to `.do()`, which can also take in a multiple arguments.
+
 For example:
 
 - `a | b` maps to `a.sql(b)` when `a` is a `Database` or `Table` and `b` is a query string
@@ -57,6 +62,12 @@ If you would like to materialze a `Table` or a `Database` concretely in terms of
 When you materialize a `Database` you can access the underlying tables with `db[table_name]`.
 
 ## Examples
+
+### Chaining
+
+`darkwing` uses DuckDB to build up Relation expressions through chaining, which DuckDB
+will then execute after running the entire expression through a query planner to optimize
+execution.
 
 ```python
 import darkwing as dw
@@ -106,3 +117,7 @@ Gives the output:
 │ 193 rows (20 shown)        2 columns │
 └──────────────────────────────────────┘
 ```
+
+### Pivot
+
+TODO

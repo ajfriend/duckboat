@@ -17,7 +17,7 @@ class Database:
             for k,v in tables.items()
         }
 
-    def sql(self, s):
+    def sql(self, s: str):
         s = _get_if_file(s)
         tables = {k: v.rel for k,v in self.tables.items()}
         rel = query(s, **tables)
@@ -26,7 +26,8 @@ class Database:
     def __getitem__(self, key):
         return self.tables[key].raw
 
-    def __myop__(self, other):
+    # TODO: let it take in multiple arguments
+    def do(self, other: 'Any'):
         if other in {'arrow', 'pandas'}:
             return self.hold(kind=other)
         if callable(other):
@@ -35,9 +36,9 @@ class Database:
             return self.sql(other)
 
     def __or__(self, other):
-        return self.__myop__(other)
+        return self.do(other)
     def __rshift__(self, other):
-        return self.__myop__(other)
+        return self.do(other)
 
     # TODO: how best to hide the majority of the surface-level code here so we can have people focus on the core mechanics?
     #   seems like good hygine. most of this stuff is functional, not object-oriented. make that separation clear
@@ -92,19 +93,25 @@ class Table(metaclass=RightShiftMeta):
     def __repr__(self):
         return repr(self.rel)
 
-    def sql(self, s):
-        s = s.strip()
+    def sql(self, s: str):
+        """
+        Run a SQL snippet via DuckDB, prepended with `from <table_name>`,
+        where `<table_name>` will be a unique and random name to avoid collisions.
+        """
+        name = '_tlb_' + ''.join(random.choices(string.ascii_lowercase, k=10))
+        rel = self.rel.query(name, f'from {name} ' + s)
+        return Table(rel)
 
-        if s.startswith('as '):
-            s = s[3:]
-            d = {s: self}
-            return Database(**d)
-        else:
-            name = '_tlb_' + ''.join(random.choices(string.ascii_lowercase, k=10))
-            rel = self.rel.query(name, f'from {name} ' + s)
-            return Table(rel)
+    # TODO: let it take in multipple arguments
+    # TODO: add a bunch of wacky binary arguments that the user can optionally use
+    def do(self, other: 'Any'):
+        if isinstance(other, str):
+            s = other.strip()
+            if s.startswith('as '):
+                s = s[3:]
+                d = {s: self}
+                return Database(**d)
 
-    def __myop__(self, other):
         if other in {'arrow', 'pandas'}:
             return self.hold(kind=other)
         if other in {int, str, bool}:
@@ -119,9 +126,9 @@ class Table(metaclass=RightShiftMeta):
         return self.sql(other)
 
     def __or__(self, other):
-        return self.__myop__(other)
+        return self.do(other)
     def __rshift__(self, other):
-        return self.__myop__(other)
+        return self.do(other)
 
     def df(self):
         return self.rel.df()
