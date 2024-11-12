@@ -10,4 +10,4 @@ def _create_con():
     return con
 
 
-_sfo_con = _create_con()
+_darkwing_con = _create_con()

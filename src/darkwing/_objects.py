@@ -1,8 +1,10 @@
 import random
 import string
 
-from . import query, _sfo_con
+from . import query, _darkwing_con
 from ._get_if_file import _get_if_file
+
+from duckdb import DuckDBPyRelation
 
 
 class Database:
@@ -16,15 +18,15 @@ class Database:
     def _do_cache(self):
         if not self._rel_cache:
             self._rel_cache = {
-                k: load(v)._rel  # TODO: code smell on this ._rel thing
+                k: Table(v).rel  # TODO: code smell on this ._rel thing
                 for k,v in self.tables.items()
             }
 
     def sql(self, s):
         s = _get_if_file(s)
         self._do_cache()
-        rel = query(s, **self._rel_cache)
-        return Relation(rel)
+        rel = query(s, **self._rel_cache) # TODO: is this a code smell?
+        return Table(rel)
 
     def __getitem__(self, key):
         return self.tables[key]
@@ -74,18 +76,26 @@ class Database:
         })
 
 
-# TODO: just rename to Table to distinguish from the DuckDB relation?
-class Table:
+class RightShiftMeta(type):
+    def __rrshift__(cls, other):
+        return cls(other)
+
+class Table(metaclass=RightShiftMeta):
     """
     The table/relation name is always included implicitly when applying a SQL snippet.
 
     TOOD: get rid of load and just use this constructor?
     """
-    def __init__(self, rel=None):
-        self._rel = rel
+    def __init__(self, other):
+        if isinstance(other, Table):
+            self.raw = other.raw
+            self.rel = other.rel
+        else:
+            self.raw = other
+            self.rel = _load(other)
 
     def __repr__(self):
-        return repr(self._rel)
+        return repr(self.rel)
 
     def sql(self, s):
         s = s.strip()
@@ -95,8 +105,8 @@ class Table:
             return Database(**d)
 
         name = '_tlb_' + ''.join(random.choices(string.ascii_lowercase, k=10))
-        return Relation(
-            rel = self._rel.query(name, f'from {name} ' + s)
+        return Table(
+            self.rel.query(name, f'from {name} ' + s)
         )
 
     def __myop__(self, other):
@@ -122,10 +132,10 @@ class Table:
         return self.__myop__(other)
 
     def df(self):
-        return self._rel.df()
+        return self.rel.df()
 
     def arrow(self):
-        return self._rel.arrow()
+        return self.rel.arrow()
 
     def aslist(self):
         """Transform a df with one row or one column to a list"""
@@ -154,15 +164,13 @@ class Table:
         return dict(df.iloc[0])
 
 
-def _load_string(s):    
-    rel = _sfo_con.sql(f'select * from "{s}"')
-    return Relation(rel)
+def _load_string(s) -> DuckDBPyRelation:
+    return _darkwing_con.sql(f'select * from "{s}"') # TODO: this should probably just be the safe query guy
 
-def _load_other(x):
-    rel = _sfo_con.sql('select * from x')
-    return Relation(rel)
+def _load_other(x) -> DuckDBPyRelation:
+    return _darkwing_con.sql('select * from x')  # TODO: this should probably just be the safe query guy
 
-def _load(x) -> Relation:
+def _load(x) -> DuckDBPyRelation:
     """
     inputs: string of filename, actual file, string of remote file, dataframe, dictionary, polars, pyarrow, filename of database
     """
@@ -172,18 +180,5 @@ def _load(x) -> Relation:
     #     df = df.arrow()
     if isinstance(x, str):
         return _load_string(x)
-    elif isinstance(x, Relation):
-        return x
     else:
         return _load_other(x)
-
-# TODO: do we need a separate `load`? or is this just a `Relation` constructor?
-class Load:
-    def __call__(self, x):
-        return _load(x)
-    
-    def __rrshift__(self, other):
-        return _load(other)
-
-load = Load()
-

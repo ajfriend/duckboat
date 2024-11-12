@@ -1,7 +1,7 @@
 import inspect as __inspect__
-from . import _sfo_con as __con__
+from . import _darkwing_con as __con__
 
-def __sfo_query__(__s__, **kwargs):
+def __darkwing_query__(__s__, **kwargs):
     """
     Runs a query on our DuckDB database and returns the DuckDB Relation.
 
