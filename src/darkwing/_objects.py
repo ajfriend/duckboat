@@ -64,7 +64,9 @@ class Database:
                 yield f'{name}: {n} x {columns}'
 
     def hold(self, kind='arrow'):
-        # TODO: allow for different materialization types
+        """
+        Materialize the Database as a collection of PyArrow Tables or Pandas DataFrames
+        """
         return Database(**{
             name: self >> f'from {name}' >> kind
             for name in self.tables
@@ -103,10 +105,8 @@ class Table(metaclass=RightShiftMeta):
             return Table(rel)
 
     def __myop__(self, other):
-        if other == 'arrow':
-            return self.arrow()
-        if other == 'pandas':
-            return self.df()
+        if other in {'arrow', 'pandas'}:
+            return self.hold(kind=other)
         if other in {int, str, bool}:
             return self.asitem()
         if other is list:
@@ -120,7 +120,6 @@ class Table(metaclass=RightShiftMeta):
 
     def __or__(self, other):
         return self.__myop__(other)
-
     def __rshift__(self, other):
         return self.__myop__(other)
 
@@ -155,6 +154,15 @@ class Table(metaclass=RightShiftMeta):
         # _insist_single_row(df)
         df = self.df()
         return dict(df.iloc[0])
+
+    def hold(self, kind='arrow'):
+        """
+        Materialize the Table as a PyArrow Table or Pandas DataFrame.
+        """
+        if kind == 'arrow':
+            return self.arrow()
+        if kind == 'pandas':
+            return self.df()
 
 
 def _load_string(s) -> DuckDBPyRelation:
