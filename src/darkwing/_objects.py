@@ -9,27 +9,22 @@ from duckdb import DuckDBPyRelation
 
 class Database:
     """
-    The table/relation names must be included **explicitly** when applying a SQL snippet.
+    Table names must be included **explicitly** when applying a SQL snippet.
     """
     def __init__(self, **tables):
-        self.tables = {**tables}
-        self._rel_cache = {}  # TODO: oooh! maybe move the relation caching to the relation object
-
-    def _do_cache(self):
-        if not self._rel_cache:
-            self._rel_cache = {
-                k: Table(v).rel  # TODO: code smell on this ._rel thing
-                for k,v in self.tables.items()
-            }
+        self.tables = {
+            k: Table(v)
+            for k,v in tables.items()
+        }
 
     def sql(self, s):
         s = _get_if_file(s)
-        self._do_cache()
-        rel = query(s, **self._rel_cache) # TODO: is this a code smell?
+        tables = {k: v.rel for k,v in self.tables.items()}
+        rel = query(s, **tables)
         return Table(rel)
 
     def __getitem__(self, key):
-        return self.tables[key]
+        return self.tables[key].raw
 
     def __myop__(self, other):
         if other in {'arrow', 'pandas'}:
@@ -61,8 +56,8 @@ class Database:
     
     def _yield_table_lines(self):
         for name, tbl in self.tables.items():
-            if isinstance(tbl, str):
-                yield f"{name}: '{tbl}'"
+            if isinstance(tbl.raw, str):
+                yield f"{name}: '{tbl.raw}'"
             else:
                 n = self >> f'select count() from {name}' >> int
                 columns = self >> f'select column_name from (describe from {name})' >> list
@@ -82,9 +77,7 @@ class RightShiftMeta(type):
 
 class Table(metaclass=RightShiftMeta):
     """
-    The table/relation name is always included implicitly when applying a SQL snippet.
-
-    TOOD: get rid of load and just use this constructor?
+    The table name is always included implicitly when applying a SQL snippet.
     """
     def __init__(self, other):
         if isinstance(other, Table):
