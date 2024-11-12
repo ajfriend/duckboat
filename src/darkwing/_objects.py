@@ -7,9 +7,7 @@ from ._get_if_file import _get_if_file
 
 class Database:
     """
-    TODO: can we make it so we can use .dot access to tables?
-    TODO: maybe a .materialize to get a copy to memory? have a databoose be nothing more than a fancy dictionary. convert to relations late. materialize does the conversion, and gives you a new databoose with dfs or arrow or pl
-    TODO: materialize also gives users a more concrete way to interact with the databoose. pin fix bind hold. i like hold
+    The table/relation names must be included **explicitly** when applying a SQL snippet.
     """
     def __init__(self, **tables):
         self.tables = {**tables}
@@ -41,7 +39,6 @@ class Database:
 
     def __or__(self, other):
         return self.__myop__(other)
-
     def __rshift__(self, other):
         return self.__myop__(other)
 
@@ -77,8 +74,11 @@ class Database:
         })
 
 
-class Relation:
+# TODO: just rename to Table to distinguish from the DuckDB relation?
+class Table:
     """
+    The table/relation name is always included implicitly when applying a SQL snippet.
+
     TOOD: get rid of load and just use this constructor?
     """
     def __init__(self, rel=None):
