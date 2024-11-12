@@ -54,4 +54,51 @@ When you materialize a `Database` you can access the underlying tables with `db[
 
 ## Examples
 
-TODO
+```python
+import darkwing as dw
+
+(dw.Table('https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2010-01.parquet')
+# dw.Table('yellow_tripdata_2010-01.parquet')  # alternatively, if you have the file saved locally
+| 'select *, pickup_latitude as lat, pickup_longitude as lng'       
+| 'select *, h3_latlng_to_cell(lat, lng, 8) as hexid'
+| 'select hexid, avg(tip_amount) as tip  group by 1'
+| 'select h3_h3_to_string(hexid) as hexid, tip'
+| 'where tip between 10 and 20'
+| 'order by hexid'
+)
+```
+
+Gives the output:
+
+```
+┌─────────────────┬────────────────────┐
+│      hexid      │        tip         │
+│     varchar     │       double       │
+├─────────────────┼────────────────────┤
+│ 881bb2a0b5fffff │              12.22 │
+│ 882a100299fffff │  10.02818181818182 │
+│ 882a10029dfffff │ 11.666666666666666 │
+│ 882a1002c3fffff │               10.0 │
+│ 882a10034bfffff │               16.0 │
+│ 882a100353fffff │               17.6 │
+│ 882a10045bfffff │               10.0 │
+│ 882a100487fffff │             11.525 │
+│ 882a10060dfffff │               16.1 │
+│ 882a100611fffff │               10.0 │
+│        ·        │                 ·  │
+│        ·        │                 ·  │
+│        ·        │                 ·  │
+│ 882a13c4d9fffff │               11.5 │
+│ 882a13d281fffff │               20.0 │
+│ 882a13d529fffff │               15.0 │
+│ 882a1438c3fffff │               10.0 │
+│ 882a15663bfffff │               10.0 │
+│ 882a1ab9c1fffff │              10.01 │
+│ 882a353927fffff │              11.05 │
+│ 882aa16327fffff │              12.51 │
+│ 882aaab9ebfffff │              10.01 │
+│ 882ad09327fffff │              12.51 │
+├─────────────────┴────────────────────┤
+│ 193 rows (20 shown)        2 columns │
+└──────────────────────────────────────┘
+```
