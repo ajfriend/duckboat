@@ -28,7 +28,7 @@ class Database:
 
     def __myop__(self, other):
         if other in {'arrow', 'pandas'}:
-            return self.hold(type=other)
+            return self.hold(kind=other)
         if callable(other):
             return other(self)
         else:
@@ -63,10 +63,10 @@ class Database:
                 columns = self >> f'select column_name from (describe from {name})' >> list
                 yield f'{name}: {n} x {columns}'
 
-    def hold(self, type='arrow'):
+    def hold(self, kind='arrow'):
         # TODO: allow for different materialization types
         return Database(**{
-            name: self >> f'from {name}' >> type
+            name: self >> f'from {name}' >> kind
             for name in self.tables
         })
 
@@ -92,15 +92,15 @@ class Table(metaclass=RightShiftMeta):
 
     def sql(self, s):
         s = s.strip()
+
         if s.startswith('as '):
             s = s[3:]
             d = {s: self}
             return Database(**d)
-
-        name = '_tlb_' + ''.join(random.choices(string.ascii_lowercase, k=10))
-        return Table(
-            self.rel.query(name, f'from {name} ' + s)
-        )
+        else:
+            name = '_tlb_' + ''.join(random.choices(string.ascii_lowercase, k=10))
+            rel = self.rel.query(name, f'from {name} ' + s)
+            return Table(rel)
 
     def __myop__(self, other):
         if other == 'arrow':
