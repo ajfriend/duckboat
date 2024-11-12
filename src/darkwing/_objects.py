@@ -26,14 +26,19 @@ class Database:
     def __getitem__(self, key):
         return self.tables[key].raw
 
-    # TODO: let it take in multiple arguments
-    def do(self, other: 'Any'):
+    def _do_one(self, other: 'Any'):
         if other in {'arrow', 'pandas'}:
             return self.hold(kind=other)
         if callable(other):
             return other(self)
         else:
             return self.sql(other)
+
+    def do(self, *others):
+        cur = self
+        for other in others:
+            cur = cur._do_one(other)
+        return cur
 
     def __or__(self, other):
         return self.do(other)
@@ -104,7 +109,7 @@ class Table(metaclass=RightShiftMeta):
 
     # TODO: let it take in multipple arguments
     # TODO: add a bunch of wacky binary arguments that the user can optionally use
-    def do(self, other: 'Any'):
+    def _do_one(self, other: 'Any'):
         if isinstance(other, str):
             s = other.strip()
             if s.startswith('as '):
@@ -124,6 +129,12 @@ class Table(metaclass=RightShiftMeta):
             return other(self)
         
         return self.sql(other)
+
+    def do(self, *others):
+        cur = self
+        for other in others:
+            cur = cur._do_one(other)
+        return cur
 
     def __or__(self, other):
         return self.do(other)

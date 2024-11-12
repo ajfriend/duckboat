@@ -118,6 +118,39 @@ Gives the output:
 └──────────────────────────────────────┘
 ```
 
+#### Alternatives
+
+You can also write the above as
+
+```python
+dw.Table('data/yellow_tripdata_2010-01.parquet').do(
+    'select *, pickup_latitude as lat, pickup_longitude as lng',
+    'select *, h3_latlng_to_cell(lat, lng, 8) as hexid',
+    'select hexid, avg(tip_amount) as tip  group by 1',
+    'select h3_h3_to_string(hexid) as hexid, tip',
+    'where tip between 10 and 20',
+    'order by hexid',
+)
+```
+
+or
+
+```python
+dw.Table('data/yellow_tripdata_2010-01.parquet').do(
+    'select *, pickup_latitude as lat, pickup_longitude as lng',
+).do(
+    'select *, h3_latlng_to_cell(lat, lng, 8) as hexid',
+).do(
+    'select hexid, avg(tip_amount) as tip  group by 1',
+).do(
+    'select h3_h3_to_string(hexid) as hexid, tip',
+).do(
+   'where tip between 10 and 20',
+).do(
+    'order by hexid',
+)
+```
+
 ### Pivot
 
 TODO
