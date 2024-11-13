@@ -78,7 +78,8 @@ class Database:
             for name in self.tables
         })
 
-
+# TODO: do this with a class decorator instead?
+# TODO: move in more shared functionality between the two classes? do/sql, etc.
 class RightShiftMeta(type):
     def __rrshift__(cls, other):
         return cls(other)
