@@ -108,7 +108,7 @@ class Table(metaclass=RightShiftMeta):
         return Table(rel)
 
     # TODO: let it take in multipple arguments
-    # TODO: add a bunch of wacky binary arguments that the user can optionally use
+    # TODO: add a bunch of wacky binary operators that the user can optionally use
     def _do_one(self, other: 'Any'):
         if isinstance(other, str):
             s = other.strip()
@@ -116,6 +116,9 @@ class Table(metaclass=RightShiftMeta):
                 s = s[3:]
                 d = {s: self}
                 return Database(**d)
+
+        if isinstance(other, list):
+            return self.do(*other)
 
         if other in {'arrow', 'pandas'}:
             return self.hold(kind=other)
@@ -130,6 +133,9 @@ class Table(metaclass=RightShiftMeta):
         
         return self.sql(other)
 
+    # TODO: do and do_one is just `eval`. clean it up!
+    # TODO: should `eval` just be a separate? we may hit a recursion limit... cool!
+    # TODO: we can maybe combine the `eval` for both table and database into a single function
     def do(self, *others):
         cur = self
         for other in others:

@@ -154,3 +154,58 @@ dw.Table('data/yellow_tripdata_2010-01.parquet').do(
 ### Pivot
 
 TODO
+
+### Storing procedures
+
+You might store a sequence of steps as a function like
+
+```python
+def foo(rel, res=6):
+    return (rel
+    | 'select pickup_latitude as lat, pickup_longitude as lng, tip_amount'       
+    | f'select h3_latlng_to_cell(lat, lng, {res}) as hexid, tip_amount as tip'
+    | 'select hexid, avg(tip) as tip group by 1'
+    | 'select h3_h3_to_string(hexid) as hexid, tip'
+    | 'where tip > 0'
+    )
+```
+
+which you could apply with any of the following syntax:
+
+- `table.do(foo)`
+- `table | foo` or `table >> foo`
+
+Alternatively, you could store this as a sequence of strings:
+
+```python
+foo_list = [
+    'select pickup_latitude as lat, pickup_longitude as lng, tip_amount'       
+    'select h3_latlng_to_cell(lat, lng, 6}) as hexid, tip_amount as tip'
+    'select hexid, avg(tip) as tip group by 1'
+    'select h3_h3_to_string(hexid) as hexid, tip'
+    'where tip > 0'
+]
+```
+
+which you could apply with something like
+
+```python
+table.do(*foo_list)
+```
+
+or
+
+```python
+table.do(foo_list)
+```
+
+or even
+
+```python
+table | foo_list
+```
+
+# Notes
+
+TODO: you can mix in functions with string lists!
+TODO: can we also allow for mixing in pandas/polars/ibis code? maybe a function wrapper? That would be crazy powerful!
