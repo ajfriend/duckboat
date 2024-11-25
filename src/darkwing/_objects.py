@@ -6,8 +6,30 @@ from ._get_if_file import _get_if_file
 
 from duckdb import DuckDBPyRelation
 
+class DatabaseHelper:
+    def __repr__(self):
+        tables = self._yield_table_lines()
+        tables = [
+            f'\n    {t}'
+            for t in tables
+        ]
+        tables = ''.join(tables)
+        tables = tables or ' None'
 
-class Database:
+        out = 'Database:' + tables
+
+        return out
+    
+    def _yield_table_lines(self):
+        for name, tbl in self.tables.items():
+            if isinstance(tbl.raw, str):
+                yield f"{name}: '{tbl.raw}'"
+            else:
+                n = self.do(f'select count() from {name}', int)
+                columns = self.do(f'select column_name from (describe from {name})', list)
+                yield f'{name}: {n} x {columns}'
+
+class Database(DatabaseHelper):
     """
     Table names must be included **explicitly** when applying a SQL snippet.
     """
@@ -40,30 +62,6 @@ class Database:
             cur = cur._do_one(other)
         return cur
 
-    # TODO: how best to hide the majority of the surface-level code here so we can have people focus on the core mechanics?
-    #   seems like good hygine. most of this stuff is functional, not object-oriented. make that separation clear
-    def __repr__(self):
-        tables = self._yield_table_lines()
-        tables = [
-            f'\n    {t}'
-            for t in tables
-        ]
-        tables = ''.join(tables)
-        tables = tables or ' None'
-
-        out = 'Database:' + tables
-
-        return out
-    
-    def _yield_table_lines(self):
-        for name, tbl in self.tables.items():
-            if isinstance(tbl.raw, str):
-                yield f"{name}: '{tbl.raw}'"
-            else:
-                n = self.do(f'select count() from {name}', int)
-                columns = self.do(f'select column_name from (describe from {name})', list)
-                yield f'{name}: {n} x {columns}'
-
     def hold(self, kind='arrow'):
         """
         Materialize the Database as a collection of PyArrow Tables or Pandas DataFrames
@@ -73,7 +71,50 @@ class Database:
             for name in self.tables
         })
 
-class Table:
+
+class TableTransforms:
+    def asitem(self):
+        """Transform a df with one row and one column to single element"""
+        # _insist_single_row(df)
+        # _insist_single_col(df)
+        return self.aslist()[0]
+
+    def asdict(self):
+        """Transform a df with one row to a dict
+        """
+        # _insist_single_row(df)
+        df = self.df()
+        return dict(df.iloc[0])
+
+    def hold(self, kind='arrow'):
+        """
+        Materialize the Table as a PyArrow Table or Pandas DataFrame.
+        """
+        if kind == 'arrow':
+            return self.arrow()
+        if kind == 'pandas':
+            return self.df()
+
+    def df(self):
+        return self.rel.df()
+
+    def arrow(self):
+        return self.rel.arrow()
+
+    def aslist(self):
+        """Transform a df with one row or one column to a list"""
+        df = self.df()
+        if len(df.columns) == 1:
+            col = df.columns[0]
+            out = list(df[col])
+        elif len(df) == 1:
+            out = list(df.loc[0])
+        else:
+            raise ValueError(f'DataFrame should have a single row or column, but has shape f{df.shape}')
+
+        return out
+
+class Table(TableTransforms):
     """
     The table name is always included implicitly when applying a SQL snippet.
     """
@@ -133,54 +174,6 @@ class Table:
         return Database(**{name: self})
 
 
-    def aslist(self):
-        """Transform a df with one row or one column to a list"""
-        df = self.df()
-        if len(df.columns) == 1:
-            col = df.columns[0]
-            out = list(df[col])
-        elif len(df) == 1:
-            out = list(df.loc[0])
-        else:
-            raise ValueError(f'DataFrame should have a single row or column, but has shape f{df.shape}')
-
-        return out
-
-    def asitem(self):
-        """Transform a df with one row and one column to single element"""
-        # _insist_single_row(df)
-        # _insist_single_col(df)
-        return self.aslist()[0]
-
-    def asdict(self):
-        """Transform a df with one row to a dict
-        """
-        # _insist_single_row(df)
-        df = self.df()
-        return dict(df.iloc[0])
-
-    def hold(self, kind='arrow'):
-        """
-        Materialize the Table as a PyArrow Table or Pandas DataFrame.
-        """
-        if kind == 'arrow':
-            return self.arrow()
-        if kind == 'pandas':
-            return self.df()
-
-    def df(self):
-        return self.rel.df()
-
-    def arrow(self):
-        return self.rel.arrow()
-
-
-def _load_string(s) -> DuckDBPyRelation:
-    return query(f'select * from "{s}"')
-
-def _load_other(x) -> DuckDBPyRelation:
-    return query('select * from x', x=x)
-
 def _load(x) -> DuckDBPyRelation:
     """
     inputs: string of filename, actual file, string of remote file, dataframe, dictionary, polars, pyarrow, filename of database
@@ -190,6 +183,6 @@ def _load(x) -> DuckDBPyRelation:
     # if isinstance(df, Relation):
     #     df = df.arrow()
     if isinstance(x, str):
-        return _load_string(x)
+        return query(f'select * from "{x}"')
     else:
-        return _load_other(x)
+        return query('select * from x', x=x)
