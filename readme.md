@@ -209,3 +209,9 @@ table | foo_list
 
 TODO: you can mix in functions with string lists!
 TODO: can we also allow for mixing in pandas/polars/ibis code? maybe a function wrapper? That would be crazy powerful!
+
+
+# Notes
+
+TOOD: drop the binary operator stuff, and just use the functional API
+`as` to `alias`

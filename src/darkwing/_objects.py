@@ -123,7 +123,7 @@ class Table(metaclass=RightShiftMeta):
 
         if other in {'arrow', 'pandas'}:
             return self.hold(kind=other)
-        if other in {int, str, bool}:
+        if other in {int, str, bool, float}:
             return self.asitem()
         if other is list:
             return self.aslist()
@@ -147,12 +147,6 @@ class Table(metaclass=RightShiftMeta):
         return self.do(other)
     def __rshift__(self, other):
         return self.do(other)
-
-    def df(self):
-        return self.rel.df()
-
-    def arrow(self):
-        return self.rel.arrow()
 
     def aslist(self):
         """Transform a df with one row or one column to a list"""
@@ -188,6 +182,12 @@ class Table(metaclass=RightShiftMeta):
             return self.arrow()
         if kind == 'pandas':
             return self.df()
+
+    def df(self):
+        return self.rel.df()
+
+    def arrow(self):
+        return self.rel.arrow()
 
 
 def _load_string(s) -> DuckDBPyRelation:
