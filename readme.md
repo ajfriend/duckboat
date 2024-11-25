@@ -29,35 +29,11 @@ The library revolves around two objects and a function: `Database`, `Table`.
 - `Table` is a wrapper around a DuckDB Relation.
 
 
-## Piping
-
-You can use both `|` and `>>` to pipe SQL snippets and some other operations.
-Be careful When mixing `|` and `>>`, and note the operator precedence rules.
-Note you can always use parenthesis to specify evaluation order, or build up expressions in a fluent style like `a.sql(s1).sql(s2)`.
-
-these are equivalent to `.do()`, which can also take in a multiple arguments.
-
-For example:
-
-- `a | b` maps to `a.sql(b)` when `a` is a `Database` or `Table` and `b` is a query string
-- `a >> f` resolves to `f(a)` if `f` is a callable
-
-In the "use whichever form is most horrifying to your peers" syntax category, we have:
-- `'filename.parquet' >> dw.Table` is the same as `dw.Table('filename.parquet')`. 
-- `a >> 'as table_name'` resolves to a `Database(table_name = a)`
-- `a >> list`
-- `a >> dict`
-- `a >> int`
-- `a >> float`
-- `a >> str`
-- `a >> bool`
-- `a >> pd.DataFrame`
-
 ## Laziness
 
 Since all operations are done through `DuckDBPyRelation`, the expressions are evaluated lazily, or only at the end when we want a table or want to display results to the console.
 
-If you would like to materialze a `Table` or a `Database` concretely in terms of Pandas DataFrames or PyArrow Tables, you can use `x.hold(kind='arrow')` or ` x >> 'arrow'`.
+If you would like to materialze a `Table` or a `Database` concretely in terms of Pandas DataFrames or PyArrow Tables, you can use `x.hold(kind='arrow')` or ` x.do('arrow')`.
 
 When you materialize a `Database` you can access the underlying tables with `db[table_name]`.
 
@@ -72,14 +48,14 @@ execution.
 ```python
 import darkwing as dw
 
-(dw.Table('https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2010-01.parquet')
-# dw.Table('yellow_tripdata_2010-01.parquet')  # alternatively, if you have the file saved locally
-| 'select *, pickup_latitude as lat, pickup_longitude as lng'       
-| 'select *, h3_latlng_to_cell(lat, lng, 8) as hexid'
-| 'select hexid, avg(tip_amount) as tip  group by 1'
-| 'select h3_h3_to_string(hexid) as hexid, tip'
-| 'where tip between 10 and 20'
-| 'order by hexid'
+# dw.Table('https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2010-01.parquet')
+dw.Table('yellow_tripdata_2010-01.parquet').do(
+    'select *, pickup_latitude as lat, pickup_longitude as lng',
+    'select *, h3_latlng_to_cell(lat, lng, 8) as hexid',
+    'select hexid, avg(tip_amount) as tip  group by 1',
+    'select h3_h3_to_string(hexid) as hexid, tip',
+    'where tip between 10 and 20',
+    'order by hexid',
 )
 ```
 
@@ -215,3 +191,32 @@ TODO: can we also allow for mixing in pandas/polars/ibis code? maybe a function 
 
 TOOD: drop the binary operator stuff, and just use the functional API
 `as` to `alias`
+
+(Think this is mostly done now.)
+
+
+# Old
+
+## Piping
+
+You can use both `|` and `>>` to pipe SQL snippets and some other operations.
+Be careful When mixing `|` and `>>`, and note the operator precedence rules.
+Note you can always use parenthesis to specify evaluation order, or build up expressions in a fluent style like `a.sql(s1).sql(s2)`.
+
+these are equivalent to `.do()`, which can also take in a multiple arguments.
+
+For example:
+
+- `a | b` maps to `a.sql(b)` when `a` is a `Database` or `Table` and `b` is a query string
+- `a >> f` resolves to `f(a)` if `f` is a callable
+
+In the "use whichever form is most horrifying to your peers" syntax category, we have:
+- `'filename.parquet' >> dw.Table` is the same as `dw.Table('filename.parquet')`. 
+- `a >> 'as table_name'` resolves to a `Database(table_name = a)`
+- `a >> list`
+- `a >> dict`
+- `a >> int`
+- `a >> float`
+- `a >> str`
+- `a >> bool`
+- `a >> pd.DataFrame`

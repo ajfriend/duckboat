@@ -40,11 +40,6 @@ class Database:
             cur = cur._do_one(other)
         return cur
 
-    def __or__(self, other):
-        return self.do(other)
-    def __rshift__(self, other):
-        return self.do(other)
-
     # TODO: how best to hide the majority of the surface-level code here so we can have people focus on the core mechanics?
     #   seems like good hygine. most of this stuff is functional, not object-oriented. make that separation clear
     def __repr__(self):
@@ -65,8 +60,8 @@ class Database:
             if isinstance(tbl.raw, str):
                 yield f"{name}: '{tbl.raw}'"
             else:
-                n = self >> f'select count() from {name}' >> int
-                columns = self >> f'select column_name from (describe from {name})' >> list
+                n = self.do(f'select count() from {name}', int)
+                columns = self.do(f'select column_name from (describe from {name})', list)
                 yield f'{name}: {n} x {columns}'
 
     def hold(self, kind='arrow'):
@@ -74,17 +69,11 @@ class Database:
         Materialize the Database as a collection of PyArrow Tables or Pandas DataFrames
         """
         return Database(**{
-            name: self >> f'from {name}' >> kind
+            name: self.do(f'from {name}', kind)
             for name in self.tables
         })
 
-# TODO: do this with a class decorator instead?
-# TODO: move in more shared functionality between the two classes? do/sql, etc.
-class RightShiftMeta(type):
-    def __rrshift__(cls, other):
-        return cls(other)
-
-class Table(metaclass=RightShiftMeta):
+class Table:
     """
     The table name is always included implicitly when applying a SQL snippet.
     """
@@ -108,15 +97,12 @@ class Table(metaclass=RightShiftMeta):
         rel = self.rel.query(name, f'from {name} ' + s)
         return Table(rel)
 
-    # TODO: let it take in multipple arguments
-    # TODO: add a bunch of wacky binary operators that the user can optionally use
     def _do_one(self, other: 'Any'):
         if isinstance(other, str):
             s = other.strip()
             if s.startswith('as '):
-                s = s[3:]
-                d = {s: self}
-                return Database(**d)
+                name = s[3:].strip()
+                return self.alias(name)
 
         if isinstance(other, list):
             return self.do(*other)
@@ -143,10 +129,9 @@ class Table(metaclass=RightShiftMeta):
             cur = cur._do_one(other)
         return cur
 
-    def __or__(self, other):
-        return self.do(other)
-    def __rshift__(self, other):
-        return self.do(other)
+    def alias(self, name):
+        return Database(**{name: self})
+
 
     def aslist(self):
         """Transform a df with one row or one column to a list"""
