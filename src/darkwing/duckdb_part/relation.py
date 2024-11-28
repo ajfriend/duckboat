@@ -1,3 +1,6 @@
+from ._query import __darkwing_query__ as query
+from duckdb import DuckDBPyRelation
+
 def form_relation(x) -> DuckDBPyRelation:
     """
     inputs: string of filename, actual file, string of remote file, dataframe, dictionary, polars, pyarrow, filename of database

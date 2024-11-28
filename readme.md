@@ -27,6 +27,25 @@ or
 pip install git+https://github.com/ajfriend/darkwing
 ```
 
+## Loading, saving, and transferring tables
+
+```python
+import darkwing as dw
+
+# read from a remote CSV file
+tbl = dw.Table('https://raw.githubusercontent.com/mcnakhaee/palmerpenguins/refs/heads/master/palmerpenguins/data/penguins.csv')
+tbl = dw.Table('data/penguins.csv')  # read from a local CSV file
+
+df = tbl.df()  # write to Pandas DataFrame
+dw.Table(df)  # read from Pandas DataFrame
+
+df.to_parquet('data/penguins.parquet')  # use Pandas to write to a Parquet file
+tbl = dw.Table('data/penguins.parquet')  # read from a local Parquet file
+
+tbl_arrow = tbl.arrow()  # write to an  Arrow Table
+tbl = dw.Table(tbl_arrow)  # read from an Arrow Table
+```
+
 
 ## Databases and Tables
 

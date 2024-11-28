@@ -5,6 +5,7 @@ from . import query
 from ._get_if_file import _get_if_file
 
 from duckdb import DuckDBPyRelation
+from .duckdb_part import form_relation
 
 class DatabaseHelper:
     def __repr__(self):
@@ -124,7 +125,7 @@ class Table(TableTransforms):
             self.rel = other.rel
         else:
             self.raw = other
-            self.rel = _load(other)
+            self.rel = form_relation(other)
 
     def __repr__(self):
         return repr(self.rel)
