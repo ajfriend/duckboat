@@ -1,43 +1,32 @@
 # Darkwing
 
-Darkwing is a work-in-progress "dataframe library" (I use quotes because it's really just
-a light wrapper around the
-[DuckDB relational API](https://duckdb.org/docs/api/python/relational_api)
-) that
+Darkwing is a work-in-progress "dataframe library" that
 I use in personal interactive data analysis projects.
+(I use quotes because it's really just a light wrapper around the
+[DuckDB relational API](https://duckdb.org/docs/api/python/relational_api).)
 
 You can concatenate SQL snippets (often omitting `select *` and `from ...`) to incrementally build up complex queries.
-Expressions are evaluated lazily and optimized by DuckDB, so queries are fast, without the need for intermediate tables or
-data transfers.
+Expressions are evaluated lazily and optimized by DuckDB, so queries are fast, without the need for intermediate tables or data transfers.
+
+This approach results in a mixture of Python and SQL that, I think, is semantically very similar to
+[Google's Pipe Syntax for SQL](https://research.google/pubs/sql-has-problems-we-can-fix-them-pipe-syntax-in-sql/):
+We can leverage our existing knowledge of SQL, while making a few small changes to make it more ergonomic and composable.
 
 When doing interactive data analysis, I find this approach easier to read and write than
-fluent APIs (like in Polars or Ibis) or typical Pandas code.
-If some operation is easier in other libraries Darking makes it straightforward translate between them, either directly or through
-Apache Arrow.
+fluent APIs (like in [Polars](https://pola.rs/) or [Ibis](https://ibis-project.org/)) or typical [Pandas](https://pandas.pydata.org/) code.
+If some operation is easier in other libraries, Darking makes it straightforward translate between them, either directly or through Apache Arrow.
 
 I'd love to hear any feedback on the approach here, so feel free to reach out through
 [Issues](https://github.com/ajfriend/darkwing/issues)
 or
 [Discussions](https://github.com/ajfriend/darkwing/discussions).
 
+## Installing
 
 ```shell
 pip install git+https://github.com/ajfriend/darkwing
 ```
 
-Darkwing is an experimental data-wrangling library built on DuckDB, enabling lazy pipelining of SQL snippets into larger analytical transformations.
-
-I write a lot of SQL and Python to do data analysis. I find SQL easy to write, but it can be verbose and hard to compose.
-Python dataframe libraries are natural because I'm usually already working in Python, but I often need to look up specific synatax
-and the resulting code can be awkward.
-I liked the composability of
-[PRQL](https://prql-lang.org/) and
-[Google's Pipe Syntax for SQL](https://research.google/pubs/sql-has-problems-we-can-fix-them-pipe-syntax-in-sql/),
-and especially that the latter reused the SQL syntax I was already fluent in.
-DuckDB is an incredibly powerful tool with [its own SQL improvements](https://duckdb.org/2022/05/04/friendlier-sql.html) that I was already using,
-but with some undesireable boilerplate when you're
-focused on analytical transformations of data frames.
-However, a few tweaks can bring the best of all of these together, which is why `darkwing` is not much more than a small, lightweight wrapper around DuckDB that, for me, makes interactive data analysis a little more ergonomic.
 
 ## Databases and Tables
 
@@ -238,3 +227,13 @@ In the "use whichever form is most horrifying to your peers" syntax category, we
 - `a >> str`
 - `a >> bool`
 - `a >> pd.DataFrame`
+
+## References
+
+- [PRQL](https://prql-lang.org/)
+- [DuckDB's SQL improvements](https://duckdb.org/2022/05/04/friendlier-sql.html)
+
+
+## What's different from DuckDB's relational api
+
+- avoid connection objects
