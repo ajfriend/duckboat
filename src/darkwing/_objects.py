@@ -7,7 +7,7 @@ from ._get_if_file import _get_if_file
 from duckdb import DuckDBPyRelation
 from .duckdb_part import form_relation
 
-class DatabaseHelper:
+class DatabaseMixin:
     def __repr__(self):
         tables = self._yield_table_lines()
         tables = [
@@ -29,7 +29,7 @@ class DatabaseHelper:
                 n = self.do(f'select count() from {name}', int)
                 yield f'{name}: {n} x {tbl.columns}'
 
-class Database(DatabaseHelper):
+class Database(DatabaseMixin):
     """
     Table names must be included **explicitly** when applying a SQL snippet.
     """
@@ -72,7 +72,7 @@ class Database(DatabaseHelper):
         })
 
 
-class TableTransforms:
+class TableMixin:
     def asitem(self):
         """Transform a df with one row and one column to single element"""
         # _insist_single_row(df)
@@ -114,7 +114,7 @@ class TableTransforms:
 
         return out
 
-class Table(TableTransforms):
+class Table(TableMixin):
     """
     The table name is always included implicitly when applying a SQL snippet.
     """
