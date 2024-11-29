@@ -27,8 +27,7 @@ class DatabaseHelper:
                 yield f"{name}: '{tbl.raw}'"
             else:
                 n = self.do(f'select count() from {name}', int)
-                columns = self.do(f'select column_name from (describe from {name})', list)
-                yield f'{name}: {n} x {columns}'
+                yield f'{name}: {n} x {tbl.columns}'
 
 class Database(DatabaseHelper):
     """
@@ -173,4 +172,12 @@ class Table(TableTransforms):
 
     def alias(self, name):
         return Database(**{name: self})
+
+    @property
+    def columns(self):
+        # NOTE: is this an example where direct access to the relation is helpful?
+        rel = self.rel.query('_x_', 'select column_name from (describe from _x_)')
+        df = rel.df()
+        return list(df['column_name'])
+
 
