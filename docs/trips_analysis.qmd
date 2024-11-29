@@ -1,0 +1,194 @@
+---
+title: Transforming data interactively
+jupyter: python3
+---
+
+# TODO
+
+- playing around with data, we realize we probably want to filter out any trips with negative amounts
+- end-to-end, this analysis would look like....
+
+
+```{python}
+import darkwing as dw
+```
+
+```{python}
+t1 = dw.Table('data/yellow_tripdata_2010-01.parquet')
+t1
+```
+
+```{python}
+t1.columns
+```
+
+
+
+```{python}
+# You can use standard duckdb SQL expressions. The `from <table_name>` is automatically inserted for you, so it should be omitted.
+# `select ...` is optional. If omitted, `select *` will be inserted.
+
+# convert pickup lat/lngs to H3 cells (at resolution 8)
+# resolution 8 cells are about 0.7 km^2 in size
+x = t1.do('select *, h3_latlng_to_cell(pickup_latitude, pickup_longitude, 8) as hexid')
+x
+```
+
+```{python}
+# compute the average of `total_amount` for each H3 cell, along with the number of trips
+x = x.do('select hexid, avg(total_amount) as amount, count(*) as num group by 1')
+x
+```
+
+```{python}
+# Convert the H3 cell id to its hexadecimal representation
+x = x.do('select h3_h3_to_string(hexid) as hexid, amount, num')
+x
+```
+
+```{python}
+# `Table.do()` also selects a sequence of strings, so you could write all of the previous steps like this
+
+t1.do(
+    'select *, h3_latlng_to_cell(pickup_latitude, pickup_longitude, 8) as hexid',
+    'select hexid, avg(total_amount) as amount, count(*) as num group by 1',
+    'select h3_h3_to_string(hexid) as hexid, amount, num',
+)
+```
+
+# Grouping transforms in functions
+
+```{python}
+# This seems like a generally useful transformation, so let's store it as a list of strings
+avg_list = [
+    'select *, h3_latlng_to_cell(pickup_latitude, pickup_longitude, 8) as hexid',
+    'select hexid, avg(total_amount) as amount, count(*) as num group by 1',
+    'select h3_h3_to_string(hexid) as hexid, amount, num',
+]
+
+t1.do(*avg_list)
+t1.do(avg_list)
+```
+
+```{python}
+# Making things a little more formal, we could also store the operation as a function
+
+def avg_func(tbl):
+    """
+    tbl: should have columns ...
+    returns columns ...
+    """
+    # TODO: can it also take in a df? prolly!
+    return tbl.do(avg_list)
+```
+
+```{python}
+# the following are equivalent
+avg_func(t1)
+t1.do(avg_func)
+t1.do([avg_func])
+```
+
+```{python}
+# We can build up complex nested expressions by combining functions, strings, and lists.
+
+# The following are equivalent:
+
+t1.do(avg_func, 'where num > 100')
+t1.do(avg_list, 'where num > 100')
+t1.do([avg_func, 'where num > 100'])
+```
+
+# Joins
+
+We want to compute average fares for hexes and compare them across January and February. We compute the averages like above, but also want to exlude hexes with only a few trips. So we extend the data pipeline to filter out such hexes, and apply the same operation to the datasets for each month.
+
+```{python}
+t1 = dw.Table('data/yellow_tripdata_2010-01.parquet')
+t2 = dw.Table('data/yellow_tripdata_2010-02.parquet')
+
+f = [
+    'where total_amount > 0',
+    avg_list,
+    'where num > 100',
+]
+
+t1 = t1.do(f)
+t2 = t2.do(f)
+
+t2
+```
+
+To perform a join, you need two tables in on place. In Darkwing, such a place is a Database.
+
+```{python}
+db = dw.Database(t1=t1, t2=t2)
+```
+
+```{python}
+db['t1']
+```
+
+```{python}
+# but note that because evaluation is lazy, it will recompute each time.
+# If you want to avoid that, you can materialize the computation and create a new database. Note there is no need to do this if you don't mind recomputing.
+```
+
+```{python}
+db = db.hold()
+```
+
+```{python}
+db
+```
+
+```{python}
+# NOTE: maybe confusing to users who now see a new view of their table...
+# I wonder if caching the relation, or making it a property is the way to go...
+# TODO: how to unify the representation between Table and a table in a Database? And reveal the underlying representation (string, df, arrow, etc.)
+db.do('from t1')
+```
+
+```{python}
+# You can execute duckdb sql on a database, but now you should explicitly mention the table you want to work with (but that's usually what you want anyway, when doing a join.)
+```
+
+```{python}
+out = db.do("""
+select
+      hexid
+    , t1.amount
+        as fare_jan
+    , t2.amount
+        as fare_feb
+from
+    t1
+inner join
+    t2
+using
+    (hexid)
+""").do("""
+select
+      *
+    , fare_feb - fare_jan
+        as fare_change
+order by
+    fare_change
+""")
+out
+```
+
+```{python}
+import matplotlib.pyplot as plt
+
+df = out.df()
+
+fig, ax = plt.subplots()
+ax.plot([0,70], [0,70], color='k', linestyle='--')
+df.plot.scatter(x='fare_jan', y='fare_feb', alpha=.6, ax=ax)
+plt.grid()
+```
+
+# End-to-end example
+
+
