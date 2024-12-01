@@ -32,3 +32,6 @@ lab:
 
 render:
 	source env/bin/activate; quarto render docs/
+
+publish:
+	source env/bin/activate; cd docs; quarto publish gh-pages

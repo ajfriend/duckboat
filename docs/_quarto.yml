@@ -4,6 +4,8 @@ project:
 
 website:
   title: "darkwing"
+  repo-url: https://ajfriend.github.io/darkwing/
+  repo-actions: [edit, issue]
   navbar:
     left:
       - href: index.qmd

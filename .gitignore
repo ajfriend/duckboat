@@ -4,3 +4,4 @@ output/
 *_files/
 *.html
 .DS_Store
+*.pyc
