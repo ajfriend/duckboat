@@ -1,103 +1,204 @@
 ---
-title: Transforming data interactively
+title: NYC Trips Example Analysis
 jupyter: python3
+format:
+  html:
+    toc: true
 ---
 
+We'll use the NYC Taxi data set to demonstrate analyzing data interactively with Darkwing.
+We'll compare Taxi trip fares by pickup location between January and February 2010.
+
+We discretize locations into hexagonal bins with H3.
+One of the benefits of using DuckDB directly, is that we can use anything
+from the DuckDB ecosystem, like its [H3 extension](https://github.com/isaacbrodsky/h3-duckdb).
+
+<!--
 # TODO
 
 - playing around with data, we realize we probably want to filter out any trips with negative amounts
 - end-to-end, this analysis would look like....
+-->
 
+# Loading data
+
+First, load a table from a local Parquet file and preview its contents.
 
 ```{python}
 import darkwing as dw
+t1 = dw.Table('data/yellow_tripdata_2010-01.parquet')
+t2 = dw.Table('data/yellow_tripdata_2010-02.parquet')
+t1.do('limit 7')
 ```
 
-```{python}
-t1 = dw.Table('data/yellow_tripdata_2010-01.parquet')
-t1
-```
+We can get a list of columns with `t1.columns`.
 
 ```{python}
 t1.columns
 ```
 
+# Inspecting and transforming data interactively
 
+You can run one or more SQL expressions with the `Table.do()` method.
+
+Expressions are in standard DuckDB SQL, with some small changes:
+
+- `from <table_name>` is automatically inserted into the expression for you.
+- `select ...` is optional; if omitted, `select *` will be inserted.
+
+We'll see a few examples of what we can do below.
+
+Convert pickup latitude/longitude locations to resolution 8 H3 cells.
+Resolution 8 cells are about 0.7 km^2 in size
 
 ```{python}
-# You can use standard duckdb SQL expressions. The `from <table_name>` is automatically inserted for you, so it should be omitted.
-# `select ...` is optional. If omitted, `select *` will be inserted.
-
-# convert pickup lat/lngs to H3 cells (at resolution 8)
-# resolution 8 cells are about 0.7 km^2 in size
-x = t1.do('select *, h3_latlng_to_cell(pickup_latitude, pickup_longitude, 8) as hexid')
-x
+x = t1.do("""
+select
+    *,
+    h3_latlng_to_cell(pickup_latitude, pickup_longitude, 8)
+        as hexid,
+""")
+x.do('limit 2')
 ```
 
+Compute the average of `total_amount` for each H3 cell, along with the number of trips
+
 ```{python}
-# compute the average of `total_amount` for each H3 cell, along with the number of trips
-x = x.do('select hexid, avg(total_amount) as amount, count(*) as num group by 1')
-x
+x = x.do("""
+select
+    hexid,
+    avg(total_amount) 
+        as amount,
+    count(*)
+        as num,
+group by
+    1
+""")
+x.do('limit 2')
 ```
 
 ```{python}
 # Convert the H3 cell id to its hexadecimal representation
-x = x.do('select h3_h3_to_string(hexid) as hexid, amount, num')
-x
+x = x.do("""
+select
+    h3_h3_to_string(hexid)
+        as hexid,
+    amount,
+    num,
+""")
+x.do('limit 2')
 ```
 
-```{python}
-# `Table.do()` also selects a sequence of strings, so you could write all of the previous steps like this
 
+# Grouping transforms with lists and functions
+
+Note that `Table.do()` also accepts a sequence of strings,
+so you could write all of the previous steps with a single function call.
+
+```{python}
 t1.do(
     'select *, h3_latlng_to_cell(pickup_latitude, pickup_longitude, 8) as hexid',
     'select hexid, avg(total_amount) as amount, count(*) as num group by 1',
     'select h3_h3_to_string(hexid) as hexid, amount, num',
+    'limit 5'
 )
 ```
 
-# Grouping transforms in functions
+To help organize things, we can collect a sequence of steps as a list of strings.
 
 ```{python}
-# This seems like a generally useful transformation, so let's store it as a list of strings
 avg_list = [
     'select *, h3_latlng_to_cell(pickup_latitude, pickup_longitude, 8) as hexid',
     'select hexid, avg(total_amount) as amount, count(*) as num group by 1',
     'select h3_h3_to_string(hexid) as hexid, amount, num',
 ]
-
-t1.do(*avg_list)
-t1.do(avg_list)
 ```
 
-```{python}
-# Making things a little more formal, we could also store the operation as a function
+We can apply the sequence of steps in `avg_list` to table `t1` in multiple ways.
+If `Table.do()` encounters a list, it will apply each element of the list in sequence recursively, which means each of the following are equivalent:
 
+```{python}
+#| output: false
+t1.do(*avg_list)
+t1.do(avg_list)
+t1.do([avg_list])
+t1.do([[avg_list]])
+```
+
+We can also wrap operations in a Python function, which `Table.do()` can also handle.
+
+```{python}
 def avg_func(tbl):
     """
-    tbl: should have columns ...
-    returns columns ...
+    tbl: [pickup_latitude, pickup_longitude, total_amount]
+    returns: [hexid, amount, num]
     """
-    # TODO: can it also take in a df? prolly!
     return tbl.do(avg_list)
 ```
 
+The following are equivalent:
+
 ```{python}
-# the following are equivalent
+#| output: false
 avg_func(t1)
 t1.do(avg_func)
 t1.do([avg_func])
 ```
 
+We can build up complex nested expressions by combining functions, query strings, and lists, so the following are equivalent:
+
 ```{python}
-# We can build up complex nested expressions by combining functions, strings, and lists.
-
-# The following are equivalent:
-
+#| output: false
 t1.do(avg_func, 'where num > 100')
 t1.do(avg_list, 'where num > 100')
 t1.do([avg_func, 'where num > 100'])
+t1.do([avg_list, 'where num > 100'])
 ```
+
+# Exploration and filtering
+
+Exploring the data, we notice there are many trips in February that have zero or negative fare.
+We'll want to filter those out.
+
+```{python}
+t2.do("""
+select
+    total_amount > 0,
+    count(*),
+group by
+    1
+""")
+```
+
+We also spot many trips where the lat/lng is erroneously listed as `(0,0)`:
+
+```{python}
+t1.do("""
+select
+    (pickup_longitude = 0) or (pickup_latitude = 0),
+    count(*),
+group by
+    1
+""")
+```
+
+After aggregating, we also notice there are lots of hexes with only a few trips.
+Let's say we'll only look at hexes with at least 100 trips.
+
+```{python}
+t1.do(
+    avg_func,
+    """
+    select
+        cast(log10(num)+1 as int)
+            as num_digits,
+        count(*),
+    group by 1
+    order by 1
+    """
+)
+```
+
 
 # Joins
 

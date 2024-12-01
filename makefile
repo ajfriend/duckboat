@@ -29,3 +29,6 @@ test:
 lab:
 	env/bin/pip install jupyterlab
 	env/bin/jupyter lab
+
+render:
+	source env/bin/activate; quarto render docs/
