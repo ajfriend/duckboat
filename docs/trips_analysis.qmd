@@ -293,3 +293,37 @@ plt.grid()
 # End-to-end example
 
 
+```{python}
+pre_filter = [
+    'where (pickup_longitude != 0) and (pickup_latitude != 0)',
+    'where total_amount > 0',
+]
+
+hexavg = [
+    'select *, h3_latlng_to_cell(pickup_latitude, pickup_longitude, 8) as hexid',
+    'select hexid, avg(total_amount) as amount, count(*) as num group by 1',
+    'select h3_h3_to_string(hexid) as hexid, amount, num',
+]
+
+post_filter = ['where num > 100']
+
+f = [pre_filter, hexavg, post_filter]
+
+db = dw.Database(
+    t1 = dw.Table('data/yellow_tripdata_2010-01.parquet').do(f),
+    t2 = dw.Table('data/yellow_tripdata_2010-02.parquet').do(f),
+)
+
+db.do("""
+    select
+        hexid,
+        t1.amount  as  fare_jan,
+        t2.amount  as  fare_feb,
+    from        t1
+    inner join  t2
+    using       (hexid)
+""",
+    'select *, fare_feb - fare_jan as fare_change',
+    'order by fare_change',
+)
+```
