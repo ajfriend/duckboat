@@ -4,7 +4,9 @@ project:
 
 website:
   title: "darkwing"
-  repo-url: https://ajfriend.github.io/darkwing/
+  site-url: https://ajfriend.github.io/darkwing/
+  repo-url: https://github.com/ajfriend/darkwing
+  repo-subdir: docs/
   repo-actions: [edit, issue]
   navbar:
     left:
