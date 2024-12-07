@@ -5,7 +5,7 @@ from . import query
 from ._get_if_file import _get_if_file
 
 from duckdb import DuckDBPyRelation
-from .duckdb_part import form_relation
+from .ddb import form_relation
 
 class DatabaseMixin:
     def __repr__(self):
@@ -181,3 +181,5 @@ class Table(TableMixin):
         return list(df['column_name'])
 
 
+def do(start, *steps):
+    pass

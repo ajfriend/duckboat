@@ -49,7 +49,7 @@ Expressions are in standard DuckDB SQL, with some small changes:
 We'll see a few examples of what we can do below.
 
 Convert pickup latitude/longitude locations to resolution 8 H3 cells.
-Resolution 8 cells are about 0.7 km^2 in size
+Resolution 8 cells are about 0.7 km^2 in size.
 
 ```{python}
 x = t1.do("""
@@ -61,7 +61,7 @@ select
 x.do('limit 2')
 ```
 
-Compute the average of `total_amount` for each H3 cell, along with the number of trips
+Compute the average of `total_amount` for each H3 cell, along with the number of trips:
 
 ```{python}
 x = x.do("""
@@ -77,8 +77,9 @@ group by
 x.do('limit 2')
 ```
 
+Convert the H3 cell id to its hexadecimal representation:
+
 ```{python}
-# Convert the H3 cell id to its hexadecimal representation
 x = x.do("""
 select
     h3_h3_to_string(hexid)
@@ -209,6 +210,7 @@ t1 = dw.Table('data/yellow_tripdata_2010-01.parquet')
 t2 = dw.Table('data/yellow_tripdata_2010-02.parquet')
 
 f = [
+    'where (pickup_longitude != 0) and (pickup_latitude != 0)',
     'where total_amount > 0',
     avg_list,
     'where num > 100',
@@ -294,24 +296,24 @@ plt.grid()
 
 
 ```{python}
-pre_filter = [
-    'where (pickup_longitude != 0) and (pickup_latitude != 0)',
-    'where total_amount > 0',
-]
+import darkwing as dw
 
-hexavg = [
+core = [
     'select *, h3_latlng_to_cell(pickup_latitude, pickup_longitude, 8) as hexid',
     'select hexid, avg(total_amount) as amount, count(*) as num group by 1',
     'select h3_h3_to_string(hexid) as hexid, amount, num',
 ]
 
-post_filter = ['where num > 100']
-
-f = [pre_filter, hexavg, post_filter]
+core_with_filters = [
+    'where (pickup_longitude != 0) and (pickup_latitude != 0)',
+    'where total_amount > 0',
+    core,
+    'where num > 100',
+]
 
 db = dw.Database(
-    t1 = dw.Table('data/yellow_tripdata_2010-01.parquet').do(f),
-    t2 = dw.Table('data/yellow_tripdata_2010-02.parquet').do(f),
+    t1 = dw.Table('data/yellow_tripdata_2010-01.parquet').do(core_with_filters),
+    t2 = dw.Table('data/yellow_tripdata_2010-02.parquet').do(core_with_filters),
 )
 
 db.do("""
