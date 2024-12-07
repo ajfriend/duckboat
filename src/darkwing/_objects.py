@@ -2,10 +2,9 @@ import random
 import string
 
 from . import query
-from ._get_if_file import _get_if_file
 
-from duckdb import DuckDBPyRelation
 from .ddb import form_relation
+from .doer import do
 
 class DatabaseMixin:
     def __repr__(self):
@@ -40,7 +39,6 @@ class Database(DatabaseMixin):
         }
 
     def sql(self, s: str):
-        s = _get_if_file(s)
         tables = {k: v.rel for k,v in self.tables.items()}
         rel = query(s, **tables)
         return Table(rel)
@@ -48,19 +46,8 @@ class Database(DatabaseMixin):
     def __getitem__(self, key):
         return self.tables[key].raw
 
-    def _do_one(self, other: 'Any'):
-        if other in {'arrow', 'pandas'}:
-            return self.hold(kind=other)
-        if callable(other):
-            return other(self)
-        else:
-            return self.sql(other)
-
     def do(self, *others):
-        cur = self
-        for other in others:
-            cur = cur._do_one(other)
-        return cur
+        return do(self, *others)
 
     def hold(self, kind='arrow'):
         """
@@ -138,37 +125,8 @@ class Table(TableMixin):
         rel = self.rel.query(name, f'from {name} ' + s)
         return Table(rel)
 
-    def _do_one(self, other: 'Any'):
-        if isinstance(other, str):
-            s = other.strip()
-            if s.startswith('as '):
-                name = s[3:].strip()
-                return self.alias(name)
-
-        if isinstance(other, list):
-            return self.do(*other)
-
-        if other in {'arrow', 'pandas'}:
-            return self.hold(kind=other)
-        if other in {int, str, bool, float}:
-            return self.asitem()
-        if other is list:
-            return self.aslist()
-        if other is dict:
-            return self.asdict()
-        if callable(other):
-            return other(self)
-        
-        return self.sql(other)
-
-    # TODO: do and do_one is just `eval`. clean it up!
-    # TODO: should `eval` just be a separate? we may hit a recursion limit... cool!
-    # TODO: we can maybe combine the `eval` for both table and database into a single function
     def do(self, *others):
-        cur = self
-        for other in others:
-            cur = cur._do_one(other)
-        return cur
+        return do(self, *others)
 
     def alias(self, name):
         return Database(**{name: self})
@@ -179,7 +137,3 @@ class Table(TableMixin):
         rel = self.rel.query('_x_', 'select column_name from (describe from _x_)')
         df = rel.df()
         return list(df['column_name'])
-
-
-def do(start, *steps):
-    pass
