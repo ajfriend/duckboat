@@ -23,6 +23,7 @@ all = [
     'darkwing[test]',
     'darkwing[dev]',
     'polars',
+    'matplotlib',
 ]
 
 [project.urls]

@@ -10,6 +10,7 @@ clear:
 	-@env/bin/pip uninstall -y darkwing
 	-@rm -rf MANIFEST
 	-@rm -rf .pytest_cache tests/__pycache__ __pycache__ _skbuild dist .coverage
+	-@find . -type d -name '__pycache__' | xargs rm -r
 	-@find . -type d -name '*.egg-info' | xargs rm -r
 	-@find . -type f -name '*.pyc' | xargs rm -r
 	-@find . -type d -name '*.ipynb_checkpoints' | xargs rm -r

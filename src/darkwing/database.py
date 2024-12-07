@@ -1,28 +1,7 @@
 from . import query
 from .table import Table
 from .doer import do
-
-class DatabaseMixin:
-    def __repr__(self):
-        tables = self._yield_table_lines()
-        tables = [
-            f'\n    {t}'
-            for t in tables
-        ]
-        tables = ''.join(tables)
-        tables = tables or ' None'
-
-        out = 'Database:' + tables
-
-        return out
-    
-    def _yield_table_lines(self):
-        for name, tbl in self.tables.items():
-            if isinstance(tbl.raw, str):
-                yield f"{name}: '{tbl.raw}'"
-            else:
-                n = self.do(f'select count() from {name}', int)
-                yield f'{name}: {n} x {tbl.columns}'
+from .database_mixin import DatabaseMixin
 
 class Database(DatabaseMixin):
     """
@@ -44,12 +23,3 @@ class Database(DatabaseMixin):
 
     def do(self, *others):
         return do(self, *others)
-
-    def hold(self, kind='arrow'):
-        """
-        Materialize the Database as a collection of PyArrow Tables or Pandas DataFrames
-        """
-        return Database(**{
-            name: self.do(f'from {name}', kind)
-            for name in self.tables
-        })
