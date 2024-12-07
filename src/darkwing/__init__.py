@@ -1,2 +1,3 @@
 from .ddb import query
-from ._objects import Table, Database
+from .table import Table
+from .database import Database

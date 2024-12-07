@@ -6,7 +6,8 @@ def do(A, *xs):
     return A
 
 def do_one(A, x):
-    from ._objects import Table, Database
+    from .table import Table
+    from .database import Database
 
     x = _get_if_file(x)
 
