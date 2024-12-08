@@ -20,6 +20,8 @@ class DatabaseMixin:
                 n = self.do(f'select count() from {name}', int)
                 yield f'{name}: {n} x {tbl.columns}'
 
+    def __getitem__(self, key):
+        return self.tables[key].raw
 
     def hold(self, kind='arrow'):
         """
