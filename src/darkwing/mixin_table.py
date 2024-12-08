@@ -1,3 +1,6 @@
+import random
+import string
+
 class TableMixin:
     def asitem(self):
         """Transform a df with one row and one column to single element"""
@@ -50,3 +53,8 @@ class TableMixin:
         rel = self.rel.query('_x_', 'select column_name from (describe from _x_)')
         df = rel.df()
         return list(df['column_name'])
+
+    @staticmethod
+    def random_table_name():
+        name = '_tlb_' + ''.join(random.choices(string.ascii_lowercase, k=10))
+        return name

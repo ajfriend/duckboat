@@ -1,7 +1,7 @@
 from . import query
 from .table import Table
-from .do_mixin import DoMixin
-from .database_mixin import DatabaseMixin
+from .mixin_do import DoMixin
+from .mixin_database import DatabaseMixin
 
 class Database(DatabaseMixin, DoMixin):
     """

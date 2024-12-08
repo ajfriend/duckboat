@@ -1,9 +1,6 @@
-import random
-import string
-
 from .ddb import form_relation
-from .do_mixin import DoMixin
-from .table_mixin import TableMixin
+from .mixin_do import DoMixin
+from .mixin_table import TableMixin
 
 class Table(TableMixin, DoMixin):
     """
@@ -25,8 +22,6 @@ class Table(TableMixin, DoMixin):
         Run a SQL snippet via DuckDB, prepended with `from <table_name>`,
         where `<table_name>` will be a unique and random name to avoid collisions.
         """
-        name = '_tlb_' + ''.join(random.choices(string.ascii_lowercase, k=10))
+        name = TableMixin.random_table_name()
         rel = self.rel.query(name, f'from {name} ' + s)
         return Table(rel)
-
-
