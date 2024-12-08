@@ -2,7 +2,7 @@ import random
 import string
 
 from .ddb import form_relation
-from .doer import DoMixin
+from .do_mixin import DoMixin
 from .table_mixin import TableMixin
 
 class Table(TableMixin, DoMixin):
@@ -29,9 +29,4 @@ class Table(TableMixin, DoMixin):
         rel = self.rel.query(name, f'from {name} ' + s)
         return Table(rel)
 
-    @property
-    def columns(self):
-        # NOTE: is this an example where direct access to the relation is helpful?
-        rel = self.rel.query('_x_', 'select column_name from (describe from _x_)')
-        df = rel.df()
-        return list(df['column_name'])
+

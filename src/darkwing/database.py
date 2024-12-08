@@ -1,6 +1,6 @@
 from . import query
 from .table import Table
-from .doer import DoMixin
+from .do_mixin import DoMixin
 from .database_mixin import DatabaseMixin
 
 class Database(DatabaseMixin, DoMixin):
