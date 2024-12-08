@@ -1,3 +1,6 @@
+default:
+      @just --list
+
 init: purge
 	python -m venv env
 	env/bin/pip install --upgrade pip wheel setuptools
@@ -7,21 +10,21 @@ lib:
 	# env/bin/pip install -e .[all]
 	env/bin/pip install .[all]
 
+# uninstall darkwing and remove extranous files
 clear:
 	-env/bin/pip uninstall -y darkwing
 
-	just remove d '__pycache__'
-	just remove d '*.egg-info'
-	just remove d '*.ipynb_checkpoints'
-	just remove d 'output'
+	just _remove d '__pycache__'
+	just _remove d '*.egg-info'
+	just _remove d '*.ipynb_checkpoints'
+	just _remove d 'output'
 
-	just remove f '*.DS_Store'
-	just remove f '*.pyc'
+	just _remove f '*.DS_Store'
+	just _remove f '*.pyc'
 
 rebuild: clear lib
 
-
-
+# remove env
 purge:
 	-rm -rf env
 	just clear
@@ -39,5 +42,5 @@ render:
 publish:
 	source env/bin/activate; cd docs; quarto publish gh-pages
 
-remove type name:
+_remove type name:
     -@find . -type {{type}} -name {{name}} | xargs rm -r
