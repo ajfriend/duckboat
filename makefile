@@ -4,7 +4,8 @@ init: purge
 	make lib
 
 lib:
-	env/bin/pip install -e .[all]
+	# env/bin/pip install -e .[all]
+	env/bin/pip install .[all]
 
 clear:
 	-@env/bin/pip uninstall -y darkwing

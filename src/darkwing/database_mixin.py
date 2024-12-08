@@ -1,7 +1,3 @@
-from . import query
-from .table import Table
-from .doer import do
-
 class DatabaseMixin:
     def __repr__(self):
         tables = self._yield_table_lines()

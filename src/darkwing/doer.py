@@ -17,11 +17,6 @@ def _get_if_file(s) -> str:
 
     return s
 
-def do(A, *xs):
-    for x in xs:
-        A = do_one(A, x)
-    return A
-
 def do_one(A, x):
     from .table import Table
     from .database import Database
@@ -60,3 +55,12 @@ def do_one(A, x):
         return A.sql(x)
 
     raise ValueError(f'Expected to be Table or Database: {A}')
+
+def _do(A, *xs):
+    for x in xs:
+        A = do_one(A, x)
+    return A
+
+class DoMixin:
+    def do(self, *others):
+        return _do(self, *others)

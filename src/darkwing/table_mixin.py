@@ -1,10 +1,3 @@
-import random
-import string
-
-from .ddb import form_relation
-from .doer import do
-
-
 class TableMixin:
     def asitem(self):
         """Transform a df with one row and one column to single element"""

@@ -2,10 +2,10 @@ import random
 import string
 
 from .ddb import form_relation
-from .doer import do
+from .doer import DoMixin
 from .table_mixin import TableMixin
 
-class Table(TableMixin):
+class Table(TableMixin, DoMixin):
     """
     The table name is always included implicitly when applying a SQL snippet.
     """
@@ -28,9 +28,6 @@ class Table(TableMixin):
         name = '_tlb_' + ''.join(random.choices(string.ascii_lowercase, k=10))
         rel = self.rel.query(name, f'from {name} ' + s)
         return Table(rel)
-
-    def do(self, *others):
-        return do(self, *others)
 
     @property
     def columns(self):

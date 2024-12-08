@@ -1,9 +1,9 @@
 from . import query
 from .table import Table
-from .doer import do
+from .doer import DoMixin
 from .database_mixin import DatabaseMixin
 
-class Database(DatabaseMixin):
+class Database(DatabaseMixin, DoMixin):
     """
     Table names must be included **explicitly** when applying a SQL snippet.
     """
@@ -20,6 +20,3 @@ class Database(DatabaseMixin):
 
     def __getitem__(self, key):
         return self.tables[key].raw
-
-    def do(self, *others):
-        return do(self, *others)
