@@ -17,6 +17,7 @@ clear:
 	-@find . -type d -name '*.ipynb_checkpoints' | xargs rm -r
 	-@find ./tests -type f -name '*.c' | xargs rm -r
 
+
 rebuild:
 	make clear
 	make lib
