@@ -1,6 +1,6 @@
 project:
   type: website
-  output-dir: ../output
+  output-dir: ../docs_output
 
 website:
   title: "darkwing"

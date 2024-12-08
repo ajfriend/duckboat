@@ -1,6 +1,6 @@
 data/
 env/
-output/
+docs_output/
 *_files/
 *.html
 .DS_Store
