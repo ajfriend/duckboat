@@ -17,6 +17,3 @@ class Database(DatabaseMixin, DoMixin):
         tables = {k: v.rel for k,v in self.tables.items()}
         rel = query(s, **tables)
         return Table(rel)
-
-    def __getitem__(self, key):
-        return self.tables[key].raw

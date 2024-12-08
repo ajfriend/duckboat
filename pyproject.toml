@@ -1,6 +1,6 @@
 [project]
 name = 'darkwing'
-version = '0.4.0'
+version = '0.6.0'
 description = 'An experimental data-wrangling library built on DuckDB for pipelining SQL snippets.'
 authors = [
     { name = 'AJ Friend', email = 'ajfriend@gmail.com' }
