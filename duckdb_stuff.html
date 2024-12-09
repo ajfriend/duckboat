@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>About – darkwing</title>
+<title>Relevant DuckDB Concepts and Features – darkwing</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -80,7 +80,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./about.html">About</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./duckdb_stuff.html">Relevant DuckDB Concepts and Features</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -113,7 +113,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./about.html" class="sidebar-item-text sidebar-link active">
+  <a href="./about.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">About</span></a>
   </div>
 </li>
@@ -125,7 +125,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./duckdb_stuff.html" class="sidebar-item-text sidebar-link">
+  <a href="./duckdb_stuff.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Relevant DuckDB Concepts and Features</span></a>
   </div>
 </li>
@@ -140,7 +140,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">About</h1>
+<h1 class="title">Relevant DuckDB Concepts and Features</h1>
 </div>
 
 
@@ -157,7 +157,33 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>now with justfile!</p>
+<p><code>darkwing</code> is primarily built on DuckDB’s Relational API. As an escape hatch, <code>darkwing</code> exposes its DuckDB compoents for you to use directly:</p>
+<ul>
+<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyConnection.install_extension</p></li>
+<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.columns</p>
+<ul>
+<li>TODO: does that simplify my columns helper!?</li>
+</ul></li>
+<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.describe</p></li>
+<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.description</p></li>
+<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.dtypes</p></li>
+<li><p><a href="https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.explain">explain</a></p></li>
+<li><p><a href="https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.execute">execute</a></p>
+<ul>
+<li>TODO: actually, what does this do?</li>
+</ul></li>
+<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.query</p></li>
+<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.show</p></li>
+<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.sql_query</p></li>
+<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.shape</p></li>
+<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.histogram</p>
+<ul>
+<li>TODO: what’s the SQL for this, would make for a good example</li>
+</ul></li>
+<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.type</p></li>
+<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.types</p></li>
+<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.ExplainType</p></li>
+</ul>
 
 
 
@@ -587,4 +613,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/darkwing/edit/main/docs/about.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/darkwing/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/darkwing/edit/main/docs/duckdb_stuff.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/darkwing/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
