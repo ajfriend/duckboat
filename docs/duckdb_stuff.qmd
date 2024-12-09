@@ -1,5 +1,5 @@
 ---
-title: "Relevant DuckDB Concepts and Features"
+title: "DuckDB Concepts"
 ---
 
 `darkwing` is primarily built on DuckDB's Relational API.

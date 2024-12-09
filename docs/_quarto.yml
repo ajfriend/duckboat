@@ -17,6 +17,7 @@ website:
       - about.qmd
       - trips_analysis.qmd
       - duckdb_stuff.qmd
+      - lazy.qmd
 
 format:
   html:

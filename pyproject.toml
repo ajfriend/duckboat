@@ -18,12 +18,13 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ['pytest', 'pytest-cov']
-dev = ['jupyterlab', 'ipykernel']
+dev = ['jupyterlab', 'ipykernel', 'jupyterlab_execute_time']
+docs = ['matplotlib']
 all = [
     'darkwing[test]',
     'darkwing[dev]',
+    'darkwing[docs]',
     'polars',
-    'matplotlib',
 ]
 
 [project.urls]

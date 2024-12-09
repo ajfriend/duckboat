@@ -5,3 +5,4 @@ docs_output/
 *.html
 .DS_Store
 *.pyc
+.ipynb_checkpoints/
