@@ -18,6 +18,8 @@ website:
       - trips_analysis.qmd
       - duckdb_stuff.qmd
       - lazy.qmd
+      - href: lazy_example.ipynb
+        text: Lazy Example
 
 format:
   html:
