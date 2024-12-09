@@ -17,7 +17,10 @@ clear:
 	just _remove d '__pycache__'
 	just _remove d '*.egg-info'
 	just _remove d '*.ipynb_checkpoints'
+
 	just _remove d 'docs_output'
+	just _remove d 'site_libs'
+	just _remove f '*.quarto_ipynb'
 
 	just _remove f '*.DS_Store'
 	just _remove f '*.pyc'

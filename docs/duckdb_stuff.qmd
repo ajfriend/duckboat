@@ -1,0 +1,26 @@
+---
+title: "Relevant DuckDB Concepts and Features"
+---
+
+`darkwing` is primarily built on DuckDB's Relational API.
+As an escape hatch, `darkwing` exposes its DuckDB compoents for you to use directly:
+
+- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyConnection.install_extension
+
+- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.columns
+    - TODO: does that simplify my columns helper!?
+- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.describe
+- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.description
+- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.dtypes
+- [explain](https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.explain)
+- [execute](https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.execute)
+    - TODO: actually, what does this do?
+- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.query
+- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.show
+- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.sql_query
+- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.shape
+- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.histogram
+    - TODO: what's the SQL for this, would make for a good example
+- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.type
+- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.types
+- https://duckdb.org/docs/api/python/reference/#duckdb.ExplainType    
