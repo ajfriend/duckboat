@@ -1,0 +1,22 @@
+---
+title: "Lazy Evaluation"
+---
+
+Since `darkwing` builds on top of DuckDB's relational API, all expressions are lazily evaluated by default.
+This means that complex query expressions can be built up interactively and step by step, and when you are ready to evaluate
+the final expression (or any intermediate expressions), the query steps will be assembed and optimized by the query planner
+to allow for the most efficient execuation possible:
+
+- avoid materialzing intermediate tables
+- SQL pushdown optimizations
+- DuckDB streaming and out-of-core operations
+
+# Gotchas
+
+- interactive analysis that calls a `repr` or `str` method, like having a table be the last expression in a Jupyter notebook cell
+- IDEs that inspect variables proactively will call the repr on objects, which will trigger query evaluation. this happens in Positron, for example
+
+
+# Example
+
+
