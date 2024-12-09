@@ -361,6 +361,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Again, it is intantaneous to form the expression representing <code>t3</code>, as long as we don’t need to compute the expression just yet.</p>
+<p>Note that the timestamp filtering below could have also been given above as part of the join. We’re free to do it either way and the performance will be identical because DuckDB will push the filters down in its query planning/optimization step.</p>
 <div id="cell-15" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-09T05:29:50.351711Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-09T05:29:50.351637Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-09T05:29:50.373966Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-09T05:29:50.373676Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-09T05:29:50.351703Z&quot;}" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>t3 <span class="op">=</span> t2.do(</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'where ts1 &lt; ts2'</span>,</span>
