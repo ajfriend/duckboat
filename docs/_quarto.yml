@@ -14,12 +14,16 @@ website:
     contents:
       - href: index.qmd
         text: Home
-      - trips_analysis.qmd
       - duckdb_stuff.qmd
       - lazy.qmd
-      - href: lazy_example.ipynb
-        text: Lazy Example
+      - section: "Tutorials"
+        contents:
+          - href: tut_nyc_join.qmd
+            text: NYC Trips Join
+          - href: tut_lazy.ipynb
+            text: Lazy Evaluation
       - ramble.qmd
+
 
 format:
   html:

@@ -16,6 +16,7 @@ clear:
 	just _remove d '__pycache__'
 	just _remove d '*.egg-info'
 	just _remove d '*.ipynb_checkpoints'
+	just _remove d '.pytest_cache'
 
 	just _remove d 'docs_output'
 	just _remove d 'site_libs'
@@ -41,8 +42,6 @@ lab:
 
 render:
 	source env/bin/activate; quarto render docs/
-
-open:
 	open docs_output/index.html
 
 publish:
