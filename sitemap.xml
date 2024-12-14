@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://ajfriend.github.io/darkwing/trips_analysis.html</loc>
-    <lastmod>2024-12-05T05:56:51.414Z</lastmod>
+    <loc>https://ajfriend.github.io/darkwing/lazy.html</loc>
+    <lastmod>2024-12-09T01:53:19.397Z</lastmod>
   </url>
   <url>
-    <loc>https://ajfriend.github.io/darkwing/about.html</loc>
-    <lastmod>2024-12-08T18:15:34.492Z</lastmod>
+    <loc>https://ajfriend.github.io/darkwing/ramble.html</loc>
+    <lastmod>2024-12-14T02:35:14.449Z</lastmod>
   </url>
   <url>
-    <loc>https://ajfriend.github.io/darkwing/lazy_example.html</loc>
-    <lastmod>2024-12-09T05:43:06.263Z</lastmod>
+    <loc>https://ajfriend.github.io/darkwing/tut_nyc_join.html</loc>
+    <lastmod>2024-12-14T03:00:01.395Z</lastmod>
   </url>
   <url>
     <loc>https://ajfriend.github.io/darkwing/duckdb_stuff.html</loc>
@@ -21,7 +21,7 @@
     <lastmod>2024-12-01T01:49:30.074Z</lastmod>
   </url>
   <url>
-    <loc>https://ajfriend.github.io/darkwing/lazy.html</loc>
-    <lastmod>2024-12-09T01:53:19.397Z</lastmod>
+    <loc>https://ajfriend.github.io/darkwing/tut_lazy.html</loc>
+    <lastmod>2024-12-14T02:59:01.931Z</lastmod>
   </url>
 </urlset>
