@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -212,7 +246,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="darkwing" class="level1">
 <h1>Darkwing</h1>
 <p><a href="https://ajfriend.github.io/darkwing/">ajfriend.github.io/darkwing</a> | <a href="https://github.com/ajfriend/darkwing">github.com/ajfriend/darkwing</a></p>
-<pre class="shell"><code>pip install git+https://github.com/ajfriend/darkwing</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pip install git<span class="op">+</span>https:<span class="op">//</span>github.com<span class="op">/</span>ajfriend<span class="op">/</span>darkwing</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Darkwing is a work-in-progress “dataframe library” that I use in personal interactive data analysis projects. (I use quotes because it’s really just a light wrapper around the <a href="https://duckdb.org/docs/api/python/relational_api">DuckDB relational API</a>.)</p>
 <p>You can concatenate SQL snippets (often omitting <code>select *</code> and <code>from ...</code>) to incrementally build up complex queries. Expressions are evaluated lazily and optimized by DuckDB, so queries are fast, without the need for intermediate tables or data transfers.</p>
 <p>This approach results in a mixture of Python and SQL that, I think, is semantically very similar to <a href="https://research.google/pubs/sql-has-problems-we-can-fix-them-pipe-syntax-in-sql/">Google’s Pipe Syntax for SQL</a>: We can leverage our existing knowledge of SQL, while making a few small changes to make it more ergonomic and composable.</p>
