@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>DuckDB Concepts – darkwing</title>
+<title>TODO – darkwing</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -112,7 +146,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./duckdb_stuff.html">DuckDB Concepts</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./todo.html">TODO</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -146,7 +180,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./duckdb_stuff.html" class="sidebar-item-text sidebar-link active">
+  <a href="./duckdb_stuff.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">DuckDB Concepts</span></a>
   </div>
 </li>
@@ -193,7 +227,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./todo.html" class="sidebar-item-text sidebar-link">
+  <a href="./todo.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">TODO</span></a>
   </div>
 </li>
@@ -208,7 +242,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">DuckDB Concepts</h1>
+<h1 class="title">TODO</h1>
 </div>
 
 
@@ -225,37 +259,17 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p><code>darkwing</code> is primarily built on DuckDB’s Relational API. As an escape hatch, <code>darkwing</code> exposes its DuckDB compoents for you to use directly:</p>
+<section id="function-for-loading-data-with-remote" class="level1">
+<h1>function for loading data with remote</h1>
+<p>idea:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>dw.Table(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'data/yellow_tripdata_2010-01.parquet'</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    remote<span class="op">=</span><span class="st">'https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2010-01.parquet'</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>try looking for file <code>data/yellow_tripdata_2010-01.parquet</code>. If no file exists, look at the remote, download the file, save it as the given filename, and then load from the given filename.</p>
+<p>TODO: can we also allow for mixing in pandas/polars/ibis code? maybe a function wrapper? That would be crazy powerful!</p>
 <ul>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyConnection.install_extension</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.columns</p>
-<ul>
-<li>TODO: does that simplify my columns helper!?</li>
-</ul></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.describe</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.description</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.dtypes</p></li>
-<li><p><a href="https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.explain">explain</a></p></li>
-<li><p><a href="https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.execute">execute</a></p>
-<ul>
-<li>TODO: actually, what does this do?</li>
-</ul></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.query</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.show</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.sql_query</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.shape</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.histogram</p>
-<ul>
-<li>TODO: what’s the SQL for this, would make for a good example</li>
-</ul></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.type</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.types</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.ExplainType</p></li>
-</ul>
-<section id="whats-different-from-duckdbs-relational-api" class="level2">
-<h2 class="anchored" data-anchor-id="whats-different-from-duckdbs-relational-api">What’s different from DuckDB’s relational api</h2>
-<ul>
-<li>avoid connection objects</li>
+<li>as or alias?</li>
 </ul>
 
 
@@ -687,4 +701,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/darkwing/edit/main/docs/duckdb_stuff.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/darkwing/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/darkwing/edit/main/docs/todo.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/darkwing/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

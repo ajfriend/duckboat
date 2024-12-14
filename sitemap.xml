@@ -1,27 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://ajfriend.github.io/darkwing/lazy.html</loc>
-    <lastmod>2024-12-09T01:53:19.397Z</lastmod>
+    <loc>https://ajfriend.github.io/darkwing/related.html</loc>
+    <lastmod>2024-12-14T06:11:05.913Z</lastmod>
   </url>
   <url>
-    <loc>https://ajfriend.github.io/darkwing/ramble.html</loc>
-    <lastmod>2024-12-14T05:54:52.643Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ajfriend.github.io/darkwing/tut_nyc_join.html</loc>
-    <lastmod>2024-12-14T03:00:01.395Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ajfriend.github.io/darkwing/duckdb_stuff.html</loc>
-    <lastmod>2024-12-09T01:49:17.727Z</lastmod>
+    <loc>https://ajfriend.github.io/darkwing/tut_lazy.html</loc>
+    <lastmod>2024-12-14T02:59:01.931Z</lastmod>
   </url>
   <url>
     <loc>https://ajfriend.github.io/darkwing/index.html</loc>
     <lastmod>2024-12-14T05:35:18.352Z</lastmod>
   </url>
   <url>
-    <loc>https://ajfriend.github.io/darkwing/tut_lazy.html</loc>
-    <lastmod>2024-12-14T02:59:01.931Z</lastmod>
+    <loc>https://ajfriend.github.io/darkwing/todo.html</loc>
+    <lastmod>2024-12-14T06:12:31.065Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ajfriend.github.io/darkwing/duckdb_stuff.html</loc>
+    <lastmod>2024-12-14T06:04:22.005Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ajfriend.github.io/darkwing/tut_nyc_join.html</loc>
+    <lastmod>2024-12-14T03:00:01.395Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ajfriend.github.io/darkwing/concepts.html</loc>
+    <lastmod>2024-12-14T06:11:01.790Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ajfriend.github.io/darkwing/ramble.html</loc>
+    <lastmod>2024-12-14T05:54:52.643Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ajfriend.github.io/darkwing/lazy.html</loc>
+    <lastmod>2024-12-09T01:53:19.397Z</lastmod>
   </url>
 </urlset>

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>DuckDB Concepts – darkwing</title>
+<title>Concepts – darkwing</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -112,7 +146,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./duckdb_stuff.html">DuckDB Concepts</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./concepts.html">Concepts</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -140,13 +174,13 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./concepts.html" class="sidebar-item-text sidebar-link">
+  <a href="./concepts.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Concepts</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./duckdb_stuff.html" class="sidebar-item-text sidebar-link active">
+  <a href="./duckdb_stuff.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">DuckDB Concepts</span></a>
   </div>
 </li>
@@ -208,7 +242,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">DuckDB Concepts</h1>
+<h1 class="title">Concepts</h1>
 </div>
 
 
@@ -225,40 +259,148 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p><code>darkwing</code> is primarily built on DuckDB’s Relational API. As an escape hatch, <code>darkwing</code> exposes its DuckDB compoents for you to use directly:</p>
+<section id="loading-saving-and-transferring-tables" class="level2">
+<h2 class="anchored" data-anchor-id="loading-saving-and-transferring-tables">Loading, saving, and transferring tables</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> darkwing <span class="im">as</span> dw</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># read from a remote CSV file</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> dw.Table(<span class="st">'https://raw.githubusercontent.com/mcnakhaee/palmerpenguins/refs/heads/master/palmerpenguins/data/penguins.csv'</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> dw.Table(<span class="st">'data/penguins.csv'</span>)  <span class="co"># read from a local CSV file</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> tbl.df()  <span class="co"># write to Pandas DataFrame</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>dw.Table(df)  <span class="co"># read from Pandas DataFrame</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>df.to_parquet(<span class="st">'data/penguins.parquet'</span>)  <span class="co"># use Pandas to write to a Parquet file</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> dw.Table(<span class="st">'data/penguins.parquet'</span>)  <span class="co"># read from a local Parquet file</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>tbl_arrow <span class="op">=</span> tbl.arrow()  <span class="co"># write to an  Arrow Table</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> dw.Table(tbl_arrow)  <span class="co"># read from an Arrow Table</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="databases-and-tables" class="level2">
+<h2 class="anchored" data-anchor-id="databases-and-tables">Databases and Tables</h2>
+<p>The library revolves around two objects and a function: <code>Database</code>, <code>Table</code>.</p>
 <ul>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyConnection.install_extension</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.columns</p>
-<ul>
-<li>TODO: does that simplify my columns helper!?</li>
-</ul></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.describe</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.description</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.dtypes</p></li>
-<li><p><a href="https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.explain">explain</a></p></li>
-<li><p><a href="https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.execute">execute</a></p>
-<ul>
-<li>TODO: actually, what does this do?</li>
-</ul></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.query</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.show</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.sql_query</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.shape</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.histogram</p>
-<ul>
-<li>TODO: what’s the SQL for this, would make for a good example</li>
-</ul></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.type</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.types</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.ExplainType</p></li>
+<li><code>Database</code> is essentially a dictionary mapping names to objects that will get resolved to tables. Those objects might be a Pandas or Polars dataframe, a PyArrow Table, the local filename of a Parquet or CSV file, or a URL to a remote data file. These objects are used by <code>darkwing</code> and Duckdb lazily, so operations on them are deffered until a final result is requested.</li>
+<li><code>Table</code> is a wrapper around a DuckDB Relation.</li>
 </ul>
-<section id="whats-different-from-duckdbs-relational-api" class="level2">
-<h2 class="anchored" data-anchor-id="whats-different-from-duckdbs-relational-api">What’s different from DuckDB’s relational api</h2>
+</section>
+<section id="laziness" class="level2">
+<h2 class="anchored" data-anchor-id="laziness">Laziness</h2>
+<p>Since all operations are done through <code>DuckDBPyRelation</code>, the expressions are evaluated lazily, or only at the end when we want a table or want to display results to the console.</p>
+<p>If you would like to materialze a <code>Table</code> or a <code>Database</code> concretely in terms of Pandas DataFrames or PyArrow Tables, you can use <code>x.hold(kind='arrow')</code> or <code>x.do('arrow')</code>.</p>
+<p>When you materialize a <code>Database</code> you can access the underlying tables with <code>db[table_name]</code>.</p>
+</section>
+<section id="examples" class="level2">
+<h2 class="anchored" data-anchor-id="examples">Examples</h2>
+<section id="chaining" class="level3">
+<h3 class="anchored" data-anchor-id="chaining">Chaining</h3>
+<p><code>darkwing</code> uses DuckDB to build up Relation expressions through chaining, which DuckDB will then execute after running the entire expression through a query planner to optimize execution.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> darkwing <span class="im">as</span> dw</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># dw.Table('https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2010-01.parquet')</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>dw.Table(<span class="st">'yellow_tripdata_2010-01.parquet'</span>).do(</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select *, pickup_latitude as lat, pickup_longitude as lng'</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select *, h3_latlng_to_cell(lat, lng, 8) as hexid'</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select hexid, avg(tip_amount) as tip  group by 1'</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select h3_h3_to_string(hexid) as hexid, tip'</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'where tip between 10 and 20'</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by hexid'</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Gives the output:</p>
+<pre><code>┌─────────────────┬────────────────────┐
+│      hexid      │        tip         │
+│     varchar     │       double       │
+├─────────────────┼────────────────────┤
+│ 881bb2a0b5fffff │              12.22 │
+│ 882a100299fffff │  10.02818181818182 │
+│ 882a10029dfffff │ 11.666666666666666 │
+│ 882a1002c3fffff │               10.0 │
+│ 882a10034bfffff │               16.0 │
+│ 882a100353fffff │               17.6 │
+│ 882a10045bfffff │               10.0 │
+│ 882a100487fffff │             11.525 │
+│ 882a10060dfffff │               16.1 │
+│ 882a100611fffff │               10.0 │
+│        ·        │                 ·  │
+│        ·        │                 ·  │
+│        ·        │                 ·  │
+│ 882a13c4d9fffff │               11.5 │
+│ 882a13d281fffff │               20.0 │
+│ 882a13d529fffff │               15.0 │
+│ 882a1438c3fffff │               10.0 │
+│ 882a15663bfffff │               10.0 │
+│ 882a1ab9c1fffff │              10.01 │
+│ 882a353927fffff │              11.05 │
+│ 882aa16327fffff │              12.51 │
+│ 882aaab9ebfffff │              10.01 │
+│ 882ad09327fffff │              12.51 │
+├─────────────────┴────────────────────┤
+│ 193 rows (20 shown)        2 columns │
+└──────────────────────────────────────┘</code></pre>
+<section id="alternatives" class="level4">
+<h4 class="anchored" data-anchor-id="alternatives">Alternatives</h4>
+<p>You can also write the above as</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>dw.Table(<span class="st">'data/yellow_tripdata_2010-01.parquet'</span>).do(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select *, pickup_latitude as lat, pickup_longitude as lng'</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select *, h3_latlng_to_cell(lat, lng, 8) as hexid'</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select hexid, avg(tip_amount) as tip  group by 1'</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select h3_h3_to_string(hexid) as hexid, tip'</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'where tip between 10 and 20'</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by hexid'</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>or</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dw.Table(<span class="st">'data/yellow_tripdata_2010-01.parquet'</span>).do(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select *, pickup_latitude as lat, pickup_longitude as lng'</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>).do(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select *, h3_latlng_to_cell(lat, lng, 8) as hexid'</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>).do(</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select hexid, avg(tip_amount) as tip  group by 1'</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>).do(</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select h3_h3_to_string(hexid) as hexid, tip'</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>).do(</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>   <span class="st">'where tip between 10 and 20'</span>,</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>).do(</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by hexid'</span>,</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+<section id="pivot" class="level3">
+<h3 class="anchored" data-anchor-id="pivot">Pivot</h3>
+<p>TODO</p>
+</section>
+<section id="storing-procedures" class="level3">
+<h3 class="anchored" data-anchor-id="storing-procedures">Storing procedures</h3>
+<p>You might store a sequence of steps as a function like</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> foo(rel, res<span class="op">=</span><span class="dv">6</span>):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (rel</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> <span class="st">'select pickup_latitude as lat, pickup_longitude as lng, tip_amount'</span>       </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> <span class="ss">f'select h3_latlng_to_cell(lat, lng, </span><span class="sc">{</span>res<span class="sc">}</span><span class="ss">) as hexid, tip_amount as tip'</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> <span class="st">'select hexid, avg(tip) as tip group by 1'</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> <span class="st">'select h3_h3_to_string(hexid) as hexid, tip'</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> <span class="st">'where tip &gt; 0'</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>which you could apply with any of the following syntax:</p>
 <ul>
-<li>avoid connection objects</li>
+<li><code>table.do(foo)</code></li>
+<li><code>table | foo</code> or <code>table &gt;&gt; foo</code></li>
 </ul>
+<p>Alternatively, you could store this as a sequence of strings:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>foo_list <span class="op">=</span> [</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select pickup_latitude as lat, pickup_longitude as lng, tip_amount'</span>       </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select h3_latlng_to_cell(lat, lng, 6}) as hexid, tip_amount as tip'</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select hexid, avg(tip) as tip group by 1'</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select h3_h3_to_string(hexid) as hexid, tip'</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'where tip &gt; 0'</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>which you could apply with something like</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>table.do(<span class="op">*</span>foo_list)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>or</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>table.do(foo_list)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>or even</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>table <span class="op">|</span> foo_list</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -687,4 +829,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/darkwing/edit/main/docs/duckdb_stuff.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/darkwing/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/darkwing/edit/main/docs/concepts.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/darkwing/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
