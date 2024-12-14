@@ -24,6 +24,17 @@ website:
             text: Lazy Evaluation
       - ramble.qmd
 
+  navbar:
+    tools:
+      - icon: github
+        menu:
+          - text: Source Code
+            href:  https://github.com/ajfriend/darkwing
+          - text: Issues
+            href:  https://github.com/ajfriend/darkwing/issues
+          - text: Discussions
+            href:  https://github.com/ajfriend/darkwing/discussions
+
 
 format:
   html:

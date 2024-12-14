@@ -1,5 +1,1 @@
----
-title: "darkwing"
----
-
 {{< include ../readme.md >}}
