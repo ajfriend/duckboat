@@ -30,3 +30,5 @@ An alternative Python DataFrame library for SQL gremlins.
 
 - you think SQL is fine, especially if you can write composable snippets
 - maybe you lose some IDE and typing support, but I think you get a big win in terms of REPL/notebook programming (which is where i spend most of my time)
+
+or, an experiment in [https://en.wiktionary.org/wiki/Cunningham%27s_Law]()

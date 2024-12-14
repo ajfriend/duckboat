@@ -1,6 +1,6 @@
 # Darkwing
 
-[ajfriend.github.io/darkwing](https://ajfriend.github.io/darkwing/)
+[ajfriend.github.io/darkwing](https://ajfriend.github.io/darkwing/) | [github.com/ajfriend/darkwing](https://github.com/ajfriend/darkwing)
 
 Darkwing is a work-in-progress "dataframe library" that
 I use in personal interactive data analysis projects.
