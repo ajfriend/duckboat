@@ -24,3 +24,8 @@ As an escape hatch, `darkwing` exposes its DuckDB compoents for you to use direc
 - https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.type
 - https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.types
 - https://duckdb.org/docs/api/python/reference/#duckdb.ExplainType    
+
+
+## What's different from DuckDB's relational api
+
+- avoid connection objects

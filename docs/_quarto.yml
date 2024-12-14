@@ -14,6 +14,7 @@ website:
     contents:
       - href: index.qmd
         text: Home
+      - concepts.qmd
       - duckdb_stuff.qmd
       - lazy.qmd
       - section: "Tutorials"
@@ -22,7 +23,9 @@ website:
             text: NYC Trips Join
           - href: tut_lazy.ipynb
             text: Lazy Evaluation
+      - related.qmd
       - ramble.qmd
+      - todo.qmd
 
   navbar:
     tools:

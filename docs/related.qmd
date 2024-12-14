@@ -1,0 +1,11 @@
+---
+title: "Related Projects"
+---
+
+- Pandas
+- Polars
+- Ibis
+- DuckDB
+    - [DuckDB's SQL improvements](https://duckdb.org/2022/05/04/friendlier-sql.html)
+- [PRQL](https://prql-lang.org/)
+
