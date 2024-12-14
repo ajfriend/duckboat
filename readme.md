@@ -2,7 +2,7 @@
 
 [ajfriend.github.io/darkwing](https://ajfriend.github.io/darkwing/) | [github.com/ajfriend/darkwing](https://github.com/ajfriend/darkwing)
 
-```shell
+```python
 pip install git+https://github.com/ajfriend/darkwing
 ```
 
@@ -26,4 +26,3 @@ I'd love to hear any feedback on the approach here, so feel free to reach out th
 [Issues](https://github.com/ajfriend/darkwing/issues)
 or
 [Discussions](https://github.com/ajfriend/darkwing/discussions).
-
