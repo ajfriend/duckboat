@@ -227,7 +227,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="darkwing" class="level1">
 <h1>Darkwing</h1>
-<p><a href="https://ajfriend.github.io/darkwing/">ajfriend.github.io/darkwing</a></p>
+<p><a href="">ajfriend.github.io/darkwing</a> | <a href="">github.com/ajfriend/darkwing</a></p>
 <p>Darkwing is a work-in-progress “dataframe library” that I use in personal interactive data analysis projects. (I use quotes because it’s really just a light wrapper around the <a href="https://duckdb.org/docs/api/python/relational_api">DuckDB relational API</a>.)</p>
 <p>You can concatenate SQL snippets (often omitting <code>select *</code> and <code>from ...</code>) to incrementally build up complex queries. Expressions are evaluated lazily and optimized by DuckDB, so queries are fast, without the need for intermediate tables or data transfers.</p>
 <p>This approach results in a mixture of Python and SQL that, I think, is semantically very similar to <a href="https://research.google/pubs/sql-has-problems-we-can-fix-them-pipe-syntax-in-sql/">Google’s Pipe Syntax for SQL</a>: We can leverage our existing knowledge of SQL, while making a few small changes to make it more ergonomic and composable.</p>
