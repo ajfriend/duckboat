@@ -14,12 +14,12 @@ website:
     contents:
       - href: index.qmd
         text: Home
-      - about.qmd
       - trips_analysis.qmd
       - duckdb_stuff.qmd
       - lazy.qmd
       - href: lazy_example.ipynb
         text: Lazy Example
+      - ramble.qmd
 
 format:
   html:

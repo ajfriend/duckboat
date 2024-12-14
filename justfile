@@ -7,7 +7,6 @@ init: purge
 	just lib
 
 lib:
-	# env/bin/pip install -e .[all]
 	env/bin/pip install .[all]
 
 # uninstall darkwing and remove extranous files
@@ -20,6 +19,7 @@ clear:
 
 	just _remove d 'docs_output'
 	just _remove d 'site_libs'
+	just _remove d '.quarto'
 	just _remove f '*.quarto_ipynb'
 
 	just _remove f '*.DS_Store'
@@ -41,6 +41,9 @@ lab:
 
 render:
 	source env/bin/activate; quarto render docs/
+
+open:
+	open docs_output/index.html
 
 publish:
 	source env/bin/activate; cd docs; quarto publish gh-pages

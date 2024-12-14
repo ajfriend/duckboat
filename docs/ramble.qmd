@@ -1,0 +1,32 @@
+---
+title: "AJ Rambles"
+---
+
+`darkwing` excels at simple, readable interactive work without new syntax
+
+other libraries excel at providing IDE support and type hinting.
+
+I'm not a user of the latter, so I'm less familiar with the benefits here.
+However, I am interested in understanding if there is a way to capture the benefits
+of each of these approaches.
+
+What would a best-of-both-worlds library/language look like?
+
+as i said, this library is experimental. i'm going hard in one direction as a way
+to explore the developer experience space. I'm also interested in using this project
+as a way to kick off discussions of how to build future libraries and languages
+to solve similar problems.
+
+
+## Repr
+
+maybe provide a repr option to provide an alternative to avoid the computation
+`Table('.../...', repr='bah')`. Should it pass it down to derived objects? Maybe that's too complicated
+
+
+## Opener
+
+An alternative Python DataFrame library for SQL gremlins.
+
+- you think SQL is fine, especially if you can write composable snippets
+- maybe you lose some IDE and typing support, but I think you get a big win in terms of REPL/notebook programming (which is where i spend most of my time)
