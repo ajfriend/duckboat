@@ -108,7 +108,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-sidebar docked nav-fixed fullcontent">
+<body class="nav-sidebar docked nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -216,7 +216,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./fsq.html" class="sidebar-item-text sidebar-link">
+  <a href="./tut_fsq.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Foursquare POI</span></a>
   </div>
 </li>
@@ -228,24 +228,46 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Related Projects</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Development</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ramble.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">AJ Rambles</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
+          <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./todo.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">TODO</span></a>
   </div>
 </li>
+      </ul>
+  </li>
     </ul>
     </div>
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#lazy-operations" id="toc-lazy-operations" class="nav-link" data-scroll-target="#lazy-operations">Lazy operations</a></li>
+  <li><a href="#avoiding-expensive-intermediates" id="toc-avoiding-expensive-intermediates" class="nav-link" data-scroll-target="#avoiding-expensive-intermediates">Avoiding Expensive Intermediates</a></li>
+  <li><a href="#materialize-smaller-results" id="toc-materialize-smaller-results" class="nav-link" data-scroll-target="#materialize-smaller-results">Materialize smaller results</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.dev/ajfriend/darkwing/blob/main/docs/tut_lazy.ipynb" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/darkwing/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -268,6 +290,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
 <p>Since <code>darkwing</code> is based on the DuckDB relational API, all expressions are “lazy” in that they defer evaluation until a result or a data preview is requested. This allows us to build up complex data processing pipelines iteratively, but without needing to compute extranous intermediate results. Instead, under the hood, DuckDB will gather the sequence of steps and pass it to a query optimizer, which will apply optimizations like predicate and projection pushdown. The full operation will be executed by DuckDB making full use of all the cores available on your machine, streaming the operations if possible, and even spilling to disk if the operation is too large to fit in memory.</p>
 <div id="cell-2" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-09T05:28:58.020504Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-09T05:28:58.020273Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-09T05:28:58.094591Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-09T05:28:58.094379Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-09T05:28:58.020476Z&quot;}" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> darkwing <span class="im">as</span> dw</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -319,6 +343,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select cast(pickup_datetime as timestamp) as ts, hexid, total_amount as amt'</span>,</span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="lazy-operations" class="level1">
+<h1>Lazy operations</h1>
 <p>Listing the table as the last expression in a Jupyter notebook makes Jupyter try to represent the table, which triggers DuckDB do either compute the full table, or, in the case that the table has many rows, compute just enough rows to show a preview. In many instances, the preview is faster to compute.</p>
 <p>The following is still fast, but just a bit slower than the previous cell, since this is where the query associated with the operations above is actually performed.</p>
 <div id="cell-8" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-09T05:28:58.273819Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-09T05:28:58.273759Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-09T05:28:58.295513Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-09T05:28:58.295256Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-09T05:28:58.273812Z&quot;}" data-execution_count="5">
@@ -408,6 +435,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 └─────────────────────────────────────────────────────────────────────────────────────────────────────┘</code></pre>
 </div>
 </div>
+</section>
+<section id="avoiding-expensive-intermediates" class="level1">
+<h1>Avoiding Expensive Intermediates</h1>
 <p>However, running <code>count_rows</code> on <code>t2</code> forces the full join operation to be performed (previously, we only computed a <em>partial</em> join to dispaly the preview). The following takes about 50 seconds on my laptop.</p>
 <p>Note that the row count for this intermediate table is about <strong>10 billion rows</strong>. We deal with the table directly here for demonstration purposes, but we as we continue the pipeline below, we will avoid ever forming this intermediate table.</p>
 <div id="cell-13" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-09T05:28:59.907713Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-09T05:28:59.907643Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-09T05:29:50.351301Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-09T05:29:50.350976Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-09T05:28:59.907705Z&quot;}" data-execution_count="8">
@@ -434,8 +464,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Note that this is faster than the <code>t2.do(count_rows)</code>, even though it does more work! This cell runs in about 44 seconds on my laptop.</p>
+</section>
+<section id="materialize-smaller-results" class="level1">
+<h1>Materialize smaller results</h1>
 <p>This final result has about <strong>29 thousand rows</strong>, something much more reasonable to materialize directly as a Pandas dataframe, for instance.</p>
-<div id="cell-17" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-09T05:29:50.374291Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-09T05:29:50.374229Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-09T05:30:34.558145Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-09T05:30:34.557929Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-09T05:29:50.374284Z&quot;}" data-execution_count="10">
+<div id="cell-18" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-09T05:29:50.374291Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-09T05:29:50.374229Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-09T05:30:34.558145Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-09T05:30:34.557929Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-09T05:29:50.374284Z&quot;}" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>t3.do(count_rows)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="10">
 <pre><code>┌──────────┐
@@ -447,7 +480,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Get a Pandas dataframe in about 53 seconds.</p>
-<div id="cell-19" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-09T05:30:34.558561Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-09T05:30:34.558487Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-09T05:31:27.099383Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-09T05:31:27.099109Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-09T05:30:34.558553Z&quot;}" data-execution_count="11">
+<div id="cell-20" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-09T05:30:34.558561Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-09T05:30:34.558487Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-09T05:31:27.099383Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-09T05:31:27.099109Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-09T05:30:34.558553Z&quot;}" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>t3.df()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="11">
 <div>
@@ -524,11 +557,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div id="cell-20" class="cell">
+<div id="cell-21" class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: get a polars dataframe</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -956,4 +990,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.dev/ajfriend/darkwing/blob/main/docs/tut_lazy.ipynb" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/darkwing/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.dev/ajfriend/darkwing/blob/main/docs/tut_lazy.ipynb" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/darkwing/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

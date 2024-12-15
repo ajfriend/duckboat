@@ -105,7 +105,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-sidebar docked nav-fixed fullcontent">
+<body class="nav-sidebar docked nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -146,7 +146,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./tut_nyc_join.html">Tutorials</a></li><li class="breadcrumb-item"><a href="./fsq.html">Foursquare POI</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./tut_nyc_join.html">Tutorials</a></li><li class="breadcrumb-item"><a href="./tut_fsq.html">Foursquare POI</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -213,7 +213,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./fsq.html" class="sidebar-item-text sidebar-link active">
+  <a href="./tut_fsq.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Foursquare POI</span></a>
   </div>
 </li>
@@ -225,28 +225,49 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Related Projects</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Development</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ramble.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">AJ Rambles</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
+          <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./todo.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">TODO</span></a>
   </div>
 </li>
+      </ul>
+  </li>
     </ul>
     </div>
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#load-the-data" id="toc-load-the-data" class="nav-link active" data-scroll-target="#load-the-data">Load the data</a></li>
+  <li><a href="#data-processing" id="toc-data-processing" class="nav-link" data-scroll-target="#data-processing">Data processing</a></li>
+  <li><a href="#parameterized-evaluation" id="toc-parameterized-evaluation" class="nav-link" data-scroll-target="#parameterized-evaluation">Parameterized evaluation</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.dev/ajfriend/darkwing/blob/main/docs/tut_fsq.ipynb" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/darkwing/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./tut_nyc_join.html">Tutorials</a></li><li class="breadcrumb-item"><a href="./fsq.html">Foursquare POI</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./tut_nyc_join.html">Tutorials</a></li><li class="breadcrumb-item"><a href="./tut_fsq.html">Foursquare POI</a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title">Foursquare POI Data Example</h1>
 </div>
@@ -270,8 +291,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="ce206c85-6d07-4139-8d10-392fdf598002" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-15T05:20:02.463963Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-15T05:20:02.463568Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-15T05:20:02.536787Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-15T05:20:02.536495Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-15T05:20:02.463938Z&quot;}" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> darkwing <span class="im">as</span> dw</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="load-the-data" class="level1">
-<h1>Load the data</h1>
+<section id="load-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="load-the-data">Load the data</h2>
 <p>We can download the data with <code>darkwing</code> and save it to a file for quick iteration.</p>
 <div id="be52415e-dd87-4438-b969-f8c0245d8864" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-15T05:20:02.537139Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-15T05:20:02.537067Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-15T05:20:15.028128Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-15T05:20:15.027784Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-15T05:20:02.537132Z&quot;}" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">NOTE</span><span class="co">: You can comment out the following two lines once</span></span>
@@ -284,8 +305,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> dw.Table(<span class="st">'data/fsq_places_10.parquet'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="data-processing" class="level1">
-<h1>Data processing</h1>
+<section id="data-processing" class="level2">
+<h2 class="anchored" data-anchor-id="data-processing">Data processing</h2>
 <p>As noted elsewhere in the docs, we can store data operations in multiple ways. For example, as Python functions or as a list of SQL snippet strings. Here are some examples.</p>
 <div id="2caf7d88-e55e-4b74-9f68-076c31bfd5c7" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-15T05:20:15.031466Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-15T05:20:15.031393Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-15T05:20:15.033252Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-15T05:20:15.032976Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-15T05:20:15.031458Z&quot;}" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> latlng_h3(res):</span>
@@ -305,8 +326,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="parameterized-evaluation" class="level1">
-<h1>Parameterized evaluation</h1>
+<section id="parameterized-evaluation" class="level2">
+<h2 class="anchored" data-anchor-id="parameterized-evaluation">Parameterized evaluation</h2>
 <p>With our core data transformation logic defined and parameterized, we can run the same transformation over the data at different H3 resolutions.</p>
 <div id="4ef608db-485f-4f8b-9672-66fe44975df2" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-15T05:20:15.033597Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-15T05:20:15.033534Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-15T05:20:15.108743Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-15T05:20:15.108496Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-15T05:20:15.033590Z&quot;}" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>t.do(latlng_h3(<span class="dv">0</span>), count_and_order)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -799,4 +820,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.dev/ajfriend/darkwing/blob/main/docs/fsq.ipynb" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/darkwing/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.dev/ajfriend/darkwing/blob/main/docs/tut_fsq.ipynb" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/darkwing/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
