@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Lazy Evaluation – darkwing</title>
+<title>Foursquare POI Data Example – darkwing</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -112,7 +146,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./lazy.html">Lazy Evaluation</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./tut_nyc_join.html">Tutorials</a></li><li class="breadcrumb-item"><a href="./fsq.html">Foursquare POI</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -152,7 +186,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./lazy.html" class="sidebar-item-text sidebar-link active">
+  <a href="./lazy.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Lazy Evaluation</span></a>
   </div>
 </li>
@@ -179,7 +213,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./fsq.html" class="sidebar-item-text sidebar-link">
+  <a href="./fsq.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Foursquare POI</span></a>
   </div>
 </li>
@@ -212,9 +246,9 @@ ul.task-list li input[type="checkbox"] {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./tut_nyc_join.html">Tutorials</a></li><li class="breadcrumb-item"><a href="./fsq.html">Foursquare POI</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Lazy Evaluation</h1>
+<h1 class="title">Foursquare POI Data Example</h1>
 </div>
 
 
@@ -231,21 +265,110 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Since <code>darkwing</code> builds on top of DuckDB’s relational API, all expressions are lazily evaluated by default. This means that complex query expressions can be built up interactively and step by step, and when you are ready to evaluate the final expression (or any intermediate expressions), the query steps will be assembed and optimized by the query planner to allow for the most efficient execuation possible:</p>
-<ul>
-<li>avoid materialzing intermediate tables</li>
-<li>SQL pushdown optimizations</li>
-<li>DuckDB streaming and out-of-core operations</li>
-</ul>
-<section id="gotchas" class="level1">
-<h1>Gotchas</h1>
-<ul>
-<li>interactive analysis that calls a <code>repr</code> or <code>str</code> method, like having a table be the last expression in a Jupyter notebook cell</li>
-<li>IDEs that inspect variables proactively will call the repr on objects, which will trigger query evaluation. this happens in Positron, for example</li>
-</ul>
+<p>Foursquare has <a href="https://opensource.foursquare.com/os-places/">recently released</a> an interesting Point of Interest (POI) Dataset, which is what we will play with in this example.</p>
+<p>Fused.io has made that data <a href="https://docs.fused.io/blog/fused-public-udf-for-foursquare-pois/">readily available</a>, through <a href="https://source.coop/">Source Cooperative</a> which is how we will access it.</p>
+<div id="ce206c85-6d07-4139-8d10-392fdf598002" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-15T05:20:02.463963Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-15T05:20:02.463568Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-15T05:20:02.536787Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-15T05:20:02.536495Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-15T05:20:02.463938Z&quot;}" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> darkwing <span class="im">as</span> dw</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="load-the-data" class="level1">
+<h1>Load the data</h1>
+<p>We can download the data with <code>darkwing</code> and save it to a file for quick iteration.</p>
+<div id="be52415e-dd87-4438-b969-f8c0245d8864" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-15T05:20:02.537139Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-15T05:20:02.537067Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-15T05:20:15.028128Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-15T05:20:15.027784Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-15T05:20:02.537132Z&quot;}" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">NOTE</span><span class="co">: You can comment out the following two lines once</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># you have the data saved locally to avoid downloading it again</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> dw.Table(<span class="st">'s3://us-west-2.opendata.source.coop/fused/fsq-os-places/2024-12-03/places/10.parquet'</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>t.save(<span class="st">'data/fsq_places_10.parquet'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>With the data saved to a file, we can create a <code>darkwing</code> table from a local Parquet file.</p>
+<div id="e29711c7-de6f-4a3f-b9ac-9b41c3fb0a74" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-15T05:20:15.029231Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-15T05:20:15.029155Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-15T05:20:15.031135Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-15T05:20:15.030933Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-15T05:20:15.029222Z&quot;}" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> dw.Table(<span class="st">'data/fsq_places_10.parquet'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section>
-<section id="example" class="level1">
-<h1>Example</h1>
+<section id="data-processing" class="level1">
+<h1>Data processing</h1>
+<p>As noted elsewhere in the docs, we can store data operations in multiple ways. For example, as Python functions or as a list of SQL snippet strings. Here are some examples.</p>
+<div id="2caf7d88-e55e-4b74-9f68-076c31bfd5c7" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-15T05:20:15.031466Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-15T05:20:15.031393Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-15T05:20:15.033252Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-15T05:20:15.032976Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-15T05:20:15.031458Z&quot;}" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> latlng_h3(res):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Essentially a higher order function, parameterized by resolution, given</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">    by a list of SQL snippet strings.</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f'select h3_latlng_to_cell(latitude, longitude, </span><span class="sc">{</span>res<span class="sc">}</span><span class="ss">) as hexid'</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">'select h3_h3_to_string(hexid) as hexid'</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># A data processing procedure stored as a list of SQL snippet strings</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>count_and_order <span class="op">=</span> [</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select hexid, count(*) as num group by 1'</span>,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by num'</span>,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="parameterized-evaluation" class="level1">
+<h1>Parameterized evaluation</h1>
+<p>With our core data transformation logic defined and parameterized, we can run the same transformation over the data at different H3 resolutions.</p>
+<div id="4ef608db-485f-4f8b-9672-66fe44975df2" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-15T05:20:15.033597Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-15T05:20:15.033534Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-15T05:20:15.108743Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-15T05:20:15.108496Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-15T05:20:15.033590Z&quot;}" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>t.do(latlng_h3(<span class="dv">0</span>), count_and_order)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<pre><code>┌─────────────────┬─────────┐
+│      hexid      │   num   │
+│     varchar     │  int64  │
+├─────────────────┼─────────┤
+│ 8027fffffffffff │ 1106440 │
+└─────────────────┴─────────┘</code></pre>
+</div>
+</div>
+<div id="ab71ac22-9a78-4fad-8499-e3238aaa841a" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-15T05:20:15.109098Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-15T05:20:15.109026Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-15T05:20:15.187329Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-15T05:20:15.187095Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-15T05:20:15.109090Z&quot;}" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>t.do(latlng_h3(<span class="dv">1</span>), count_and_order)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<pre><code>┌─────────────────┬────────┐
+│      hexid      │  num   │
+│     varchar     │ int64  │
+├─────────────────┼────────┤
+│ 8128bffffffffff │    410 │
+│ 8126fffffffffff │   2835 │
+│ 81277ffffffffff │  25008 │
+│ 81267ffffffffff │  30173 │
+│ 8127bffffffffff │  31192 │
+│ 8126bffffffffff │ 313007 │
+│ 81263ffffffffff │ 703815 │
+└─────────────────┴────────┘</code></pre>
+</div>
+</div>
+<div id="524b6130-94e0-4c1a-b2c1-0ee079ff3ccd" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-15T05:20:15.187699Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-15T05:20:15.187629Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-15T05:20:15.269445Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-15T05:20:15.269250Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-15T05:20:15.187691Z&quot;}" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>t.do(latlng_h3(<span class="dv">2</span>), count_and_order)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>┌─────────────────┬────────┐
+│      hexid      │  num   │
+│     varchar     │ int64  │
+├─────────────────┼────────┤
+│ 8226f7fffffffff │   1051 │
+│ 822897fffffffff │   1574 │
+│ 8226e7fffffffff │   2092 │
+│ 822697fffffffff │   3206 │
+│ 822657fffffffff │   3656 │
+│ 82278ffffffffff │   5745 │
+│ 822637fffffffff │   6113 │
+│ 8226b7fffffffff │   8115 │
+│ 8226a7fffffffff │  14692 │
+│ 822617fffffffff │  15879 │
+│ 82279ffffffffff │  22247 │
+│ 82261ffffffffff │  26908 │
+│ 822677fffffffff │  32458 │
+│ 8226affffffffff │  48212 │
+│ 822607fffffffff │  63129 │
+│ 822627fffffffff │  79629 │
+│ 822687fffffffff │ 107644 │
+│ 82268ffffffffff │ 132766 │
+│ 82260ffffffffff │ 168373 │
+│ 822757fffffffff │ 174499 │
+│ 82262ffffffffff │ 188452 │
+├─────────────────┴────────┤
+│ 21 rows        2 columns │
+└──────────────────────────┘</code></pre>
+</div>
+</div>
 
 
 </section>
@@ -676,4 +799,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/darkwing/edit/main/docs/lazy.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/darkwing/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.dev/ajfriend/darkwing/blob/main/docs/fsq.ipynb" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/darkwing/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
