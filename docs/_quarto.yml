@@ -23,6 +23,8 @@ website:
             text: NYC Trips Join
           - href: tut_lazy.ipynb
             text: Lazy Evaluation
+          - href: fsq.ipynb
+            text: Foursquare POI
       - related.qmd
       - ramble.qmd
       - todo.qmd

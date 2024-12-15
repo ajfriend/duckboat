@@ -1,5 +1,6 @@
 import random
 import string
+from .ddb import query
 
 class TableMixin:
     def asitem(self):
@@ -58,3 +59,21 @@ class TableMixin:
     def random_table_name():
         name = '_tlb_' + ''.join(random.choices(string.ascii_lowercase, k=10))
         return name
+
+    def save_parquet(self, filename):    
+        _save_format(self, filename, '(format parquet)')
+
+    def save_csv(self, filename):    
+        _save_format(self, filename, "(header, delimiter ',')")
+
+    def save(self, filename: str):
+        if filename.endswith('.parquet'):
+            self.save_parquet(filename)
+        elif filename.endswith('.csv'):
+            self.save_csv(filename)
+        else:
+            raise ValueError(f'Unrecognized filetype: {filename}')
+
+def _save_format(tbl, filename, format):
+    s = f"copy (select * from tbl) to '{filename}' {format};"
+    query(s, tbl=tbl.rel)
