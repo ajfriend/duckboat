@@ -6,3 +6,5 @@ docs_output/
 .DS_Store
 *.pyc
 .ipynb_checkpoints/
+*.csv
+*.parquet
