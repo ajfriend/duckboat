@@ -5,8 +5,8 @@ from .mixin_table import TableMixin
 from duckdb import DuckDBPyRelation
 
 
-# IDEA: maybe a `hide_repr` flag on tables that infects downstream tables and databases?
-# `hide_repr` is only relevant in the repr.
+# IDEA: maybe a `_hide` flag on tables that infects downstream tables and databases?
+# `_hide` is only relevant in the repr.
 # actually, maybe we don't need it to infect. we can just pop it in when needed.
 # repr = False
 
@@ -22,10 +22,10 @@ class Table(TableMixin, DoMixin):
     The table name is always included implicitly when applying a SQL snippet.
     """
     rel: DuckDBPyRelation  # todo: we might have to hide even this from the prying eyes of Positron.
-    hide_repr: bool
+    _hide: bool
 
-    def __init__(self, other, hide_repr=False):
-        self.hide_repr = hide_repr
+    def __init__(self, other, _hide=False):
+        self._hide = _hide
 
         if isinstance(other, Table):
             self.rel = other.rel
@@ -35,16 +35,16 @@ class Table(TableMixin, DoMixin):
             self.rel = form_relation(other)
 
     def __repr__(self):
-        if self.hide_repr:
-            return f'<Table(..., hide_repr={self.hide_repr})>'
+        if self._hide:
+            return f'<Table(..., _hide={self._hide})>'
         else:
             return repr(self.rel)
 
     def hide(self):
-        return Table(self, hide_repr=True)
+        return Table(self, _hide=True)
 
     def show(self):
-        return Table(self, hide_repr=False)
+        return Table(self, _hide=False)
 
     def sql(self, s: str):
         """

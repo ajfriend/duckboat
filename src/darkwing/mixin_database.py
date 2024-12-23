@@ -15,7 +15,7 @@ class DatabaseMixin:
         return out
     
     def _yield_table_lines(self):
-        if self.hide_repr:
+        if self._hide:
             for name, tbl in self.tables.items():
                 yield f'{name}: <Hidden Table>'
         else:
