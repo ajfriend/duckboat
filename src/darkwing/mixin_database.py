@@ -1,3 +1,5 @@
+# TODO: how to create dummy table objects that raise an error if their repr is called?
+
 class DatabaseMixin:
     def __repr__(self):
         tables = self._yield_table_lines()
@@ -13,22 +15,19 @@ class DatabaseMixin:
         return out
     
     def _yield_table_lines(self):
-        for name, tbl in self.tables.items():
-            if isinstance(tbl.raw, str):
-                yield f"{name}: '{tbl.raw}'"
-            else:
+        if self.hide_repr:
+            for name, tbl in self.tables.items():
+                yield f'{name}: <Hidden Table>'
+        else:
+            for name, tbl in self.tables.items():
                 n = self.do(f'select count() from {name}', int)
                 yield f'{name}: {n} x {tbl.columns}'
-
-    def __getitem__(self, key):
-        return self.tables[key].raw
 
     def hold(self, kind='arrow'):
         """
         Materialize the Database as a collection of PyArrow Tables or Pandas DataFrames
         """
-        from .database import Database
-        return Database(**{
-            name: self.do(f'from {name}', kind)
-            for name in self.tables
-        })
+        return {
+            name: tbl.hold(kind)
+            for name, tbl in self.tables.items()
+        }
