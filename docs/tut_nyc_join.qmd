@@ -13,12 +13,6 @@ We discretize locations into hexagonal bins with H3.
 One of the benefits of using DuckDB directly, is that we can use anything
 from the DuckDB ecosystem, like its [H3 extension](https://github.com/isaacbrodsky/h3-duckdb).
 
-<!--
-# TODO
-
-- playing around with data, we realize we probably want to filter out any trips with negative amounts
-- end-to-end, this analysis would look like....
--->
 
 # Loading data
 
@@ -232,29 +226,27 @@ db = dw.Database(t1=t1, t2=t2)
 db['t1']
 ```
 
-```{python}
-# but note that because evaluation is lazy, it will recompute each time.
-# If you want to avoid that, you can materialize the computation and create a new database. Note there is no need to do this if you don't mind recomputing.
-```
+
+Note that because evaluation is lazy, the expressions to build each table in
+the database will recompute each time you compute or view a derived expression.
+If you want to avoid that, you can materialize the computation and create a new database. Note there is no need to do this if you don't mind recomputing.
+
 
 ```{python}
-db = db.hold()
+db = dw.Database(**db.hold())
 ```
 
 ```{python}
 db
 ```
 
+The following will run quickly.
+
 ```{python}
-# NOTE: maybe confusing to users who now see a new view of their table...
-# I wonder if caching the relation, or making it a property is the way to go...
-# TODO: how to unify the representation between Table and a table in a Database? And reveal the underlying representation (string, df, arrow, etc.)
 db.do('from t1')
 ```
 
-```{python}
-# You can execute duckdb sql on a database, but now you should explicitly mention the table you want to work with (but that's usually what you want anyway, when doing a join.)
-```
+You can run DuckDB SQL on a `darkwing.Database`, but now you should explicitly mention the table(s) you want to work with (but that's usually what you want anyway when doing a join.)
 
 ```{python}
 out = db.do("""
