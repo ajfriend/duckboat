@@ -8,10 +8,8 @@ class Database(DatabaseMixin, DoMixin):
     Table names must be included **explicitly** when applying a SQL snippet.
     """
     tables: dict[str, Table]
-    _hide: bool
 
     def __init__(self, _hide=False, **tables):
-        self._hide = _hide
         self.tables = {
             k: Table(v, _hide=_hide)
             for k,v in tables.items()
