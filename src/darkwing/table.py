@@ -5,8 +5,8 @@ from .mixin_table import TableMixin
 from duckdb import DuckDBPyRelation
 
 
-# IDEA: maybe a `defer_repr` flag on tables that infects downstream tables and databases?
-# `defer_repr` is only relevant in the repr.
+# IDEA: maybe a `_hide` flag on tables that infects downstream tables and databases?
+# `_hide` is only relevant in the repr.
 # actually, maybe we don't need it to infect. we can just pop it in when needed.
 # repr = False
 
@@ -21,25 +21,31 @@ class Table(TableMixin, DoMixin):
     """
     The table name is always included implicitly when applying a SQL snippet.
     """
-    raw: object
-    rel: DuckDBPyRelation
-    defer_repr: bool
+    rel: DuckDBPyRelation  # todo: we might have to hide even this from the prying eyes of Positron.
+    _hide: bool
 
-    def __init__(self, other, defer_repr=False):
-        self.defer_repr = defer_repr
+    def __init__(self, other, _hide=False):
+        self._hide = _hide
 
+        # TODO: need to test in positron. do we also need to hide the relation?
         if isinstance(other, Table):
-            self.raw = other.raw
             self.rel = other.rel
         elif isinstance(other, DuckDBPyRelation):
-            self.raw = other
             self.rel = other
         else:
-            self.raw = other
             self.rel = form_relation(other)
 
     def __repr__(self):
-        return repr(self.rel)
+        if self._hide:
+            return '<Table(..., _hide=True)>'
+        else:
+            return repr(self.rel)
+
+    def hide(self):
+        return Table(self, _hide=True)
+
+    def show(self):
+        return Table(self, _hide=False)
 
     def sql(self, s: str):
         """
@@ -49,3 +55,12 @@ class Table(TableMixin, DoMixin):
         name = TableMixin.random_table_name()
         rel = self.rel.query(name, f'from {name} ' + s)
         return Table(rel)
+
+    def rowcols(self):
+        if self._hide:
+            s = '<Table(..., _hide=True)>'
+        else:
+            n = self.do('select count(*)', int)
+            s = f'{n} x {self.columns}'
+
+        return s
