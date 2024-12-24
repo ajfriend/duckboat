@@ -216,7 +216,7 @@ t2 = t2.do(f)
 t2
 ```
 
-To perform a join, you need two tables in on place. In Darkwing, such a place is a Database.
+To perform a join, we need two tables in hand, which we can do with `darkwing.Database()`:
 
 ```{python}
 db = dw.Database(t1=t1, t2=t2)
@@ -229,7 +229,8 @@ db['t1']
 
 Note that because evaluation is lazy, the expressions to build each table in
 the database will recompute each time you compute or view a derived expression.
-If you want to avoid that, you can materialize the computation and create a new database. Note there is no need to do this if you don't mind recomputing.
+If you want to avoid that, you can materialize the computation and create a new database.
+There is no need to do this if you don't mind recomputing.
 
 
 ```{python}
