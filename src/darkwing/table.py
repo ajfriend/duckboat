@@ -27,6 +27,7 @@ class Table(TableMixin, DoMixin):
     def __init__(self, other, _hide=False):
         self._hide = _hide
 
+        # TODO: need to test in positron. do we also need to hide the relation?
         if isinstance(other, Table):
             self.rel = other.rel
         elif isinstance(other, DuckDBPyRelation):
@@ -36,7 +37,7 @@ class Table(TableMixin, DoMixin):
 
     def __repr__(self):
         if self._hide:
-            return f'<Table(..., _hide={self._hide})>'
+            return '<Table(..., _hide=True)>'
         else:
             return repr(self.rel)
 
@@ -54,3 +55,12 @@ class Table(TableMixin, DoMixin):
         name = TableMixin.random_table_name()
         rel = self.rel.query(name, f'from {name} ' + s)
         return Table(rel)
+
+    def rowcols(self):
+        if self._hide:
+            s = '<Table(..., _hide=True)>'
+        else:
+            n = self.do('select count(*)', int)
+            s = f'{n} x {self.columns}'
+
+        return s

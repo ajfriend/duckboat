@@ -15,16 +15,12 @@ class DatabaseMixin:
         return out
     
     def _yield_table_lines(self):
-        if self._hide:
-            for name, tbl in self.tables.items():
-                yield f'{name}: <Hidden Table>'
-        else:
-            for name, tbl in self.tables.items():
-                n = self.do(f'select count() from {name}', int)
-                yield f'{name}: {n} x {tbl.columns}'
+        for name, tbl in self.tables.items():
+            yield f'{name}: {tbl.rowcols()}'
 
     def hold(self, kind='arrow'):
         """
+        TODO: maybe i don't need this function. or change its name
         Materialize the Database as a collection of PyArrow Tables or Pandas DataFrames
         """
         return {

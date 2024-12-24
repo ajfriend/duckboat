@@ -7,13 +7,13 @@ class Database(DatabaseMixin, DoMixin):
     """
     Table names must be included **explicitly** when applying a SQL snippet.
     """
-    _hide: bool
     tables: dict[str, Table]
+    _hide: bool
 
     def __init__(self, _hide=False, **tables):
         self._hide = _hide
         self.tables = {
-            k: Table(v)
+            k: Table(v, _hide=_hide)
             for k,v in tables.items()
         }
 
@@ -23,10 +23,10 @@ class Database(DatabaseMixin, DoMixin):
         return Table(rel)
 
     def hide(self):
-        return Database(_hide=True, **self)
+        return Database(**self, _hide=True)
 
     def show(self):
-        return Database(_hide=False, **self)
+        return Database(**self, _hide=False)
 
     def keys(self):
         return self.tables.keys()
