@@ -35,6 +35,10 @@ def do_one(A, x):
 
         if x in {'arrow', 'pandas'}:
             return A.hold(kind=x)
+        if x == 'hide':
+            return A.hide()
+        if x == 'show':
+            return A.show()
         if x in {int, str, bool, float}:
             return x(A.asitem())
         if x is list:
@@ -49,6 +53,10 @@ def do_one(A, x):
     if isinstance(A, Database):
         if x in {'arrow', 'pandas'}:
             return A.hold(kind=x)
+        if x == 'hide':
+            return A.hide()
+        if x == 'show':
+            return A.show()
         if callable(x):
             return x(A)
 
