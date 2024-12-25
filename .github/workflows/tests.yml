@@ -63,8 +63,8 @@ jobs:
 
       - name: Install from wheel
         run: |
-          cp dist/darkwing-*-py3-none-any.whl darkwing.whl
-          pip install darkwing.whl[test]
+          # cp dist/darkwing-*-py3-none-any.whl darkwing.whl
+          pip install dist/darkwing-*-py3-none-any.whl[test]
 
       - name: Test sdist
         run: pytest
