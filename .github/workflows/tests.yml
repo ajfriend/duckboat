@@ -60,3 +60,12 @@ jobs:
 
       - name: Check metadata
         run: pipx run twine check dist/*
+
+      - name: Install from wheel
+        run: |
+          cp dist/h3-*.tar.gz h3.tar.gz
+          cp dist/darkwing-*-py3-none-any.whl darkwing.whl
+          pip install darkwing.whl[test]
+
+      - name: Test sdist
+        run: pytest
