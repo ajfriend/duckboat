@@ -42,3 +42,11 @@ jobs:
 
       - name: Run Linting
         uses: astral-sh/ruff-action@v3
+
+  build-and-inspect-package:
+    name: Build & inspect package.
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hynek/build-and-inspect-python-package@v2
