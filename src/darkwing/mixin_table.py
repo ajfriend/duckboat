@@ -41,11 +41,10 @@ class TableMixin:
         elif len(df) == 1:
             out = list(df.loc[0])
         else:
-            s = (
+            raise ValueError(
                 'DataFrame should have a single row or column,'
                 f'but has shape f{df.shape}'
             )
-            raise ValueError(s)
 
         return out
 

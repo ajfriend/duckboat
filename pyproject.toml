@@ -76,6 +76,7 @@ ignore = [
     'E305',
     'E302',
     'F821',
+    'W391',  # Extra newline at end of file
 ]
 'test*.py' = [
     # 'D',  # maybe just the need for docstring
