@@ -70,7 +70,7 @@ jobs:
 
       - name: Install from sdist
         run: |
-          pip uninstall darkwing
+          pip uninstall darkwing -y
           cp dist/darkwing-*.tar.gz darkwing.tar.gz
           pip install darkwing.tar.gz[test]
 
