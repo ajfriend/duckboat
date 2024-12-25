@@ -49,3 +49,9 @@ publish:
 
 _remove type name:
     -@find . -type {{type}} -name {{name}} | xargs rm -r
+
+lint:
+	./env/bin/ruff check
+
+fix:
+	./env/bin/ruff check --fix

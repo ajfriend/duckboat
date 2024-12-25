@@ -3,6 +3,7 @@ from .table import Table
 from .mixin_do import DoMixin
 from .mixin_database import DatabaseMixin
 
+
 class Database(DatabaseMixin, DoMixin):
     """
     Table names must be included **explicitly** when applying a SQL snippet.

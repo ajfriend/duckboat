@@ -13,7 +13,7 @@ class DatabaseMixin:
         out = 'Database:' + tables
 
         return out
-    
+
     def _yield_table_lines(self):
         for name, tbl in self.tables.items():
             yield f'{name}: {tbl.rowcols()}'

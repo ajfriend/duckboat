@@ -2,6 +2,7 @@ import random
 import string
 from .ddb import query
 
+
 class TableMixin:
     def asitem(self):
         """Transform a df with one row and one column to single element"""
@@ -40,7 +41,11 @@ class TableMixin:
         elif len(df) == 1:
             out = list(df.loc[0])
         else:
-            raise ValueError(f'DataFrame should have a single row or column, but has shape f{df.shape}')
+            s = (
+                'DataFrame should have a single row or column,'
+                f'but has shape f{df.shape}'
+            )
+            raise ValueError(s)
 
         return out
 
@@ -60,10 +65,10 @@ class TableMixin:
         name = '_tlb_' + ''.join(random.choices(string.ascii_lowercase, k=10))
         return name
 
-    def save_parquet(self, filename):    
+    def save_parquet(self, filename):
         _save_format(self, filename, '(format parquet)')
 
-    def save_csv(self, filename):    
+    def save_csv(self, filename):
         _save_format(self, filename, "(header, delimiter ',')")
 
     def save(self, filename: str):
@@ -73,6 +78,7 @@ class TableMixin:
             self.save_csv(filename)
         else:
             raise ValueError(f'Unrecognized filetype: {filename}')
+
 
 def _save_format(tbl, filename, format):
     s = f"copy (select * from tbl) to '{filename}' {format};"

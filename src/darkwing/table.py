@@ -9,7 +9,8 @@ class Table(TableMixin, DoMixin):
     """
     The table name is always included implicitly when applying a SQL snippet.
     """
-    rel: DuckDBPyRelation  # todo: we might have to hide even this from the prying eyes of Positron.
+    # TODO: we might have to hide even this from the prying eyes of Positron.
+    rel: DuckDBPyRelation
     _hide: bool
 
     def __init__(self, other, _hide=False):

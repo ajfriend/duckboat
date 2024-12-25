@@ -1,11 +1,13 @@
 from pathlib import Path
 
+
 def _is_file(s: str) -> bool:
     try:
         return Path(s).is_file()
     except (OSError, TypeError):
         # catches `OSError: [Errno 63] File name too long`
         return False
+
 
 def _get_if_file(s) -> str:
     if isinstance(s, Path):
@@ -16,6 +18,7 @@ def _get_if_file(s) -> str:
             s = f.read()
 
     return s
+
 
 def do_one(A, x):
     from .table import Table
@@ -58,10 +61,12 @@ def do_one(A, x):
 
     return A.sql(x)
 
+
 def _do(A, *xs):
     for x in xs:
         A = do_one(A, x)
     return A
+
 
 class DoMixin:
     def do(self, *others):

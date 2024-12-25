@@ -18,7 +18,7 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ['pytest', 'pytest-cov']
-dev = ['jupyterlab', 'ipykernel', 'jupyterlab_execute_time']
+dev = ['jupyterlab', 'ipykernel', 'jupyterlab_execute_time', 'ruff']
 docs = ['matplotlib']
 all = [
     'darkwing[test]',
@@ -33,3 +33,53 @@ homepage = 'https://github.com/ajfriend/darkwing'
 [build-system]
 requires = ['hatchling']
 build-backend = 'hatchling.build'
+
+
+[tool.ruff]
+src = [
+    'src',
+    'tests',
+]
+line-length = 88
+
+[tool.ruff.lint]
+flake8-quotes.inline-quotes = 'single'
+
+# https://docs.astral.sh/ruff/rules/
+preview = true  # https://docs.astral.sh/ruff/preview/#selecting-single-preview-rules
+select = [
+    'A',
+    # 'B',  # todo
+    # 'COM',  # todo
+    'E',
+    'F',
+    'Q',
+    'W',
+    # 'D',  # todo. this is nice!
+    # 'PL',  # todo. some interesting ideas
+    # 'DOC',  # todo: interesting
+]
+ignore = [
+    'E221',  # Multiple spaces before operator
+    'E231',  # Missing whitespace after ','
+    'E241',  # Multiple spaces after ','
+    'E251',  # Unexpected spaces around keyword / parameter equals
+    'E272',  # Multiple spaces before keyword
+    'E731',  # Do not assign a `lambda` expression, use a `def`
+    # 'PLR2004',
+    'A002',
+]
+
+[tool.ruff.lint.per-file-ignores]
+'*.ipynb' = [
+    'E501',  # Line too long (104 > 88)
+    'E305',
+    'E302',
+    'F821',
+]
+'test*.py' = [
+    # 'D',  # maybe just the need for docstring
+]
+'__init__.py' = [
+    'F401',
+]
