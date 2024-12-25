@@ -84,3 +84,12 @@ ignore = [
 '__init__.py' = [
     'F401',
 ]
+
+
+[tool.hatch.build.targets.sdist]
+include = [
+  'src/',
+]
+exclude = [
+  'docs/',
+]
