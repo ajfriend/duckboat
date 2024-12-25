@@ -43,7 +43,7 @@ jobs:
       - name: Run Linting
         uses: astral-sh/ruff-action@v3
 
-  build-and-inspect-package:
+  wheels:
     name: Build & inspect package.
     runs-on: ubuntu-latest
 
@@ -63,7 +63,18 @@ jobs:
 
       - name: Install from wheel
         run: |
-          pip install dist/darkwing*.whl[test]
+          pip install dist/darkwing-0.8.0-py3-none-any.whl[test]
 
       - name: Test sdist
         run: pytest
+
+      - name: Install from sdist
+        run: |
+          pip uninstall darkwing
+          cp dist/darkwing-*.tar.gz darkwing.tar.gz
+          pip install darkwing.tar.gz[test]
+
+      - name: Test sdist
+        run: pytest
+
+
