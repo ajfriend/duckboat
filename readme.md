@@ -16,7 +16,7 @@ Darkwing is a light wrapper around the
 [DuckDB relational API](https://duckdb.org/docs/api/python/relational_api),
 which is easily accessible if you'd like to use DuckDB more directly.
 Expressions are evaluated lazily and optimized by DuckDB,
-so queries are fast, without the need for intermediate tables or data transfers.
+so queries are fast, avoiding materializing intermediate tables and data transfers.
 
 
 ```python
