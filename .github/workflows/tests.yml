@@ -63,7 +63,6 @@ jobs:
 
       - name: Install from wheel
         run: |
-          cp dist/h3-*.tar.gz h3.tar.gz
           cp dist/darkwing-*-py3-none-any.whl darkwing.whl
           pip install darkwing.whl[test]
 
