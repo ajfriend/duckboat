@@ -264,24 +264,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>Darkwing</h1>
 <p><a href="https://ajfriend.github.io/darkwing/">ajfriend.github.io/darkwing</a> | <a href="https://github.com/ajfriend/darkwing">github.com/ajfriend/darkwing</a></p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pip install git<span class="op">+</span>https:<span class="op">//</span>github.com<span class="op">/</span>ajfriend<span class="op">/</span>darkwing</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Darkwing is a work-in-progress “dataframe library” that I use in personal interactive data analysis projects. (I use quotes because it’s really just a light wrapper around the <a href="https://duckdb.org/docs/api/python/relational_api">DuckDB relational API</a>.)</p>
-<p>You can concatenate SQL snippets (often omitting <code>select *</code> and <code>from ...</code>) to incrementally build up complex queries. Expressions are evaluated lazily and optimized by DuckDB, so queries are fast, without the need for intermediate tables or data transfers.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: probably want an example with a smaller dataset; more clear on the operations</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> darkwing <span class="im">as</span> dw</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>dw.Table(<span class="st">'yellow_tripdata_2010-01.parquet'</span>).do(</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select *, pickup_latitude as lat, pickup_longitude as lng'</span>,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select *, h3_latlng_to_cell(lat, lng, 8) as hexid'</span>,</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select hexid, avg(tip_amount) as tip  group by 1'</span>,</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select h3_h3_to_string(hexid) as hexid, tip'</span>,</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'where tip between 10 and 20'</span>,</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by hexid'</span>,</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Darkwing is a SQL-based dataframe library for ergonomic interactive data analysis and exploration.</p>
+<p>Darkwing allows you to chain SQL snippets (often omitting <code>select *</code> and <code>from ...</code>) to incrementally and lazily build up complex queries.</p>
+<p>Darkwing is a light wrapper around the <a href="https://duckdb.org/docs/api/python/relational_api">DuckDB relational API</a>, which is easily accessible if you’d like to use DuckDB more directly. Expressions are evaluated lazily and optimized by DuckDB, so queries are fast, without the need for intermediate tables or data transfers.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> darkwing <span class="im">as</span> dw</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>csv <span class="op">=</span> <span class="st">'https://raw.githubusercontent.com/allisonhorst/palmerpenguins/main/inst/extdata/penguins.csv'</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>dw.Table(csv).do(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"where sex = 'female' "</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'where year &gt; 2008'</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select *, cast(body_mass_g as double) as grams'</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select species, island, avg(grams) as avg_grams group by 1,2'</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select * replace (round(avg_grams, 1) as avg_grams)'</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by avg_grams'</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>┌───────────┬───────────┬───────────┐
+│  species  │  island   │ avg_grams │
+│  varchar  │  varchar  │  double   │
+├───────────┼───────────┼───────────┤
+│ Adelie    │ Torgersen │    3193.8 │
+│ Adelie    │ Dream     │    3357.5 │
+│ Adelie    │ Biscoe    │    3446.9 │
+│ Chinstrap │ Dream     │    3522.9 │
+│ Gentoo    │ Biscoe    │    4786.3 │
+└───────────┴───────────┴───────────┘</code></pre>
+<section id="philosophy" class="level2">
+<h2 class="anchored" data-anchor-id="philosophy">Philosophy</h2>
 <p>This approach results in a mixture of Python and SQL that, I think, is semantically very similar to <a href="https://research.google/pubs/sql-has-problems-we-can-fix-them-pipe-syntax-in-sql/">Google’s Pipe Syntax for SQL</a>: We can leverage our existing knowledge of SQL, while making a few small changes to make it more ergonomic and composable.</p>
 <p>When doing interactive data analysis, I find this approach easier to read and write than fluent APIs (like in <a href="https://pola.rs/">Polars</a> or <a href="https://ibis-project.org/">Ibis</a>) or typical <a href="https://pandas.pydata.org/">Pandas</a> code. If some operation is easier in other libraries, Darking makes it straightforward translate between them, either directly or through Apache Arrow.</p>
+</section>
+<section id="feedback" class="level2">
+<h2 class="anchored" data-anchor-id="feedback">Feedback</h2>
 <p>I’d love to hear any feedback on the approach here, so feel free to reach out through <a href="https://github.com/ajfriend/darkwing/issues">Issues</a> or <a href="https://github.com/ajfriend/darkwing/discussions">Discussions</a>.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
