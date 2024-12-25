@@ -46,7 +46,7 @@ jobs:
         uses: astral-sh/ruff-action@v3
 
   wheels:
-    name: Wheels
+    name: Wheels & SDist
     runs-on: ubuntu-24.04
 
     steps:
