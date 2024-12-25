@@ -90,6 +90,3 @@ ignore = [
 include = [
   'src/',
 ]
-exclude = [
-  'docs/',
-]
