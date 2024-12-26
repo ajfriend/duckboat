@@ -22,11 +22,11 @@ so queries are fast, avoiding materializing intermediate tables and data transfe
 
 
 ```python
-import duckboat as dw
+import duckboat as uck
 
 csv = 'https://raw.githubusercontent.com/allisonhorst/palmerpenguins/main/inst/extdata/penguins.csv'
 
-dw.Table(csv).do(
+uck.Table(csv).do(
     "where sex = 'female' ",
     'where year > 2008',
     'select *, cast(body_mass_g as double) as grams',
