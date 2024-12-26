@@ -57,7 +57,7 @@ We can leverage our existing knowledge of SQL, while making a few small changes 
 
 When doing interactive data analysis, I find this approach easier to read and write than
 fluent APIs (like in [Polars](https://pola.rs/) or [Ibis](https://ibis-project.org/)) or typical [Pandas](https://pandas.pydata.org/) code.
-If some operation is easier in other libraries, Darking makes it straightforward translate between them, either directly or through Apache Arrow.
+If some operation is easier in other libraries, Duckboat makes it straightforward translate between them, either directly or through Apache Arrow.
 
 ## Feedback
 
