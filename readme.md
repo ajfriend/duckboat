@@ -1,4 +1,6 @@
-# Darkwing
+# Duckboat
+
+"Unsightly to some, but gets the job done."
 
 [ajfriend.github.io/darkwing](https://ajfriend.github.io/darkwing/) | [github.com/ajfriend/darkwing](https://github.com/ajfriend/darkwing)
 
