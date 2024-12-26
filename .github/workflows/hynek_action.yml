@@ -1,4 +1,4 @@
-name: wheels2
+name: hynek_action
 
 on:
   pull_request:

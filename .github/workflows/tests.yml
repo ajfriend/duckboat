@@ -65,7 +65,7 @@ jobs:
 
       - name: Install from wheel
         run: |
-          pip install dist/duckboat-0.8.0-py3-none-any.whl[test]
+          pip install "$(find dist -name 'duckboat-*-py3-none-any.whl' -type f -print -quit)"[test]
 
       - name: Test wheel
         run: pytest
