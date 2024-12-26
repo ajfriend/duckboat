@@ -7,7 +7,7 @@ title: TODO
 idea:
 
 ```python
-dw.Table(
+uck.Table(
     'data/yellow_tripdata_2010-01.parquet',
     remote='https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2010-01.parquet',
 )

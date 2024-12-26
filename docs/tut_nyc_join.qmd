@@ -19,9 +19,9 @@ from the DuckDB ecosystem, like its [H3 extension](https://github.com/isaacbrods
 First, load a table from a local Parquet file and preview its contents.
 
 ```{python}
-import duckboat as dw
-t1 = dw.Table('data/yellow_tripdata_2010-01.parquet')
-t2 = dw.Table('data/yellow_tripdata_2010-02.parquet')
+import duckboat as uck
+t1 = uck.Table('data/yellow_tripdata_2010-01.parquet')
+t2 = uck.Table('data/yellow_tripdata_2010-02.parquet')
 t1.do('limit 7')
 ```
 
@@ -200,8 +200,8 @@ t1.do(
 We want to compute average fares for hexes and compare them across January and February. We compute the averages like above, but also want to exlude hexes with only a few trips. So we extend the data pipeline to filter out such hexes, and apply the same operation to the datasets for each month.
 
 ```{python}
-t1 = dw.Table('data/yellow_tripdata_2010-01.parquet')
-t2 = dw.Table('data/yellow_tripdata_2010-02.parquet')
+t1 = uck.Table('data/yellow_tripdata_2010-01.parquet')
+t2 = uck.Table('data/yellow_tripdata_2010-02.parquet')
 
 f = [
     'where (pickup_longitude != 0) and (pickup_latitude != 0)',
@@ -219,7 +219,7 @@ t2
 To perform a join, we need two tables in hand, which we can do with `duckboat.Database()`:
 
 ```{python}
-db = dw.Database(t1=t1, t2=t2)
+db = uck.Database(t1=t1, t2=t2)
 ```
 
 ```{python}
@@ -234,7 +234,7 @@ There is no need to do this if you don't mind recomputing.
 
 
 ```{python}
-db = dw.Database(**db.hold())
+db = uck.Database(**db.hold())
 ```
 
 ```{python}
@@ -289,7 +289,7 @@ plt.grid()
 
 
 ```{python}
-import duckboat as dw
+import duckboat as uck
 
 core = [
     'select *, h3_latlng_to_cell(pickup_latitude, pickup_longitude, 8) as hexid',
@@ -304,9 +304,9 @@ core_with_filters = [
     'where num > 100',
 ]
 
-db = dw.Database(
-    t1 = dw.Table('data/yellow_tripdata_2010-01.parquet').do(core_with_filters),
-    t2 = dw.Table('data/yellow_tripdata_2010-02.parquet').do(core_with_filters),
+db = uck.Database(
+    t1 = uck.Table('data/yellow_tripdata_2010-01.parquet').do(core_with_filters),
+    t2 = uck.Table('data/yellow_tripdata_2010-02.parquet').do(core_with_filters),
 )
 
 db.do("""

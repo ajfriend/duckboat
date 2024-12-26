@@ -5,20 +5,20 @@ title: "Concepts"
 ## Loading, saving, and transferring tables
 
 ```python
-import duckboat as dw
+import duckboat as uck
 
 # read from a remote CSV file
-tbl = dw.Table('https://raw.githubusercontent.com/mcnakhaee/palmerpenguins/refs/heads/master/palmerpenguins/data/penguins.csv')
-tbl = dw.Table('data/penguins.csv')  # read from a local CSV file
+tbl = uck.Table('https://raw.githubusercontent.com/mcnakhaee/palmerpenguins/refs/heads/master/palmerpenguins/data/penguins.csv')
+tbl = uck.Table('data/penguins.csv')  # read from a local CSV file
 
 df = tbl.df()  # write to Pandas DataFrame
-dw.Table(df)  # read from Pandas DataFrame
+uck.Table(df)  # read from Pandas DataFrame
 
 df.to_parquet('data/penguins.parquet')  # use Pandas to write to a Parquet file
-tbl = dw.Table('data/penguins.parquet')  # read from a local Parquet file
+tbl = uck.Table('data/penguins.parquet')  # read from a local Parquet file
 
 tbl_arrow = tbl.arrow()  # write to an  Arrow Table
-tbl = dw.Table(tbl_arrow)  # read from an Arrow Table
+tbl = uck.Table(tbl_arrow)  # read from an Arrow Table
 ```
 
 
@@ -47,10 +47,10 @@ will then execute after running the entire expression through a query planner to
 execution.
 
 ```python
-import duckboat as dw
+import duckboat as uck
 
-# dw.Table('https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2010-01.parquet')
-dw.Table('yellow_tripdata_2010-01.parquet').do(
+# uck.Table('https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2010-01.parquet')
+uck.Table('yellow_tripdata_2010-01.parquet').do(
     'select *, pickup_latitude as lat, pickup_longitude as lng',
     'select *, h3_latlng_to_cell(lat, lng, 8) as hexid',
     'select hexid, avg(tip_amount) as tip  group by 1',
@@ -100,7 +100,7 @@ Gives the output:
 You can also write the above as
 
 ```python
-dw.Table('data/yellow_tripdata_2010-01.parquet').do(
+uck.Table('data/yellow_tripdata_2010-01.parquet').do(
     'select *, pickup_latitude as lat, pickup_longitude as lng',
     'select *, h3_latlng_to_cell(lat, lng, 8) as hexid',
     'select hexid, avg(tip_amount) as tip  group by 1',
@@ -113,7 +113,7 @@ dw.Table('data/yellow_tripdata_2010-01.parquet').do(
 or
 
 ```python
-dw.Table('data/yellow_tripdata_2010-01.parquet').do(
+uck.Table('data/yellow_tripdata_2010-01.parquet').do(
     'select *, pickup_latitude as lat, pickup_longitude as lng',
 ).do(
     'select *, h3_latlng_to_cell(lat, lng, 8) as hexid',

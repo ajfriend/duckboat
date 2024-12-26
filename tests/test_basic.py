@@ -1,9 +1,9 @@
-import duckboat as dw
+import duckboat as uck
 import pandas as pd
 
 
 def test_str():
-    t = dw.Table(pd.DataFrame({'a': [0]}))
+    t = uck.Table(pd.DataFrame({'a': [0]}))
 
     f = 'select a + 1 as a'
 
@@ -13,7 +13,7 @@ def test_str():
 
 
 def test_func():
-    t = dw.Table(pd.DataFrame({'a': [0]}))
+    t = uck.Table(pd.DataFrame({'a': [0]}))
 
     def foo(t):
         return t.do('select a + 1 as a')
@@ -24,7 +24,7 @@ def test_func():
 
 
 def test_filename():
-    t = dw.Table(pd.DataFrame({'a': [0]}))
+    t = uck.Table(pd.DataFrame({'a': [0]}))
     f = 'tests/foo.sql'  # path is relative to where the test command is being run
 
     assert t.do(f, int) == 1
@@ -34,7 +34,7 @@ def test_filename():
 
 def test_path():
     from pathlib import Path
-    t = dw.Table(pd.DataFrame({'a': [0]}))
+    t = uck.Table(pd.DataFrame({'a': [0]}))
     f = Path('tests/foo.sql')  # path is relative to where the test command is being run
 
     assert t.do(f, int) == 1
