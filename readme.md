@@ -4,13 +4,13 @@
 
 *Unsightly to some, but gets the job done.*
 
+Duckboat is a SQL-based Python dataframe library for ergonomic interactive
+data analysis and exploration.
+
 
 ```python
 pip install git+https://github.com/ajfriend/duckboat
 ```
-
-Duckboat is a SQL-based Python dataframe library for ergonomic interactive
-data analysis and exploration.
 
 Duckboat allows you to chain SQL snippets (often omitting `select *` and `from ...`)
 to incrementally and lazily build up complex queries.
