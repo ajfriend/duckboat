@@ -1,1 +1,1 @@
-Sitemap: https://ajfriend.github.io/darkwing/sitemap.xml
+Sitemap: https://ajfriend.github.io/duckboat/sitemap.xml

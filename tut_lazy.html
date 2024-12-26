@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Lazy Evaluation Tutorial – darkwing</title>
+<title>Lazy Evaluation Tutorial – duckboat</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -116,7 +116,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">darkwing</span>
+    <span class="navbar-title">duckboat</span>
     </a>
   </div>
         <div class="quarto-navbar-tools tools-end">
@@ -124,17 +124,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label=""><i class="bi bi-github"></i></a>
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="quarto-navigation-tool-dropdown-0">
           <li>
-            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/ajfriend/darkwing">
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/ajfriend/duckboat">
             Source Code
             </a>
           </li>
           <li>
-            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/ajfriend/darkwing/issues">
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/ajfriend/duckboat/issues">
             Issues
             </a>
           </li>
           <li>
-            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/ajfriend/darkwing/discussions">
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/ajfriend/duckboat/discussions">
             Discussions
             </a>
           </li>
@@ -266,7 +266,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#avoiding-expensive-intermediates" id="toc-avoiding-expensive-intermediates" class="nav-link" data-scroll-target="#avoiding-expensive-intermediates">Avoiding Expensive Intermediates</a></li>
   <li><a href="#materialize-smaller-results" id="toc-materialize-smaller-results" class="nav-link" data-scroll-target="#materialize-smaller-results">Materialize smaller results</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.dev/ajfriend/darkwing/blob/main/docs/tut_lazy.ipynb" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/darkwing/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.dev/ajfriend/duckboat/blob/main/docs/tut_lazy.ipynb" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/duckboat/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -292,12 +292,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
-<p>Since <code>darkwing</code> is based on the DuckDB relational API, all expressions are “lazy” in that they defer evaluation until a result or a data preview is requested. This allows us to build up complex data processing pipelines iteratively, but without needing to compute extranous intermediate results. Instead, under the hood, DuckDB will gather the sequence of steps and pass it to a query optimizer, which will apply optimizations like predicate and projection pushdown. The full operation will be executed by DuckDB making full use of all the cores available on your machine, streaming the operations if possible, and even spilling to disk if the operation is too large to fit in memory.</p>
+<p>Since <code>duckboat</code> is based on the DuckDB relational API, all expressions are “lazy” in that they defer evaluation until a result or a data preview is requested. This allows us to build up complex data processing pipelines iteratively, but without needing to compute extranous intermediate results. Instead, under the hood, DuckDB will gather the sequence of steps and pass it to a query optimizer, which will apply optimizations like predicate and projection pushdown. The full operation will be executed by DuckDB making full use of all the cores available on your machine, streaming the operations if possible, and even spilling to disk if the operation is too large to fit in memory.</p>
 <div id="cell-2" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-09T05:28:58.020504Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-09T05:28:58.020273Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-09T05:28:58.094591Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-09T05:28:58.094379Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-09T05:28:58.020476Z&quot;}" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> darkwing <span class="im">as</span> dw</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> duckboat <span class="im">as</span> uck</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="cell-3" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-09T05:28:58.094996Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-09T05:28:58.094930Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-09T05:28:58.258168Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-09T05:28:58.257979Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-09T05:28:58.094988Z&quot;}" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>t0 <span class="op">=</span> dw.Table(<span class="st">'data/yellow_tripdata_2010-01.parquet'</span>)</span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>t0 <span class="op">=</span> uck.Table(<span class="st">'data/yellow_tripdata_2010-01.parquet'</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>t0.columns</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <pre><code>['vendor_id',
@@ -667,7 +667,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp("https:\/\/ajfriend\.github\.io\/darkwing\/");
+      var filterRegex = new RegExp("https:\/\/ajfriend\.github\.io\/duckboat\/");
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
@@ -1000,4 +1000,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.dev/ajfriend/darkwing/blob/main/docs/tut_lazy.ipynb" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/darkwing/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.dev/ajfriend/duckboat/blob/main/docs/tut_lazy.ipynb" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/duckboat/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

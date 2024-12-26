@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>darkwing</title>
+<title>duckboat</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -113,7 +113,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">darkwing</span>
+    <span class="navbar-title">duckboat</span>
     </a>
   </div>
         <div class="quarto-navbar-tools tools-end">
@@ -121,17 +121,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label=""><i class="bi bi-github"></i></a>
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="quarto-navigation-tool-dropdown-0">
           <li>
-            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/ajfriend/darkwing">
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/ajfriend/duckboat">
             Source Code
             </a>
           </li>
           <li>
-            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/ajfriend/darkwing/issues">
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/ajfriend/duckboat/issues">
             Issues
             </a>
           </li>
           <li>
-            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/ajfriend/darkwing/discussions">
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/ajfriend/duckboat/discussions">
             Discussions
             </a>
           </li>
@@ -260,18 +260,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="darkwing" class="level1">
-<h1>Darkwing</h1>
-<p><a href="https://ajfriend.github.io/darkwing/">ajfriend.github.io/darkwing</a> | <a href="https://github.com/ajfriend/darkwing">github.com/ajfriend/darkwing</a></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pip install git<span class="op">+</span>https:<span class="op">//</span>github.com<span class="op">/</span>ajfriend<span class="op">/</span>darkwing</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Darkwing is a SQL-based dataframe library for ergonomic interactive data analysis and exploration.</p>
-<p>Darkwing allows you to chain SQL snippets (often omitting <code>select *</code> and <code>from ...</code>) to incrementally and lazily build up complex queries.</p>
-<p>Darkwing is a light wrapper around the <a href="https://duckdb.org/docs/api/python/relational_api">DuckDB relational API</a>, which is easily accessible if you’d like to use DuckDB more directly. Expressions are evaluated lazily and optimized by DuckDB, so queries are fast, avoiding materializing intermediate tables and data transfers.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> darkwing <span class="im">as</span> dw</span>
+<section id="duckboat" class="level1">
+<h1>Duckboat</h1>
+<blockquote class="blockquote">
+<p>“Unsightly to some, but gets the job done.”</p>
+</blockquote>
+<p><a href="https://ajfriend.github.io/duckboat/">ajfriend.github.io/duckboat</a> | <a href="https://github.com/ajfriend/duckboat">github.com/ajfriend/duckboat</a></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pip install git<span class="op">+</span>https:<span class="op">//</span>github.com<span class="op">/</span>ajfriend<span class="op">/</span>duckboat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Duckboat is a SQL-based dataframe library for ergonomic interactive data analysis and exploration.</p>
+<p>Duckboat allows you to chain SQL snippets (often omitting <code>select *</code> and <code>from ...</code>) to incrementally and lazily build up complex queries.</p>
+<p>Duckboat is a light wrapper around the <a href="https://duckdb.org/docs/api/python/relational_api">DuckDB relational API</a>, which is easily accessible if you’d like to use DuckDB more directly. Expressions are evaluated lazily and optimized by DuckDB, so queries are fast, avoiding materializing intermediate tables and data transfers.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> duckboat <span class="im">as</span> uck</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>csv <span class="op">=</span> <span class="st">'https://raw.githubusercontent.com/allisonhorst/palmerpenguins/main/inst/extdata/penguins.csv'</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>dw.Table(csv).do(</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>uck.Table(csv).do(</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"where sex = 'female' "</span>,</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'where year &gt; 2008'</span>,</span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select *, cast(body_mass_g as double) as grams'</span>,</span>
@@ -296,7 +299,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="feedback" class="level2">
 <h2 class="anchored" data-anchor-id="feedback">Feedback</h2>
-<p>I’d love to hear any feedback on the approach here, so feel free to reach out through <a href="https://github.com/ajfriend/darkwing/issues">Issues</a> or <a href="https://github.com/ajfriend/darkwing/discussions">Discussions</a>.</p>
+<p>I’d love to hear any feedback on the approach here, so feel free to reach out through <a href="https://github.com/ajfriend/duckboat/issues">Issues</a> or <a href="https://github.com/ajfriend/duckboat/discussions">Discussions</a>.</p>
 
 
 </section>
@@ -395,7 +398,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp("https:\/\/ajfriend\.github\.io\/darkwing\/");
+      var filterRegex = new RegExp("https:\/\/ajfriend\.github\.io\/duckboat\/");
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
@@ -728,4 +731,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/darkwing/edit/main/docs/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/darkwing/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/duckboat/edit/main/docs/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/duckboat/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
