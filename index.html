@@ -267,7 +267,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </blockquote>
 <p><a href="https://ajfriend.github.io/duckboat/">ajfriend.github.io/duckboat</a> | <a href="https://github.com/ajfriend/duckboat">github.com/ajfriend/duckboat</a></p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pip install git<span class="op">+</span>https:<span class="op">//</span>github.com<span class="op">/</span>ajfriend<span class="op">/</span>duckboat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Duckboat is a SQL-based dataframe library for ergonomic interactive data analysis and exploration.</p>
+<p>Duckboat is a SQL-based Python dataframe library for ergonomic interactive data analysis and exploration.</p>
 <p>Duckboat allows you to chain SQL snippets (often omitting <code>select *</code> and <code>from ...</code>) to incrementally and lazily build up complex queries.</p>
 <p>Duckboat is a light wrapper around the <a href="https://duckdb.org/docs/api/python/relational_api">DuckDB relational API</a>, which is easily accessible if you’d like to use DuckDB more directly. Expressions are evaluated lazily and optimized by DuckDB, so queries are fast, avoiding materializing intermediate tables and data transfers.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> duckboat <span class="im">as</span> uck</span>
