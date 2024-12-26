@@ -2,19 +2,19 @@
 
 "Unsightly to some, but gets the job done."
 
-[ajfriend.github.io/darkwing](https://ajfriend.github.io/darkwing/) | [github.com/ajfriend/darkwing](https://github.com/ajfriend/darkwing)
+[ajfriend.github.io/duckboat](https://ajfriend.github.io/duckboat/) | [github.com/ajfriend/duckboat](https://github.com/ajfriend/duckboat)
 
 ```python
-pip install git+https://github.com/ajfriend/darkwing
+pip install git+https://github.com/ajfriend/duckboat
 ```
 
-Darkwing is a SQL-based dataframe library for ergonomic interactive
+Duckboat is a SQL-based dataframe library for ergonomic interactive
 data analysis and exploration.
 
-Darkwing allows you to chain SQL snippets (often omitting `select *` and `from ...`)
+Duckboat allows you to chain SQL snippets (often omitting `select *` and `from ...`)
 to incrementally and lazily build up complex queries.
 
-Darkwing is a light wrapper around the
+Duckboat is a light wrapper around the
 [DuckDB relational API](https://duckdb.org/docs/api/python/relational_api),
 which is easily accessible if you'd like to use DuckDB more directly.
 Expressions are evaluated lazily and optimized by DuckDB,
@@ -22,7 +22,7 @@ so queries are fast, avoiding materializing intermediate tables and data transfe
 
 
 ```python
-import darkwing as dw
+import duckboat as dw
 
 csv = 'https://raw.githubusercontent.com/allisonhorst/palmerpenguins/main/inst/extdata/penguins.csv'
 
@@ -62,6 +62,6 @@ If some operation is easier in other libraries, Darking makes it straightforward
 ## Feedback
 
 I'd love to hear any feedback on the approach here, so feel free to reach out through
-[Issues](https://github.com/ajfriend/darkwing/issues)
+[Issues](https://github.com/ajfriend/duckboat/issues)
 or
-[Discussions](https://github.com/ajfriend/darkwing/discussions).
+[Discussions](https://github.com/ajfriend/duckboat/discussions).

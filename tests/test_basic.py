@@ -1,4 +1,4 @@
-import darkwing as dw
+import duckboat as dw
 import pandas as pd
 
 

@@ -1,4 +1,4 @@
-from ._query import __darkwing_query__ as query
+from ._query import __duckboat_query__ as query
 from duckdb import DuckDBPyRelation
 
 
