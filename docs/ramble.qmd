@@ -33,6 +33,6 @@ An alternative Python DataFrame library for SQL gremlins.
 
 or, an experiment in [https://en.wiktionary.org/wiki/Cunningham%27s_Law]()
 
-Darkwing is a *small* DataFrame library...
+Duckboat is a *small* DataFrame library...
 
-Darkwing is etc. It is *small*, in that it is a light wrapper around the DuckDB API. Not much to learn and the library gets out of your way.
+Duckboat is etc. It is *small*, in that it is a light wrapper around the DuckDB API. Not much to learn and the library gets out of your way.

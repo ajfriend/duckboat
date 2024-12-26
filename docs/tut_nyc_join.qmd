@@ -6,7 +6,7 @@ format:
     toc: true
 ---
 
-We'll use the NYC Taxi data set to demonstrate analyzing data interactively with Darkwing.
+We'll use the NYC Taxi data set to demonstrate analyzing data interactively with Duckboat.
 We'll compare Taxi trip fares by pickup location between January and February 2010.
 
 We discretize locations into hexagonal bins with H3.
