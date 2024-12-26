@@ -1,6 +1,6 @@
 # Duckboat
 
-"Unsightly to some, but gets the job done."
+> "Unsightly to some, but gets the job done."
 
 [ajfriend.github.io/duckboat](https://ajfriend.github.io/duckboat/) | [github.com/ajfriend/duckboat](https://github.com/ajfriend/duckboat)
 

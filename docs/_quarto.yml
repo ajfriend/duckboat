@@ -3,9 +3,9 @@ project:
   output-dir: ../docs_output
 
 website:
-  title: "darkwing"
-  site-url: https://ajfriend.github.io/darkwing/
-  repo-url: https://github.com/ajfriend/darkwing
+  title: "duckboat"
+  site-url: https://ajfriend.github.io/duckboat/
+  repo-url: https://github.com/ajfriend/duckboat
   repo-subdir: docs/
   repo-actions: [edit, issue]
   sidebar:
@@ -36,11 +36,11 @@ website:
       - icon: github
         menu:
           - text: Source Code
-            href:  https://github.com/ajfriend/darkwing
+            href:  https://github.com/ajfriend/duckboat
           - text: Issues
-            href:  https://github.com/ajfriend/darkwing/issues
+            href:  https://github.com/ajfriend/duckboat/issues
           - text: Discussions
-            href:  https://github.com/ajfriend/darkwing/discussions
+            href:  https://github.com/ajfriend/duckboat/discussions
 
 
 format:

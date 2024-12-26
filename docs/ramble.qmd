@@ -2,7 +2,7 @@
 title: "AJ Rambles"
 ---
 
-`darkwing` excels at simple, readable interactive work without new syntax
+`duckboat` excels at simple, readable interactive work without new syntax
 
 other libraries excel at providing IDE support and type hinting.
 

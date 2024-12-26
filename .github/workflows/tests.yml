@@ -65,16 +65,16 @@ jobs:
 
       - name: Install from wheel
         run: |
-          pip install dist/darkwing-0.8.0-py3-none-any.whl[test]
+          pip install dist/duckboat-0.8.0-py3-none-any.whl[test]
 
       - name: Test wheel
         run: pytest
 
       - name: Install from sdist
         run: |
-          pip uninstall darkwing -y
-          cp dist/darkwing-*.tar.gz darkwing.tar.gz
-          pip install darkwing.tar.gz[test]
+          pip uninstall duckboat -y
+          cp dist/duckboat-*.tar.gz duckboat.tar.gz
+          pip install duckboat.tar.gz[test]
 
       - name: Test sdist
         run: pytest

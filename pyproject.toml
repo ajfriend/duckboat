@@ -1,5 +1,5 @@
 [project]
-name = 'darkwing'
+name = 'duckboat'
 version = '0.8.0'
 description = 'An experimental data-wrangling library built on DuckDB for pipelining SQL snippets.'
 authors = [
@@ -21,14 +21,14 @@ test = ['pytest', 'pytest-cov', 'ruff']
 dev = ['jupyterlab', 'ipykernel', 'jupyterlab_execute_time']
 docs = ['matplotlib']
 all = [
-    'darkwing[test]',
-    'darkwing[dev]',
-    'darkwing[docs]',
+    'duckboat[test]',
+    'duckboat[dev]',
+    'duckboat[docs]',
     'polars',
 ]
 
 [project.urls]
-homepage = 'https://github.com/ajfriend/darkwing'
+homepage = 'https://github.com/ajfriend/duckboat'
 
 [build-system]
 requires = ['hatchling']

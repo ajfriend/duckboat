@@ -2,8 +2,8 @@
 title: "DuckDB Concepts"
 ---
 
-`darkwing` is primarily built on DuckDB's Relational API.
-As an escape hatch, `darkwing` exposes its DuckDB compoents for you to use directly:
+`duckboat` is primarily built on DuckDB's Relational API.
+As an escape hatch, `duckboat` exposes its DuckDB compoents for you to use directly:
 
 - https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyConnection.install_extension
 

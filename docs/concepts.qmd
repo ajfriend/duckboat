@@ -5,7 +5,7 @@ title: "Concepts"
 ## Loading, saving, and transferring tables
 
 ```python
-import darkwing as dw
+import duckboat as dw
 
 # read from a remote CSV file
 tbl = dw.Table('https://raw.githubusercontent.com/mcnakhaee/palmerpenguins/refs/heads/master/palmerpenguins/data/penguins.csv')
@@ -26,7 +26,7 @@ tbl = dw.Table(tbl_arrow)  # read from an Arrow Table
 
 The library revolves around two objects and a function: `Database`, `Table`.
 
-- `Database` is essentially a dictionary mapping names to objects that will get resolved to tables. Those objects might be a Pandas or Polars dataframe, a PyArrow Table, the local filename of a Parquet or CSV file, or a URL to a remote data file. These objects are used by `darkwing` and Duckdb lazily, so operations on them are deffered until a final result is requested.
+- `Database` is essentially a dictionary mapping names to objects that will get resolved to tables. Those objects might be a Pandas or Polars dataframe, a PyArrow Table, the local filename of a Parquet or CSV file, or a URL to a remote data file. These objects are used by `duckboat` and Duckdb lazily, so operations on them are deffered until a final result is requested.
 - `Table` is a wrapper around a DuckDB Relation.
 
 
@@ -42,12 +42,12 @@ When you materialize a `Database` you can access the underlying tables with `db[
 
 ### Chaining
 
-`darkwing` uses DuckDB to build up Relation expressions through chaining, which DuckDB
+`duckboat` uses DuckDB to build up Relation expressions through chaining, which DuckDB
 will then execute after running the entire expression through a query planner to optimize
 execution.
 
 ```python
-import darkwing as dw
+import duckboat as dw
 
 # dw.Table('https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2010-01.parquet')
 dw.Table('yellow_tripdata_2010-01.parquet').do(

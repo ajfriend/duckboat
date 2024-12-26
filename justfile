@@ -9,9 +9,9 @@ init: purge
 lib:
 	env/bin/pip install .[all]
 
-# uninstall darkwing and remove extranous files
+# uninstall duckboat and remove extranous files
 clear:
-	-env/bin/pip uninstall -y darkwing
+	-env/bin/pip uninstall -y duckboat
 
 	just _remove d '__pycache__'
 	just _remove d '*.egg-info'

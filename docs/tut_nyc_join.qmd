@@ -19,7 +19,7 @@ from the DuckDB ecosystem, like its [H3 extension](https://github.com/isaacbrods
 First, load a table from a local Parquet file and preview its contents.
 
 ```{python}
-import darkwing as dw
+import duckboat as dw
 t1 = dw.Table('data/yellow_tripdata_2010-01.parquet')
 t2 = dw.Table('data/yellow_tripdata_2010-02.parquet')
 t1.do('limit 7')
@@ -216,7 +216,7 @@ t2 = t2.do(f)
 t2
 ```
 
-To perform a join, we need two tables in hand, which we can do with `darkwing.Database()`:
+To perform a join, we need two tables in hand, which we can do with `duckboat.Database()`:
 
 ```{python}
 db = dw.Database(t1=t1, t2=t2)
@@ -247,7 +247,7 @@ The following will run quickly.
 db.do('from t1')
 ```
 
-You can run DuckDB SQL on a `darkwing.Database`, but now you should explicitly mention the table(s) you want to work with (but that's usually what you want anyway when doing a join.)
+You can run DuckDB SQL on a `duckboat.Database`, but now you should explicitly mention the table(s) you want to work with (but that's usually what you want anyway when doing a join.)
 
 ```{python}
 out = db.do("""
@@ -289,7 +289,7 @@ plt.grid()
 
 
 ```{python}
-import darkwing as dw
+import duckboat as dw
 
 core = [
     'select *, h3_latlng_to_cell(pickup_latitude, pickup_longitude, 8) as hexid',
