@@ -18,7 +18,7 @@ to incrementally and lazily build up complex queries.
 Duckboat is a light wrapper around the
 [DuckDB relational API](https://duckdb.org/docs/api/python/relational_api),
 so
-expressions are evaluated lazily and optimized by DuckDB.
+expressions are evaluated lazily and optimized by DuckDB prior to execution.
 The resulting queries are fast, avoiding the need to materialize intermediate tables or
 perform data transfers.
 
