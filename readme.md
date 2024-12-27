@@ -22,6 +22,7 @@ expressions are evaluated lazily and optimized by DuckDB.
 The resulting queries are fast, avoiding the need to materialize intermediate tables or
 perform data transfers.
 
+## Example
 
 ```python
 import duckboat as uck
