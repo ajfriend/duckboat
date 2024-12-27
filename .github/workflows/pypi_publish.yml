@@ -48,6 +48,9 @@ jobs:
     needs: [wheels]
     if: github.event_name == 'release' && github.event.action == 'published'
     runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
 
     steps:
       - uses: actions/download-artifact@v4.1.8
@@ -55,8 +58,4 @@ jobs:
           name: Packages
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.12.3
-        with:
-          password: ${{ secrets.PYPI_DUCKBOAT }}
-
-
+      - uses: pypa/gh-action-pypi-publish@release/v1
