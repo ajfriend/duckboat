@@ -9,7 +9,7 @@ data analysis and exploration.
 
 
 ```python
-pip install git+https://github.com/ajfriend/duckboat
+pip install duckboat
 ```
 
 Duckboat allows you to chain SQL snippets (often omitting `select *` and `from ...`)
