@@ -21,6 +21,10 @@ so
 expressions are evaluated lazily and optimized by DuckDB prior to execution.
 The resulting queries are fast, avoiding the need to materialize intermediate tables or
 perform data transfers.
+You can leverage all the SQL syntax improvements provided by DuckDB:
+[1](https://duckdb.org/2022/05/04/friendlier-sql.html)
+[2](https://duckdb.org/2023/08/23/even-friendlier-sql.html)
+[3](https://duckdb.org/docs/sql/dialect/friendly_sql.html)
 
 ## Example
 
