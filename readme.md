@@ -12,14 +12,15 @@ data analysis and exploration.
 pip install duckboat
 ```
 
-Duckboat allows you to chain SQL snippets (often omitting `select *` and `from ...`)
+Duckboat allows you to chain SQL snippets (meaning you can usually omit `select *` and `from ...`)
 to incrementally and lazily build up complex queries.
 
 Duckboat is a light wrapper around the
 [DuckDB relational API](https://duckdb.org/docs/api/python/relational_api),
-which is easily accessible if you'd like to use DuckDB more directly.
-Expressions are evaluated lazily and optimized by DuckDB,
-so queries are fast, avoiding materializing intermediate tables and data transfers.
+so
+expressions are evaluated lazily and optimized by DuckDB.
+The resulting queries are fast, avoiding the need to materialize intermediate tables or
+perform data transfers.
 
 
 ```python
