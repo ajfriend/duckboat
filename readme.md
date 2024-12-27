@@ -60,6 +60,14 @@ uck.Table(csv).do(
 
 TODO: pandas, polars, arrow
 
+## Databases and joins
+
+TODO
+
+## Extravagant affordances
+
+TODO
+
 ## Philosophy
 
 This approach results in a mixture of Python and SQL that, I think, is semantically very similar to
