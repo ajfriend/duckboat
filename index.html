@@ -262,12 +262,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="duckboat" class="level1">
 <h1>Duckboat</h1>
-<p><a href="https://github.com/ajfriend/duckboat">GitHub</a> | <a href="https://ajfriend.github.io/duckboat/">Docs</a> | <a href="https://pypi.org/project/duckboat/">PyPI</a></p>
 <p><em>Unsightly to some, but gets the job done.</em></p>
+<p><a href="https://github.com/ajfriend/duckboat">GitHub</a> | <a href="https://ajfriend.github.io/duckboat/">Docs</a> | <a href="https://pypi.org/project/duckboat/">PyPI</a></p>
 <p>Duckboat is a SQL-based Python dataframe library for ergonomic interactive data analysis and exploration.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pip install duckboat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Duckboat allows you to chain SQL snippets (meaning you can usually omit <code>select *</code> and <code>from ...</code>) to incrementally and lazily build up complex queries.</p>
-<p>Duckboat is a light wrapper around the <a href="https://duckdb.org/docs/api/python/relational_api">DuckDB relational API</a>, so expressions are evaluated lazily and optimized by DuckDB. The resulting queries are fast, avoiding the need to materialize intermediate tables or perform data transfers.</p>
+<p>Duckboat is a light wrapper around the <a href="https://duckdb.org/docs/api/python/relational_api">DuckDB relational API</a>, so expressions are evaluated lazily and optimized by DuckDB prior to execution. The resulting queries are fast, avoiding the need to materialize intermediate tables or perform data transfers.</p>
 <section id="example" class="level2">
 <h2 class="anchored" data-anchor-id="example">Example</h2>
 <div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> duckboat <span class="im">as</span> uck</span>
