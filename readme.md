@@ -56,6 +56,10 @@ uck.Table(csv).do(
 └───────────┴───────────┴───────────┘
 ```
 
+## To and from other dataframes
+
+TODO: pandas, polars, arrow
+
 ## Philosophy
 
 This approach results in a mixture of Python and SQL that, I think, is semantically very similar to
