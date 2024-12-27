@@ -26,7 +26,7 @@ You can leverage all the SQL syntax improvements provided by DuckDB:
 [2](https://duckdb.org/2023/08/23/even-friendlier-sql.html)
 [3](https://duckdb.org/docs/sql/dialect/friendly_sql.html)
 
-## Example
+## Examples
 
 ```python
 import duckboat as uck
@@ -56,15 +56,15 @@ uck.Table(csv).do(
 └───────────┴───────────┴───────────┘
 ```
 
-## To and from other dataframes
+### To and from other dataframes
 
 TODO: pandas, polars, arrow
 
-## Databases and joins
+### Databases and joins
 
 TODO
 
-## Extravagant affordances
+### Extravagant affordances
 
 TODO
 
