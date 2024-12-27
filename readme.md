@@ -1,6 +1,6 @@
 # Duckboat
 
-[ajfriend.github.io/duckboat](https://ajfriend.github.io/duckboat/) | [github.com/ajfriend/duckboat](https://github.com/ajfriend/duckboat)
+[GitHub](https://ajfriend.github.io/duckboat/) | [Docs](https://github.com/ajfriend/duckboat) | [PyPI](https://pypi.org/project/duckboat/)
 
 *Unsightly to some, but gets the job done.*
 
