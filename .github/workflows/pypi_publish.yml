@@ -1,0 +1,58 @@
+name: tests
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  wheels:
+    name: Wheels & SDist
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build SDist and wheel
+        run: pipx run build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Packages
+          path: dist/*
+
+      - name: Check metadata
+        run: pipx run twine check dist/*
+
+      - name: Install from wheel
+        run: |
+          pip install "$(find dist -name 'duckboat-*-py3-none-any.whl' -type f -print -quit)"[test]
+
+      - name: Test wheel
+        run: pytest
+
+      - name: Install from sdist
+        run: |
+          pip uninstall duckboat -y
+          cp dist/duckboat-*.tar.gz duckboat.tar.gz
+          pip install duckboat.tar.gz[test]
+
+      - name: Test sdist
+        run: pytest
+
+  to_pypi:
+    needs: [wheels]
+    if: github.event_name == 'release' && github.event.action == 'published'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4.1.8
+        with:
+          name: Packages
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@v1.12.3
+        with:
+          password: ${{ secrets.PYPI_DUCKBOAT }}
+
+

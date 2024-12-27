@@ -81,20 +81,3 @@ jobs:
 
       - name: Test sdist
         run: pytest
-
-  to_pypi:
-    needs: [wheels]
-    if: github.event_name == 'release' && github.event.action == 'published'
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/download-artifact@v4.1.8
-        with:
-          name: Packages
-          path: dist
-
-      - uses: pypa/gh-action-pypi-publish@v1.10.3
-        with:
-          password: ${{ secrets.PYPI_DUCKBOAT }}
-
-
