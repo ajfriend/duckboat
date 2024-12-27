@@ -1,8 +1,6 @@
 # Duckboat
 
-[GitHub](https://github.com/ajfriend/duckboat) | [Docs](https://ajfriend.github.io/duckboat/) | [PyPI](https://pypi.org/project/duckboat/)
-
-*Unsightly to some, but gets the job done.*
+[GitHub](https://github.com/ajfriend/duckboat) | [Docs](https://ajfriend.github.io/duckboat/) | [PyPI](https://pypi.org/project/duckboat/) || *Unsightly to some, but gets the job done.*
 
 Duckboat is a SQL-based Python dataframe library for ergonomic interactive
 data analysis and exploration.
