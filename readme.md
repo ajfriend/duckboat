@@ -1,6 +1,6 @@
 # Duckboat
 
-*Unsightly to some, but gets the job done.*
+*Ugly to some, but gets the job done.*
 
 [GitHub](https://github.com/ajfriend/duckboat) | [Docs](https://ajfriend.github.io/duckboat/) | [PyPI](https://pypi.org/project/duckboat/)
 
