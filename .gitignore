@@ -8,3 +8,4 @@ docs_output/
 .ipynb_checkpoints/
 *.csv
 *.parquet
+*.coverage
