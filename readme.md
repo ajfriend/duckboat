@@ -56,9 +56,106 @@ uck.Table(csv).do(
 └───────────┴───────────┴───────────┘
 ```
 
-### To and from other dataframes
+### To and from other data formats
 
-TODO: pandas, polars, arrow
+We can translate to and from other data formats like Pandas DataFrames, Polars, or Arrow Tables.
+
+```python
+import pandas as pd
+
+df = pd.DataFrame({'a': [0]})
+t = uck.Table(df)
+t
+```
+
+```
+┌───────┐
+│   a   │
+│ int64 │
+├───────┤
+│     0 │
+└───────┘
+```
+
+Translate back to a pandas dataframe with any of the following:
+
+```python
+t.df()
+t.hold('pandas')
+t.do('pandas')
+```
+
+
+### Chaining expressions
+
+You can chain calls to `Table.do()`:
+
+
+```python
+f = 'select a + 1 as a'
+t.do(f).do(f).do(f)
+```
+
+```
+┌───────┐
+│   a   │
+│ int64 │
+├───────┤
+│     3 │
+└───────┘
+```
+
+Alternatively, `Table.do()` accepts a sequence of arguments:
+
+```
+t.do(f, f, f)
+```
+
+It also accepts lists of expressions, and will apply them recursively:
+
+```python
+fs = [f, f, f]
+t.do(fs)
+```
+
+Note, you could also still call this as:
+
+```python
+t.do(*fs)
+```
+
+Use lists to group expressions, which Duckboat will apply recursively:
+
+```python
+t.do(f, [f], [f, [[f, f], f]])
+```
+
+```
+┌───────┐
+│   a   │
+│ int64 │
+├───────┤
+│     6 │
+└───────┘
+```
+
+Duckboat will also apply functions:
+
+```python
+def foo(x):
+    return x.do('select a + 2 as a')
+
+# the following are equivalent
+foo(t)
+t.do(foo)
+```
+
+Of course, you can mix functions, SQL strings, and lists:
+
+```python
+t.do([foo, f])
+```
+
 
 ### Databases and joins
 
