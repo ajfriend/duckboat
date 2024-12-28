@@ -68,6 +68,35 @@ TODO
 
 TODO
 
+
+### Objects
+
+(probably in the docstrings, rather than the readme)
+
+#### Table
+
+The core functionality comes from `.sql`, where we allow snippets.
+"Shell" functionality comes from the `duckboat.do()` method, allowing for things like...
+
+#### Database
+
+The core functionality comes from the `.sql`, which loads *only* the Tables listed. No other Python objects are loaded.
+A full duckdb sql expression is expected here, with table names provided explicitly.
+
+"Shell" functionality comes from the `duckboat.do()` function/method, allowing for things like...
+
+
+#### eager
+
+The duckboat library makes some efforts to protect against unintentionally evaluating expressions eagerly, rather
+than letting them rest lazily. For example, calling the `__repr__` method on a `Table` or `Database` will
+trigger an evaluation of that object, which could include pulling a large table, or showing a large intermediate result.
+
+in `ipython` or `jupyterlab`, we can typically avoid this by not ending a cell with an object. doing so
+triggers the objects `__repr__`. However, these tactics don't work when using an IDE like Positron,
+which eagerly inspects objects in the namespace to provide insight into what you're working with. This is often useful,
+but not always what you want when working with large datasets or expensive computations.
+
 ## Philosophy
 
 This approach results in a mixture of Python and SQL that, I think, is semantically very similar to
