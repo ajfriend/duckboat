@@ -25,6 +25,7 @@ clear:
 
 	just _remove f '*.DS_Store'
 	just _remove f '*.pyc'
+	just _remove f '.coverage'
 
 rebuild: clear lib
 
