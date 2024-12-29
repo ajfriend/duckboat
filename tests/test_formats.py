@@ -40,6 +40,15 @@ def test_hold():
     )
 
 
+def test_arrow():
+    df = pd.DataFrame({'a': range(10)})
+
+    t1 = uck.Table(df)
+    t2 = uck.Table(t1.do('arrow'))
+
+    assert repr(t1) == repr(t2)
+
+
 def test_alias():
     df = pd.DataFrame({'a': [0]})
     t = uck.Table(df)
