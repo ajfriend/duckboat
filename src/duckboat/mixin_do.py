@@ -53,8 +53,8 @@ def do_one(A, x):
         if x is dict:
             return A.asdict()
 
-    if isinstance(A, Database):
-        pass
+    # if isinstance(A, Database):
+    #     pass
 
     if callable(x):
         return x(A)
