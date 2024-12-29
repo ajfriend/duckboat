@@ -96,7 +96,7 @@ include = [
 
 
 [tool.pytest.ini_options]
-addopts = "--cov=duckboat --cov=tests --cov-report=term-missing --durations=10 --cov-fail-under=100"
+addopts = "--cov=duckboat --cov=tests --cov-report=term-missing --cov-fail-under=100"
 
 [tool.coverage.run]
 omit = []

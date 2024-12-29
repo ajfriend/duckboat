@@ -44,3 +44,23 @@ def test_alias():
     df = pd.DataFrame({'a': [0]})
     t = uck.Table(df)
     assert repr(t.do('alias bah')) == "Database:\n    bah: 1 x ['a']"
+
+
+def test_db_hold():
+    from pandas.testing import assert_frame_equal
+
+    df = pd.DataFrame({'a': [0]})
+    db = uck.Database(df=df)
+
+    d = db.hold('pandas')
+
+    assert isinstance(d, dict)
+    assert_frame_equal(
+        d['df'],
+        df,
+    )
+
+def test_from_csv():
+    t = uck.Table('tests/ten.csv')
+    assert t.do(list) == list(range(10))
+
