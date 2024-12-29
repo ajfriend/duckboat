@@ -25,3 +25,19 @@ def test_bad_object():
 
     with pytest.raises(ValueError):
         uck.Table(df).do(foo, 'select *')
+
+def test_hold():
+    from pandas.testing import assert_frame_equal
+
+    df = pd.DataFrame({'a': [0]})
+    t = uck.Table(df)
+
+    assert_frame_equal(
+        t.do('pandas'),
+        df,
+    )
+
+def test_alias():
+    df = pd.DataFrame({'a': [0]})
+    t = uck.Table(df)
+    assert repr(t.do('alias bah')) == "Database:\n    bah: 1 x ['a']"
