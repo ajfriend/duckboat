@@ -17,6 +17,7 @@ def test_dict():
     assert t.asdict() == d
     assert t.do(dict) == d
 
+
 def test_bad_object():
     def foo(x):
         return 1
@@ -25,6 +26,7 @@ def test_bad_object():
 
     with pytest.raises(ValueError):
         uck.Table(df).do(foo, 'select *')
+
 
 def test_hold():
     from pandas.testing import assert_frame_equal
@@ -36,6 +38,7 @@ def test_hold():
         t.do('pandas'),
         df,
     )
+
 
 def test_alias():
     df = pd.DataFrame({'a': [0]})

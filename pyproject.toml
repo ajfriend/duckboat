@@ -39,9 +39,9 @@ build-backend = 'hatchling.build'
 
 
 [tool.ruff]
-src = [
-    'src',
-    'tests',
+src = ['src']
+exclude = [
+    'notebooks/'
 ]
 line-length = 88
 

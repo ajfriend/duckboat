@@ -18,7 +18,6 @@ def test_repr():
     out = out.strip()
     out += '\n'
 
-
     t = uck.Table(df)
     assert repr(t) == out
 
