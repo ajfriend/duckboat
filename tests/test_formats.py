@@ -72,3 +72,24 @@ def test_to_from_csv():
         t1.save(name)
         t2 = uck.Table(name)
         assert repr(t1) == repr(t2)
+
+
+def test_to_from_parquet():
+    import tempfile
+
+    df = pd.DataFrame({'a': range(10), 'b': range(10)})
+    t1 = uck.Table(df)
+
+    with tempfile.NamedTemporaryFile(suffix='.parquet') as tf:
+        name = tf.name
+        t1.save(name)
+        t2 = uck.Table(name)
+        assert repr(t1) == repr(t2)
+
+
+def test_to_unknown_format():
+    df = pd.DataFrame({'a': range(10), 'b': range(10)})
+    t1 = uck.Table(df)
+
+    with pytest.raises(ValueError):
+        t1.save('test.not_a_format')
