@@ -12,11 +12,11 @@ def test_repr():
 
     assert t.do(list) == xs
 
+
 def test_list():
     df = pd.DataFrame(np.zeros((1,10)))
     t = uck.Table(df)
     assert t.do(list) == [0.0]*10
-
 
     df = pd.DataFrame(np.zeros((10,10)))
     t = uck.Table(df)

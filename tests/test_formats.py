@@ -61,6 +61,14 @@ def test_db_hold():
     )
 
 
-def test_from_csv():
-    t = uck.Table('tests/ten.csv')
-    assert t.do(list) == list(range(10))
+def test_to_from_csv():
+    import tempfile
+
+    df = pd.DataFrame({'a': range(10), 'b': range(10)})
+    t1 = uck.Table(df)
+
+    with tempfile.NamedTemporaryFile(suffix='.csv') as tf:
+        name = tf.name
+        t1.save(name)
+        t2 = uck.Table(name)
+        assert repr(t1) == repr(t2)
