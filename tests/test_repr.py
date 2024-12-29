@@ -28,6 +28,12 @@ def test_repr():
     t = uck.Table(df, _hide=True)
     assert repr(t) == '<Table(..., _hide=True)>'
 
+    t = uck.Table(df).hide()
+    assert repr(t) == '<Table(..., _hide=True)>'
+
+    t = uck.Table(df).hide().show()
+    assert repr(t) == out
+
 
 def test_rowcols():
     import numpy as np

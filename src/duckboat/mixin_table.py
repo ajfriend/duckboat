@@ -13,7 +13,7 @@ class TableMixin:
     def asdict(self):
         """Transform a df with one row to a dict
         """
-        # _insist_single_row(df)
+        # TODO: _insist_single_row(df)
         df = self.df()
         return dict(df.iloc[0])
 
