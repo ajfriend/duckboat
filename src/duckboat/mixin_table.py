@@ -82,3 +82,7 @@ class TableMixin:
 def _save_format(tbl, filename, format):
     s = f"copy (select * from tbl) to '{filename}' {format};"
     query(s, tbl=tbl.rel)
+
+
+
+
