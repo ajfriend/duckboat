@@ -60,7 +60,7 @@ def test_db_hold():
         df,
     )
 
+
 def test_from_csv():
     t = uck.Table('tests/ten.csv')
     assert t.do(list) == list(range(10))
-

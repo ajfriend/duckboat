@@ -2,9 +2,15 @@ import duckboat as uck
 import pandas as pd
 
 
-def test_repr():
+def dedent_helper(s):
     from textwrap import dedent
+    s = dedent(s)
+    s = s.strip()
+    s += '\n'
+    return s
 
+
+def test_repr():
     df = pd.DataFrame({'a': [0]})
     out = """
     ┌───────┐
@@ -14,9 +20,7 @@ def test_repr():
     │     0 │
     └───────┘
     """
-    out = dedent(out)
-    out = out.strip()
-    out += '\n'
+    out = dedent_helper(out)
 
     t = uck.Table(df)
     assert repr(t) == out
