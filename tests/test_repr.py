@@ -1,5 +1,6 @@
 import duckboat as uck
 import pandas as pd
+import numpy as np
 
 
 def dedent_helper(s):
@@ -42,7 +43,6 @@ def test_repr():
 
 
 def test_rowcols():
-    import numpy as np
     shape = (17, 4)
 
     df = pd.DataFrame(np.zeros(shape))
