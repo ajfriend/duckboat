@@ -262,14 +262,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="duckboat" class="level1">
 <h1>Duckboat</h1>
-<p><em>Unsightly to some, but gets the job done.</em></p>
+<p><em>Ugly to some, but gets the job done.</em></p>
 <p><a href="https://github.com/ajfriend/duckboat">GitHub</a> | <a href="https://ajfriend.github.io/duckboat/">Docs</a> | <a href="https://pypi.org/project/duckboat/">PyPI</a></p>
 <p>Duckboat is a SQL-based Python dataframe library for ergonomic interactive data analysis and exploration.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pip install duckboat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Duckboat allows you to chain SQL snippets (meaning you can usually omit <code>select *</code> and <code>from ...</code>) to incrementally and lazily build up complex queries.</p>
 <p>Duckboat is a light wrapper around the <a href="https://duckdb.org/docs/api/python/relational_api">DuckDB relational API</a>, so expressions are evaluated lazily and optimized by DuckDB prior to execution. The resulting queries are fast, avoiding the need to materialize intermediate tables or perform data transfers. You can leverage all the SQL syntax improvements provided by DuckDB: <a href="https://duckdb.org/2022/05/04/friendlier-sql.html">1</a> <a href="https://duckdb.org/2023/08/23/even-friendlier-sql.html">2</a> <a href="https://duckdb.org/docs/sql/dialect/friendly_sql.html">3</a></p>
-<section id="example" class="level2">
-<h2 class="anchored" data-anchor-id="example">Example</h2>
+<section id="examples" class="level2">
+<h2 class="anchored" data-anchor-id="examples">Examples</h2>
 <div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> duckboat <span class="im">as</span> uck</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>csv <span class="op">=</span> <span class="st">'https://raw.githubusercontent.com/allisonhorst/palmerpenguins/main/inst/extdata/penguins.csv'</span></span>
@@ -292,6 +292,87 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 │ Chinstrap │ Dream     │    3522.9 │
 │ Gentoo    │ Biscoe    │    4786.3 │
 └───────────┴───────────┴───────────┘</code></pre>
+<section id="to-and-from-other-data-formats" class="level3">
+<h3 class="anchored" data-anchor-id="to-and-from-other-data-formats">To and from other data formats</h3>
+<p>We can translate to and from other data formats like Pandas DataFrames, Polars, or Arrow Tables.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame({<span class="st">'a'</span>: [<span class="dv">0</span>]})</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> uck.Table(df)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>t</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>┌───────┐
+│   a   │
+│ int64 │
+├───────┤
+│     0 │
+└───────┘</code></pre>
+<p>Translate back to a pandas dataframe with any of the following:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>t.df()</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>t.hold(<span class="st">'pandas'</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'pandas'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="chaining-expressions" class="level3">
+<h3 class="anchored" data-anchor-id="chaining-expressions">Chaining expressions</h3>
+<p>You can chain calls to <code>Table.do()</code>:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="st">'select a + 1 as a'</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>t.do(f).do(f).do(f)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>┌───────┐
+│   a   │
+│ int64 │
+├───────┤
+│     3 │
+└───────┘</code></pre>
+<p>Alternatively, <code>Table.do()</code> accepts a sequence of arguments:</p>
+<pre><code>t.do(f, f, f)</code></pre>
+<p>It also accepts lists of expressions, and will apply them recursively:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fs <span class="op">=</span> [f, f, f]</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>t.do(fs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Note, you could also still call this as:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>t.do(<span class="op">*</span>fs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Use lists to group expressions, which Duckboat will apply recursively:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>t.do(f, [f], [f, [[f, f], f]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>┌───────┐
+│   a   │
+│ int64 │
+├───────┤
+│     6 │
+└───────┘</code></pre>
+<p>Duckboat will also apply functions:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> foo(x):</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x.do(<span class="st">'select a + 2 as a'</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># the following are equivalent</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>foo(t)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>t.do(foo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Of course, you can mix functions, SQL strings, and lists:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>t.do([foo, f])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="databases-and-joins" class="level3">
+<h3 class="anchored" data-anchor-id="databases-and-joins">Databases and joins</h3>
+<p>TODO</p>
+</section>
+<section id="extravagant-affordances" class="level3">
+<h3 class="anchored" data-anchor-id="extravagant-affordances">Extravagant affordances</h3>
+<p>TODO</p>
+</section>
+<section id="objects" class="level3">
+<h3 class="anchored" data-anchor-id="objects">Objects</h3>
+<p>(probably in the docstrings, rather than the readme)</p>
+<section id="table" class="level4">
+<h4 class="anchored" data-anchor-id="table">Table</h4>
+<p>The core functionality comes from <code>.sql</code>, where we allow snippets. “Shell” functionality comes from the <code>duckboat.do()</code> method, allowing for things like…</p>
+</section>
+<section id="database" class="level4">
+<h4 class="anchored" data-anchor-id="database">Database</h4>
+<p>The core functionality comes from the <code>.sql</code>, which loads <em>only</em> the Tables listed. No other Python objects are loaded. A full duckdb sql expression is expected here, with table names provided explicitly.</p>
+<p>“Shell” functionality comes from the <code>duckboat.do()</code> function/method, allowing for things like…</p>
+</section>
+<section id="eager" class="level4">
+<h4 class="anchored" data-anchor-id="eager">eager</h4>
+<p>The duckboat library makes some efforts to protect against unintentionally evaluating expressions eagerly, rather than letting them rest lazily. For example, calling the <code>__repr__</code> method on a <code>Table</code> or <code>Database</code> will trigger an evaluation of that object, which could include pulling a large table, or showing a large intermediate result.</p>
+<p>in <code>ipython</code> or <code>jupyterlab</code>, we can typically avoid this by not ending a cell with an object. doing so triggers the objects <code>__repr__</code>. However, these tactics don’t work when using an IDE like Positron, which eagerly inspects objects in the namespace to provide insight into what you’re working with. This is often useful, but not always what you want when working with large datasets or expensive computations.</p>
+</section>
+</section>
 </section>
 <section id="philosophy" class="level2">
 <h2 class="anchored" data-anchor-id="philosophy">Philosophy</h2>
