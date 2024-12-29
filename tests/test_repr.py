@@ -34,6 +34,9 @@ def test_repr():
     t = uck.Table(df).hide().show()
     assert repr(t) == out
 
+    t = uck.Table(df).do('hide', 'show')
+    assert repr(t) == out
+
 
 def test_rowcols():
     import numpy as np
