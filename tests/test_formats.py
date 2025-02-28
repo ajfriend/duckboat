@@ -1,6 +1,6 @@
 import duckboat as uck
 import pandas as pd
-
+import duckdb
 import pytest
 
 
@@ -24,7 +24,7 @@ def test_bad_object():
 
     df = pd.DataFrame({'a': [0]})
 
-    with pytest.raises(ValueError):
+    with pytest.raises(duckdb.InvalidInputException):
         uck.Table(df).do(foo, 'select *')
 
 

@@ -25,7 +25,8 @@ def do_one(A, x):
     from .database import Database
 
     if not isinstance(A, (Table, Database)):
-        raise ValueError(f'Expected to be Table or Database: {A}')
+        A = Table(A)  # maybe this works? if not, should error
+        # raise ValueError(f'Expected to be Table or Database: {A}')
 
     x = _get_if_file(x)
 
