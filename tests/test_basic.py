@@ -40,3 +40,35 @@ def test_path():
     assert t.do(f, int) == 1
     assert t.do(f,f,f, int) == 3
     assert t.do([f,f,f], int) == 3
+
+
+def test_dfs():
+    df = pd.DataFrame({'a': [0]})
+
+    out = uck.do(
+        df,
+        'select a + 1 as a',
+        int,
+    )
+    assert out == 1
+
+    out = uck.do(
+        df,
+        'select a + 1 as a',
+    )
+    assert isinstance(out, uck.Table)
+
+    out = uck.do(
+        df,
+        'select a + 1 as a',
+        'pandas',
+    )
+    assert isinstance(out, pd.DataFrame)
+
+    out = uck.do(
+        df,
+        'select a + 1 as a',
+        'pandas',
+        'select *'
+    )
+    assert isinstance(out, uck.Table)
