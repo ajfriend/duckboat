@@ -20,13 +20,24 @@ def _get_if_file(s) -> str:
     return s
 
 
-def do_one(A, x):
+def _convert_A(A):
     from .table import Table
     from .database import Database
+
+    if isinstance(A, dict):
+        A = Database(**A)
 
     if not isinstance(A, (Table, Database)):
         A = Table(A)  # maybe this works? if not, should error
         # raise ValueError(f'Expected to be Table or Database: {A}')
+
+    return A
+
+
+def do_one(A, x):
+    from .table import Table
+
+    A = _convert_A(A)
 
     x = _get_if_file(x)
 
@@ -64,6 +75,7 @@ def do_one(A, x):
 
 
 def _do(A, *xs):
+    A = _convert_A(A)
     for x in xs:
         A = do_one(A, x)
     return A

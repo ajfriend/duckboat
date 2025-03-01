@@ -24,6 +24,25 @@ def test_db():
     assert out == [10, 20]
 
 
+def test_db2():
+    a = pd.DataFrame({'x': range(10)})
+    b = pd.DataFrame({'x': range(20)})
+
+    out = uck.do(
+        {'a': a, 'b': b},
+        """
+        select count(*) from a
+        union all
+        select count(*) from b
+        """,
+        list,
+    )
+    assert out == [10, 20]
+
+    out = uck.do({'a': a, 'b': b}, 'select * from a', 'pandas', list)
+    assert out == list(range(10))
+
+
 def test_hide_show():
     a = pd.DataFrame({'x': range(10)})
     b = pd.DataFrame({'x': range(20)})
