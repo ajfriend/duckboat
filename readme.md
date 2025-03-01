@@ -31,9 +31,8 @@ You can leverage all the SQL syntax improvements provided by DuckDB:
 ```python
 import duckboat as uck
 
-csv = 'https://raw.githubusercontent.com/allisonhorst/palmerpenguins/main/inst/extdata/penguins.csv'
-
-uck.Table(csv).do(
+uck.do(
+    'https://raw.githubusercontent.com/allisonhorst/palmerpenguins/main/inst/extdata/penguins.csv',
     "where sex = 'female' ",
     'where year > 2008',
     'select *, cast(body_mass_g as double) as grams',
