@@ -152,56 +152,180 @@ t.do(foo)
 Of course, you can mix functions, SQL strings, and lists:
 
 ```python
-t.do([foo, f])
+uck.do(df, foo, [f, foo])
+```
+
+```
+┌───────┐
+│   a   │
+│ int64 │
+├───────┤
+│     5 │
+└───────┘
 ```
 
 
 ### Databases and joins
 
-TODO
+Use `Database` to work with multiple named tables and write full SQL (including joins):
+
+```python
+import pandas as pd
+
+orders = pd.DataFrame({'id': [1, 2, 3], 'customer_id': [10, 20, 10], 'amount': [5.0, 12.0, 8.0]})
+customers = pd.DataFrame({'id': [10, 20], 'name': ['Alice', 'Bob']})
+
+db = uck.Database(orders=orders, customers=customers)
+```
+
+Unlike `Table.sql()`, `Database.sql()` requires explicit table names:
+
+```python
+db.sql('''
+    select c.name, sum(o.amount) as total
+    from orders o
+    join customers c on o.customer_id = c.id
+    group by 1
+''')
+```
+
+```
+┌─────────┬────────┐
+│  name   │ total  │
+│ varchar │ double │
+├─────────┼────────┤
+│ Alice   │   13.0 │
+│ Bob     │   12.0 │
+└─────────┴────────┘
+```
+
+`Database.do()` works the same way, chaining full SQL expressions:
+
+```python
+db.do(
+    'select c.name, o.amount from orders o join customers c on o.customer_id = c.id',
+    'order by amount desc',
+)
+```
+
+You can also create a `Database` inline via `do()` by passing a dict:
+
+```python
+uck.do(
+    {'orders': orders, 'customers': customers},
+    'select c.name, sum(o.amount) as total from orders o join customers c on o.customer_id = c.id group by 1',
+)
+```
+
+Or alias a single table into a database for joins with itself:
+
+```python
+t.do('alias my_table')
+```
 
 ### Extravagant affordances
 
-TODO
+`do()` dispatches on the type of its arguments, providing some handy shortcuts.
+
+**Extract scalars, lists, and dicts:**
+
+```python
+t.do('select count(*)', int)       # returns a Python int
+t.do('select distinct a', list)    # returns a Python list
+t.do('limit 1', dict)              # returns a Python dict
+```
+
+**Convert to other formats:**
+
+```python
+t.do('pandas')   # returns a Pandas DataFrame
+t.do('arrow')    # returns a PyArrow Table
+```
+
+**Apply functions:**
+
+```python
+def add_col(t):
+    return t.do("select *, a + 10 as b")
+
+t.do(add_col, 'select b', int)  # 10
+```
+
+**Run `.sql` files:**
+
+```python
+t.do('queries/transform.sql')  # loads and runs the file contents as SQL
+```
+
+**Control display with `hide` and `show`:**
+
+```python
+big = uck.Table('huge_dataset.parquet').do('hide')  # suppresses repr output
+big.do('show')  # re-enables repr
+```
 
 
 ### Objects
 
-(probably in the docstrings, rather than the readme)
-
 #### Table
 
-The core functionality comes from `.sql`, where we allow snippets.
-"Shell" functionality comes from the `duckboat.do()` method, allowing for things like...
+`Table` wraps a DuckDB `DuckDBPyRelation`. Create one from a file path, URL, Pandas DataFrame, Arrow Table, or dict:
+
+```python
+t = uck.Table('data.parquet')
+t = uck.Table(pd.DataFrame({'x': [1, 2, 3]}))
+```
+
+The core method is `.sql()`, which auto-prepends `from <table>` so you can write SQL snippets:
+
+```python
+t.sql('select x + 1 as x')  # becomes: from <table> select x + 1 as x
+```
+
+`.do()` chains operations and dispatches on argument type (strings, functions, lists, type conversions). Access the underlying DuckDB relation with `t.rel`.
 
 #### Database
 
-The core functionality comes from the `.sql`, which loads *only* the Tables listed. No other Python objects are loaded.
-A full duckdb sql expression is expected here, with table names provided explicitly.
+`Database` is a named dictionary of tables:
 
-"Shell" functionality comes from the `duckboat.do()` function/method, allowing for things like...
+```python
+db = uck.Database(orders=orders_df, customers=customers_df)
+```
 
+Unlike `Table`, `Database.sql()` requires explicit table names since there's no single table to auto-prepend. Only the tables in the `Database` are visible to the query. Access individual tables with `db['table_name']`.
 
-#### eager
+#### Eager evaluation and `hide`/`show`
 
-The duckboat library makes some efforts to protect against unintentionally evaluating expressions eagerly, rather
-than letting them rest lazily. For example, calling the `__repr__` method on a `Table` or `Database` will
-trigger an evaluation of that object, which could include pulling a large table, or showing a large intermediate result.
+Calling `repr()` on a `Table` or `Database` triggers query evaluation. In Jupyter, this happens when an object is the last expression in a cell. In IDEs like Positron, the variable explorer proactively inspects objects, which can trigger expensive computations.
 
-in `ipython` or `jupyterlab`, we can typically avoid this by not ending a cell with an object. doing so
-triggers the objects `__repr__`. However, these tactics don't work when using an IDE like Positron,
-which eagerly inspects objects in the namespace to provide insight into what you're working with. This is often useful,
-but not always what you want when working with large datasets or expensive computations.
+Use `hide()` to suppress evaluation:
+
+```python
+big = uck.Table('huge_dataset.parquet').do('hide')
+# Positron's variable explorer will see: <Table(..., _hide=True)>
+# instead of evaluating the full query
+```
+
+Call `show()` (or `.do('show')`) when you're ready to see results.
 
 ## Philosophy
 
-This approach results in a mixture of Python and SQL that, I think, is semantically very similar to
-[Google's Pipe Syntax for SQL](https://research.google/pubs/sql-has-problems-we-can-fix-them-pipe-syntax-in-sql/):
-We can leverage our existing knowledge of SQL, while making a few small changes to make it more ergonomic and composable.
+Duckboat bets that SQL is already the right language for tabular data manipulation -- you just need a way to compose SQL snippets into pipelines. This results in a mixture of Python and SQL that is semantically similar to [Google's Pipe Syntax for SQL](https://research.google/pubs/sql-has-problems-we-can-fix-them-pipe-syntax-in-sql/).
 
-When doing interactive data analysis, I find this approach easier to read and write than
-fluent APIs (like in [Polars](https://pola.rs/) or [Ibis](https://ibis-project.org/)) or typical [Pandas](https://pandas.pydata.org/) code.
-If some operation is easier in other libraries, Duckboat makes it straightforward translate between them, either directly or through Apache Arrow.
+**Strengths:**
+
+- **Zero new API to learn.** If you know SQL, you know duckboat. There are no new method chains, expression builders, or DSLs to memorize.
+- **Minimal surface area.** The library is essentially `Table`, `Database`, and `.do()`. The codebase is small and stays out of your way.
+- **Snippet composability.** SQL fragments chain naturally through `do()`, letting you build complex queries incrementally and interactively.
+
+**Tradeoffs:**
+
+- **No IDE autocomplete on column names.** Column references live inside SQL strings, so you don't get tab-completion or type checking. Typos surface at runtime, not in your editor.
+- **Discoverability.** The `do()` dispatch conventions (`int`, `list`, `"pandas"`, `"hide"`, etc.) are terse but must be learned -- they can't be discovered through autocomplete.
+
+**Where duckboat fits best:**
+
+Duckboat is ideal for interactive exploration and notebook workflows, especially for teams already fluent in SQL. If you need strong static analysis, IDE support, or production-grade type safety, a fluent API like [Polars](https://pola.rs/) or [Ibis](https://ibis-project.org/) may be a better fit. If some operation is easier in another library, duckboat makes it straightforward to translate between them via Pandas, Arrow, or Polars.
 
 ## Feedback
 
