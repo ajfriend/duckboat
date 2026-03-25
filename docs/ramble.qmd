@@ -1,38 +1,62 @@
 ---
-title: "AJ Rambles"
+title: "Design Philosophy"
 ---
 
-`duckboat` excels at simple, readable interactive work without new syntax
+Duckboat is an experiment in taking SQL seriously as a dataframe API. Rather than wrapping SQL behind Python method chains, it makes SQL itself composable.
 
-other libraries excel at providing IDE support and type hinting.
+## SQL-first
 
-I'm not a user of the latter, so I'm less familiar with the benefits here.
-However, I am interested in understanding if there is a way to capture the benefits
-of each of these approaches.
+Most Python dataframe libraries (Pandas, Polars, Ibis) create a new API layer on top of SQL. You learn their expression syntax, their method names, their way of doing group-bys and joins. This gives you IDE autocomplete, type checking, and discoverability -- real benefits.
 
-What would a best-of-both-worlds library/language look like?
+Duckboat takes a different route: SQL is already a great DSL for data. Millions of people already know it. DuckDB has made it [friendlier than ever](https://duckdb.org/2022/05/04/friendlier-sql.html). The missing piece is composability -- raw SQL strings aren't naturally composable. Duckboat's `Table.sql()` fixes this with one trick: auto-prepending `from <table>`, which turns SQL snippets into composable fragments.
 
-as i said, this library is experimental. i'm going hard in one direction as a way
-to explore the developer experience space. I'm also interested in using this project
-as a way to kick off discussions of how to build future libraries and languages
-to solve similar problems.
+## Snippet composability
 
+A SQL snippet like `where x > 5` isn't useful on its own -- it needs a `from` clause. Duckboat provides that automatically, so snippets chain naturally:
 
-## Repr
+```python
+t.do(
+    "where status = 'active'",
+    'select id, name, score',
+    'order by score desc',
+    'limit 10',
+)
+```
 
-maybe provide a repr option to provide an alternative to avoid the computation
-`Table('.../...', repr='bah')`. Should it pass it down to derived objects? Maybe that's too complicated
+Each string is a SQL fragment. Duckboat prepends the `from` clause, chains them through DuckDB's relation API, and lets the query planner optimize the whole pipeline. This is semantically similar to [Google's Pipe Syntax proposal for SQL](https://research.google/pubs/sql-has-problems-we-can-fix-them-pipe-syntax-in-sql/), achieved at the Python level.
 
+## Minimal API surface
 
-## Opener
+The entire library is essentially three things:
 
-An alternative Python DataFrame library for SQL gremlins.
+- `Table` -- wraps a DuckDB relation
+- `Database` -- a named dict of tables for multi-table queries
+- `do()` -- chains operations and dispatches on argument type
 
-- you think SQL is fine, especially if you can write composable snippets
-- maybe you lose some IDE and typing support, but I think you get a big win in terms of REPL/notebook programming (which is where i spend most of my time)
+That's it. There are no expression builders, no column reference objects, no custom aggregation APIs. The "API" is SQL.
 
-or, an experiment in [https://en.wiktionary.org/wiki/Cunningham%27s_Law]()
+## Tradeoffs
 
-Duckboat is a *small* DataFrame library...
+This approach has real costs:
 
-Duckboat is etc. It is *small*, in that it is a light wrapper around the DuckDB API. Not much to learn and the library gets out of your way.
+**No IDE autocomplete on columns.** Column names live inside SQL strings. Your editor can't tab-complete `t.do('select na|')` the way it can with `df.name` in Pandas or `col("name")` in Polars. Typos are caught at runtime, not in the editor.
+
+**Discoverability.** The `do()` dispatch conventions -- passing `int` to extract a scalar, `"pandas"` to convert, `"hide"` to suppress display -- are terse and powerful, but you need to know they exist. They can't be discovered by browsing method signatures.
+
+**Not ideal for production pipelines.** For code that needs to be maintained by a team, reviewed in PRs, and validated by CI, the static analysis benefits of a typed API are significant. Duckboat is better suited to interactive exploration.
+
+## Where duckboat fits
+
+Duckboat is at its best for:
+
+- **Interactive notebooks** where you're exploring data and iterating quickly
+- **SQL-fluent teams** who don't want to learn a new API for ad-hoc analysis
+- **Quick scripts** where ceremony and boilerplate slow you down
+
+If you need IDE support, type safety, or backend portability, consider [Polars](https://pola.rs/) or [Ibis](https://ibis-project.org/). If some operation is easier in those libraries, duckboat makes it straightforward to convert between them.
+
+## A small library, deliberately
+
+Duckboat is small -- both in API surface and codebase. This is intentional. It's an experiment in one direction of the design space: what happens when you lean fully into SQL as your dataframe API, with minimal Python wrapping?
+
+The answer, I think, is a tool that's surprisingly pleasant for interactive work. Not for everything, but for the kind of exploratory data analysis where you're thinking in SQL anyway.

@@ -1,58 +1,56 @@
-default:
-      @just --list
+export UV_NO_EDITABLE := "1"
+export UV_OFFLINE := "0"
 
-init: purge
-	python -m venv env
-	env/bin/pip install --upgrade pip wheel setuptools
-	just lib
+_:
+    @just --list
 
-lib:
-	env/bin/pip install .[all]
+clean:
+    just _rm '__pycache__'
+    just _rm '*.egg-info'
+    just _rm '*.ipynb_checkpoints'
+    just _rm '.pytest_cache'
+    just _rm 'docs_output'
+    just _rm 'site_libs'
+    just _rm '.quarto'
+    just _rm '*.quarto_ipynb'
+    just _rm '*.DS_Store'
+    just _rm '*.pyc'
+    just _rm '.coverage'
+    just _rm '.ruff_cache'
+    just _rm 'uv.lock'
 
-# uninstall duckboat and remove extranous files
-clear:
-	-env/bin/pip uninstall -y duckboat
+purge: clean
+    -rm -rf .venv
+    just _rm '.claude'
 
-	just _remove d '__pycache__'
-	just _remove d '*.egg-info'
-	just _remove d '*.ipynb_checkpoints'
-	just _remove d '.pytest_cache'
 
-	just _remove d 'docs_output'
-	just _remove d 'site_libs'
-	just _remove d '.quarto'
-	just _remove f '*.quarto_ipynb'
+_rm pattern:
+    -@find . -name "{{pattern}}" -prune -exec rm -rf {} +
 
-	just _remove f '*.DS_Store'
-	just _remove f '*.pyc'
-	just _remove f '.coverage'
+reinstall:
+    uv sync --reinstall-package duckboat
 
-rebuild: clear lib
-
-# remove env
-purge:
-	-rm -rf env
-	just clear
-
-test:
-	env/bin/pytest
-
-lab:
-	env/bin/pip install jupyterlab
-	env/bin/jupyter lab
-
-render:
-	source env/bin/activate; quarto render docs/
-	open docs_output/index.html
-
-publish:
-	source env/bin/activate; cd docs; quarto publish gh-pages
-
-_remove type name:
-    -@find . -type {{type}} -name {{name}} | xargs rm -r
+test: reinstall
+    uv run pytest
 
 lint:
-	./env/bin/ruff check
+    uv run ruff check
 
 fix:
-	./env/bin/ruff check --fix
+    uv run ruff check --fix
+
+[group('extra')]
+lab:
+    uv run jupyter lab
+
+
+[group('docs')]
+render:
+    uv run quarto render docs/
+    open docs_output/index.html
+
+[group('docs')]
+publish:
+    cd docs && uv run quarto publish gh-pages
+
+

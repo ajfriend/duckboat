@@ -2,10 +2,32 @@
 title: "Related Projects"
 ---
 
-- Pandas
-- Polars
-- Ibis
-- DuckDB
-    - [DuckDB's SQL improvements](https://duckdb.org/2022/05/04/friendlier-sql.html)
-- [PRQL](https://prql-lang.org/)
+Duckboat exists in a rich ecosystem of Python dataframe and SQL tools. Here's how it relates to some of them.
 
+### [Pandas](https://pandas.pydata.org/)
+
+The most widely-used Python dataframe library. Pandas uses a method-chaining API with eager evaluation. Duckboat differs in using SQL strings instead of Python method calls, and in evaluating lazily via DuckDB. Convert between them with `t.do('pandas')` or `uck.Table(df)`.
+
+### [Polars](https://pola.rs/)
+
+A modern, fast dataframe library with a fluent expression API and lazy evaluation. Polars provides strong IDE support with autocomplete on column operations. Duckboat trades that discoverability for zero new API -- you write SQL directly instead of learning Polars expressions.
+
+### [Ibis](https://ibis-project.org/)
+
+A portable dataframe API that compiles to SQL for various backends (DuckDB, Postgres, BigQuery, etc.). Ibis provides a Python expression API with IDE support and backend portability. Duckboat is simpler and more direct -- you write SQL snippets rather than building expressions through a Python API.
+
+### [DuckDB](https://duckdb.org/)
+
+Duckboat is a thin wrapper around DuckDB's [relational API](https://duckdb.org/docs/api/python/relational_api). DuckDB provides the query engine; duckboat adds ergonomic SQL snippet chaining, automatic `from` prepending, and the `do()` dispatch mechanism. See the [DuckDB integration](duckdb_stuff.qmd) page for details.
+
+- [Friendlier SQL](https://duckdb.org/2022/05/04/friendlier-sql.html)
+- [Even Friendlier SQL](https://duckdb.org/2023/08/23/even-friendlier-sql.html)
+- [Friendly SQL reference](https://duckdb.org/docs/sql/dialect/friendly_sql.html)
+
+### [PRQL](https://prql-lang.org/)
+
+A pipelined query language that compiles to SQL. PRQL redesigns SQL syntax to be composable and top-to-bottom readable. Duckboat takes a different approach: rather than replacing SQL syntax, it makes standard SQL composable by chaining snippets through Python.
+
+### [Google's Pipe Syntax for SQL](https://research.google/pubs/sql-has-problems-we-can-fix-them-pipe-syntax-in-sql/)
+
+A research proposal for adding pipe operators directly to SQL. Duckboat achieves a similar result at the Python level -- `do()` chains SQL snippets in a way that's semantically close to what pipe syntax would provide natively.

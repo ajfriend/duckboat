@@ -30,7 +30,7 @@ class TableMixin:
         return self.rel.df()
 
     def arrow(self):
-        return self.rel.arrow()
+        return self.rel.to_arrow_table()
 
     def aslist(self):
         """Transform a df with one row or one column to a list"""

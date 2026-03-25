@@ -1,31 +1,76 @@
 ---
-title: "DuckDB Concepts"
+title: "DuckDB Integration"
 ---
 
-`duckboat` is primarily built on DuckDB's Relational API.
-As an escape hatch, `duckboat` exposes its DuckDB compoents for you to use directly:
+`duckboat` is a thin wrapper around DuckDB's [relational API](https://duckdb.org/docs/api/python/relational_api).
+When you need to drop down to DuckDB directly, duckboat exposes its internals as escape hatches.
 
-- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyConnection.install_extension
+## Escape hatches
 
-- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.columns
-    - TODO: does that simplify my columns helper!?
-- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.describe
-- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.description
-- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.dtypes
-- [explain](https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.explain)
-- [execute](https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.execute)
-    - TODO: actually, what does this do?
-- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.query
-- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.show
-- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.sql_query
-- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.shape
-- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.histogram
-    - TODO: what's the SQL for this, would make for a good example
-- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.type
-- https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.types
-- https://duckdb.org/docs/api/python/reference/#duckdb.ExplainType    
+### `uck.con` -- the DuckDB connection
 
+Access the underlying `DuckDBPyConnection` directly:
 
-## What's different from DuckDB's relational api
+```python
+import duckboat as uck
 
-- avoid connection objects
+uck.con  # the shared in-memory DuckDB connection
+
+# Install and load extensions
+uck.con.install_extension('spatial')
+uck.con.load_extension('spatial')
+
+# Execute arbitrary SQL
+uck.con.execute("CREATE TABLE foo AS SELECT 42 AS x")
+```
+
+### `uck.query()` -- raw SQL queries
+
+Run a SQL query directly on the connection and get back a `DuckDBPyRelation`:
+
+```python
+rel = uck.query('select 1 + 1 as result')
+```
+
+You can pass keyword arguments to make Python objects available as table names:
+
+```python
+import pandas as pd
+df = pd.DataFrame({'x': [1, 2, 3]})
+rel = uck.query('select * from df where x > 1', df=df)
+```
+
+### `t.rel` -- the underlying relation
+
+Every `Table` wraps a `DuckDBPyRelation`. Access it directly for DuckDB-native operations:
+
+```python
+t = uck.Table({'x': [1, 2, 3]})
+
+t.rel              # the DuckDBPyRelation
+t.rel.columns      # column names
+t.rel.dtypes       # column types
+t.rel.describe()   # summary statistics
+t.rel.explain()    # query execution plan
+```
+
+## What's different from DuckDB's relational API
+
+Duckboat adds a few ergonomic improvements over using DuckDB's Python API directly:
+
+| Feature                   | DuckDB relational API            | Duckboat                                     |
+|---------------------------|----------------------------------|----------------------------------------------|
+| **Connection management** | Must create and pass connections | Shared connection handled automatically      |
+| **SQL `from` clause**     | Must write full SQL              | Auto-prepended by `Table.sql()`              |
+| **Chaining**              | `.query()` with manual naming    | `.do()` chains snippets, functions, and more |
+| **Output conversion**     | `.df()`, `.arrow()`, etc.        | Also via `do('pandas')`, `do('arrow')`       |
+| **Multi-table queries**   | Register tables manually         | `Database(name=data)` handles registration   |
+| **Repr safety**           | Not addressed                    | `hide()`/`show()` for lazy repr control      |
+
+## Useful DuckDB references
+
+- [Relational API overview](https://duckdb.org/docs/api/python/relational_api)
+- [`DuckDBPyRelation` reference](https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation)
+- [`DuckDBPyConnection` reference](https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyConnection)
+- [Friendly SQL](https://duckdb.org/docs/sql/dialect/friendly_sql.html)
+- [Extensions](https://duckdb.org/docs/extensions/overview)

@@ -33,7 +33,7 @@ t1.columns
 
 # Inspecting and transforming data interactively
 
-You can run one or more SQL expressions with the `Table.do()` method.
+You can execute one or more SQL expressions with the `Table.do()` method.
 
 Expressions are in standard DuckDB SQL, with some small changes:
 

@@ -41,12 +41,14 @@ def test_hold():
 
 
 def test_arrow():
+    from pandas.testing import assert_frame_equal
+
     df = pd.DataFrame({'a': range(10)})
 
     t1 = uck.Table(df)
     t2 = uck.Table(t1.do('arrow'))
 
-    assert repr(t1) == repr(t2)
+    assert_frame_equal(t1.do('pandas'), t2.do('pandas'))
 
 
 def test_alias():

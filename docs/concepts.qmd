@@ -17,26 +17,45 @@ uck.Table(df)  # read from Pandas DataFrame
 df.to_parquet('data/penguins.parquet')  # use Pandas to write to a Parquet file
 tbl = uck.Table('data/penguins.parquet')  # read from a local Parquet file
 
-tbl_arrow = tbl.arrow()  # write to an  Arrow Table
+tbl_arrow = tbl.arrow()  # write to an Arrow Table
 tbl = uck.Table(tbl_arrow)  # read from an Arrow Table
+```
+
+You can also convert via `do()`:
+
+```python
+tbl.do('pandas')  # Pandas DataFrame
+tbl.do('arrow')   # PyArrow Table
 ```
 
 
 ## Databases and Tables
 
-The library revolves around two objects and a function: `Database`, `Table`.
+The library revolves around two objects: `Table` and `Database`.
 
-- `Database` is essentially a dictionary mapping names to objects that will get resolved to tables. Those objects might be a Pandas or Polars dataframe, a PyArrow Table, the local filename of a Parquet or CSV file, or a URL to a remote data file. These objects are used by `duckboat` and Duckdb lazily, so operations on them are deffered until a final result is requested.
-- `Table` is a wrapper around a DuckDB Relation.
+- `Table` wraps a DuckDB `DuckDBPyRelation`. Its core method is `.sql()`, which auto-prepends `from <table>` so you can write SQL snippets without specifying a source table. `.do()` chains operations and dispatches on argument type (strings, functions, lists, type conversions).
+- `Database` is a named dictionary of tables. Its `.sql()` method requires explicit table names, since there's no single table to auto-prepend. Only the tables in the `Database` are visible to the query. Useful for joins and multi-table queries.
 
 
 ## Laziness
 
-Since all operations are done through `DuckDBPyRelation`, the expressions are evaluated lazily, or only at the end when we want a table or want to display results to the console.
+Since all operations are done through `DuckDBPyRelation`, expressions are evaluated lazily -- only when you want to display results or materialize output.
 
-If you would like to materialze a `Table` or a `Database` concretely in terms of Pandas DataFrames or PyArrow Tables, you can use `x.hold(kind='arrow')` or ` x.do('arrow')`.
+If you would like to materialize a `Table` or `Database` concretely, use `hold()`:
 
-When you materialize a `Database` you can access the underlying tables with `db[table_name]`.
+```python
+x.hold(kind='arrow')   # PyArrow Table (or dict of them for Database)
+x.hold(kind='pandas')  # Pandas DataFrame (or dict of them for Database)
+```
+
+Or equivalently via `do()`:
+
+```python
+x.do('arrow')
+x.do('pandas')
+```
+
+When you materialize a `Database`, you get a dict of materialized tables. Access individual tables with `db['table_name']`.
 
 ## Examples
 
@@ -97,20 +116,7 @@ Gives the output:
 
 #### Alternatives
 
-You can also write the above as
-
-```python
-uck.Table('data/yellow_tripdata_2010-01.parquet').do(
-    'select *, pickup_latitude as lat, pickup_longitude as lng',
-    'select *, h3_latlng_to_cell(lat, lng, 8) as hexid',
-    'select hexid, avg(tip_amount) as tip  group by 1',
-    'select h3_h3_to_string(hexid) as hexid, tip',
-    'where tip between 10 and 20',
-    'order by hexid',
-)
-```
-
-or
+You can also chain by calling `.do()` multiple times:
 
 ```python
 uck.Table('data/yellow_tripdata_2010-01.parquet').do(
@@ -128,57 +134,43 @@ uck.Table('data/yellow_tripdata_2010-01.parquet').do(
 )
 ```
 
-### Pivot
-
-TODO
-
 ### Storing procedures
 
-You might store a sequence of steps as a function like
+You can store a sequence of steps as a function:
 
 ```python
 def foo(rel, res=6):
-    return (rel
-    | 'select pickup_latitude as lat, pickup_longitude as lng, tip_amount'       
-    | f'select h3_latlng_to_cell(lat, lng, {res}) as hexid, tip_amount as tip'
-    | 'select hexid, avg(tip) as tip group by 1'
-    | 'select h3_h3_to_string(hexid) as hexid, tip'
-    | 'where tip > 0'
+    return rel.do(
+        'select pickup_latitude as lat, pickup_longitude as lng, tip_amount',
+        f'select h3_latlng_to_cell(lat, lng, {res}) as hexid, tip_amount as tip',
+        'select hexid, avg(tip) as tip group by 1',
+        'select h3_h3_to_string(hexid) as hexid, tip',
+        'where tip > 0',
     )
 ```
 
-which you could apply with any of the following syntax:
+Then apply it with:
 
-- `table.do(foo)`
-- `table | foo` or `table >> foo`
+```python
+table.do(foo)
+```
 
-Alternatively, you could store this as a sequence of strings:
+Alternatively, store it as a list of SQL strings:
 
 ```python
 foo_list = [
-    'select pickup_latitude as lat, pickup_longitude as lng, tip_amount'       
-    'select h3_latlng_to_cell(lat, lng, 6}) as hexid, tip_amount as tip'
-    'select hexid, avg(tip) as tip group by 1'
-    'select h3_h3_to_string(hexid) as hexid, tip'
-    'where tip > 0'
+    'select pickup_latitude as lat, pickup_longitude as lng, tip_amount',
+    'select h3_latlng_to_cell(lat, lng, 6) as hexid, tip_amount as tip',
+    'select hexid, avg(tip) as tip group by 1',
+    'select h3_h3_to_string(hexid) as hexid, tip',
+    'where tip > 0',
 ]
 ```
 
-which you could apply with something like
-
-```python
-table.do(*foo_list)
-```
-
-or
+Then apply it with:
 
 ```python
 table.do(foo_list)
+# or equivalently:
+table.do(*foo_list)
 ```
-
-or even
-
-```python
-table | foo_list
-```
-
