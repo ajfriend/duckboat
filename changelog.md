@@ -1,3 +1,7 @@
+# v0.18.1
+
+- fix CI publish workflow filename
+
 # v0.18.0
 
 - require Python >= 3.10
