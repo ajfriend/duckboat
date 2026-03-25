@@ -147,7 +147,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./duckdb_stuff.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">DuckDB Concepts</span></a>
+ <span class="menu-text">DuckDB Integration</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -203,7 +203,7 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ramble.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">AJ Rambles</span></a>
+ <span class="menu-text">Design Philosophy</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -242,18 +242,38 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<p>Duckboat exists in a rich ecosystem of Python dataframe and SQL tools. Here’s how it relates to some of them.</p>
+<section id="pandas" class="level3">
+<h3 class="anchored" data-anchor-id="pandas"><a href="https://pandas.pydata.org/">Pandas</a></h3>
+<p>The most widely-used Python dataframe library. Pandas uses a method-chaining API with eager evaluation. Duckboat differs in using SQL strings instead of Python method calls, and in evaluating lazily via DuckDB. Convert between them with <code>t.do('pandas')</code> or <code>uck.Table(df)</code>.</p>
+</section>
+<section id="polars" class="level3">
+<h3 class="anchored" data-anchor-id="polars"><a href="https://pola.rs/">Polars</a></h3>
+<p>A modern, fast dataframe library with a fluent expression API and lazy evaluation. Polars provides strong IDE support with autocomplete on column operations. Duckboat trades that discoverability for zero new API – you write SQL directly instead of learning Polars expressions.</p>
+</section>
+<section id="ibis" class="level3">
+<h3 class="anchored" data-anchor-id="ibis"><a href="https://ibis-project.org/">Ibis</a></h3>
+<p>A portable dataframe API that compiles to SQL for various backends (DuckDB, Postgres, BigQuery, etc.). Ibis provides a Python expression API with IDE support and backend portability. Duckboat is simpler and more direct – you write SQL snippets rather than building expressions through a Python API.</p>
+</section>
+<section id="duckdb" class="level3">
+<h3 class="anchored" data-anchor-id="duckdb"><a href="https://duckdb.org/">DuckDB</a></h3>
+<p>Duckboat is a thin wrapper around DuckDB’s <a href="https://duckdb.org/docs/api/python/relational_api">relational API</a>. DuckDB provides the query engine; duckboat adds ergonomic SQL snippet chaining, automatic <code>from</code> prepending, and the <code>do()</code> dispatch mechanism. See the <a href="./duckdb_stuff.html">DuckDB integration</a> page for details.</p>
 <ul>
-<li>Pandas</li>
-<li>Polars</li>
-<li>Ibis</li>
-<li>DuckDB
-<ul>
-<li><a href="https://duckdb.org/2022/05/04/friendlier-sql.html">DuckDB’s SQL improvements</a></li>
-</ul></li>
-<li><a href="https://prql-lang.org/">PRQL</a></li>
+<li><a href="https://duckdb.org/2022/05/04/friendlier-sql.html">Friendlier SQL</a></li>
+<li><a href="https://duckdb.org/2023/08/23/even-friendlier-sql.html">Even Friendlier SQL</a></li>
+<li><a href="https://duckdb.org/docs/sql/dialect/friendly_sql.html">Friendly SQL reference</a></li>
 </ul>
+</section>
+<section id="prql" class="level3">
+<h3 class="anchored" data-anchor-id="prql"><a href="https://prql-lang.org/">PRQL</a></h3>
+<p>A pipelined query language that compiles to SQL. PRQL redesigns SQL syntax to be composable and top-to-bottom readable. Duckboat takes a different approach: rather than replacing SQL syntax, it makes standard SQL composable by chaining snippets through Python.</p>
+</section>
+<section id="googles-pipe-syntax-for-sql" class="level3">
+<h3 class="anchored" data-anchor-id="googles-pipe-syntax-for-sql"><a href="https://research.google/pubs/sql-has-problems-we-can-fix-them-pipe-syntax-in-sql/">Google’s Pipe Syntax for SQL</a></h3>
+<p>A research proposal for adding pipe operators directly to SQL. Duckboat achieves a similar result at the Python level – <code>do()</code> chains SQL snippets in a way that’s semantically close to what pipe syntax would provide natively.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

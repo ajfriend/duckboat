@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -147,7 +181,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./duckdb_stuff.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">DuckDB Concepts</span></a>
+ <span class="menu-text">DuckDB Integration</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -203,7 +237,7 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ramble.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">AJ Rambles</span></a>
+ <span class="menu-text">Design Philosophy</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -242,23 +276,71 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Since <code>duckboat</code> builds on top of DuckDB’s relational API, all expressions are lazily evaluated by default. This means that complex query expressions can be built up interactively and step by step, and when you are ready to evaluate the final expression (or any intermediate expressions), the query steps will be assembed and optimized by the query planner to allow for the most efficient execuation possible:</p>
+<p>Since <code>duckboat</code> builds on top of DuckDB’s relational API, all expressions are lazily evaluated by default. This means that complex query expressions can be built up interactively and step by step, and when you are ready to evaluate the final expression (or any intermediate expressions), the query steps will be assembled and optimized by the query planner to allow for the most efficient execution possible:</p>
 <ul>
-<li>avoid materialzing intermediate tables</li>
+<li>avoid materializing intermediate tables</li>
 <li>SQL pushdown optimizations</li>
 <li>DuckDB streaming and out-of-core operations</li>
 </ul>
-<section id="gotchas" class="level1">
-<h1>Gotchas</h1>
-<ul>
-<li>interactive analysis that calls a <code>repr</code> or <code>str</code> method, like having a table be the last expression in a Jupyter notebook cell</li>
-<li>IDEs that inspect variables proactively will call the repr on objects, which will trigger query evaluation. this happens in Positron, for example</li>
-</ul>
+<section id="example" class="level2">
+<h2 class="anchored" data-anchor-id="example">Example</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> duckboat <span class="im">as</span> uck</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Nothing is computed yet -- this just records the chain of operations</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> uck.Table(<span class="st">'big_dataset.parquet'</span>).do(</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"where category = 'A'"</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select id, value, value * 2 as double_value'</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by value desc'</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'limit 100'</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Still lazy -- t is a Table wrapping a DuckDBPyRelation</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="bu">type</span>(t)  <span class="co"># &lt;class 'duckboat.table.Table'&gt;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluation is triggered when you display the result...</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>t  <span class="co"># in a notebook cell, this calls repr() and runs the query</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># ...or when you materialize:</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> t.do(<span class="st">'pandas'</span>)  <span class="co"># now the query actually executes</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>DuckDB’s query planner sees the entire chain and can optimize across steps. For example, the <code>limit 100</code> can be pushed down so DuckDB never materializes more than necessary.</p>
 </section>
-<section id="example" class="level1">
-<h1>Example</h1>
+<section id="materializing-results" class="level2">
+<h2 class="anchored" data-anchor-id="materializing-results">Materializing results</h2>
+<p>Use <code>hold()</code> to explicitly materialize a lazy table:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>arrow_table <span class="op">=</span> t.hold(kind<span class="op">=</span><span class="st">'arrow'</span>)   <span class="co"># PyArrow Table</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>pandas_df <span class="op">=</span> t.hold(kind<span class="op">=</span><span class="st">'pandas'</span>)    <span class="co"># Pandas DataFrame</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Or equivalently via <code>do()</code>:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'arrow'</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'pandas'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>For a <code>Database</code>, <code>hold()</code> materializes all tables and returns a dict.</p>
+</section>
+<section id="gotchas" class="level2">
+<h2 class="anchored" data-anchor-id="gotchas">Gotchas</h2>
+<section id="notebook-cells" class="level3">
+<h3 class="anchored" data-anchor-id="notebook-cells">Notebook cells</h3>
+<p>In Jupyter or IPython, having a <code>Table</code> as the last expression in a cell calls <code>repr()</code>, which triggers evaluation. This is usually fine – it’s how you see your results. But be aware that each cell display re-runs the query.</p>
+</section>
+<section id="ide-variable-explorers" class="level3">
+<h3 class="anchored" data-anchor-id="ide-variable-explorers">IDE variable explorers</h3>
+<p>IDEs like Positron proactively inspect objects in the namespace to show them in the variable explorer. This calls <code>repr()</code> on your tables, which triggers query evaluation – potentially expensive for large datasets or complex queries.</p>
+<p><strong>Solution:</strong> use <code>hide()</code> to suppress evaluation:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>big <span class="op">=</span> uck.Table(<span class="st">'huge_dataset.parquet'</span>).do(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select ...'</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'where ...'</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'hide'</span>,  <span class="co"># suppress repr</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Positron sees: &lt;Table(..., _hide=True)&gt;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># The query is NOT evaluated</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># When you're ready to see results:</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>big.do(<span class="st">'show'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You can also call <code>hide()</code> and <code>show()</code> as methods:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>big <span class="op">=</span> uck.Table(<span class="st">'huge_dataset.parquet'</span>).hide()</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>big.show()  <span class="co"># re-enables repr</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>DuckDB Concepts – duckboat</title>
+<title>DuckDB Integration – duckboat</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -112,7 +146,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./duckdb_stuff.html">DuckDB Concepts</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./duckdb_stuff.html">DuckDB Integration</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -147,7 +181,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./duckdb_stuff.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">DuckDB Concepts</span></a>
+ <span class="menu-text">DuckDB Integration</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -203,7 +237,7 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ramble.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">AJ Rambles</span></a>
+ <span class="menu-text">Design Philosophy</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -225,7 +259,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">DuckDB Concepts</h1>
+<h1 class="title">DuckDB Integration</h1>
 </div>
 
 
@@ -242,37 +276,102 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p><code>duckboat</code> is primarily built on DuckDB’s Relational API. As an escape hatch, <code>duckboat</code> exposes its DuckDB compoents for you to use directly:</p>
-<ul>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyConnection.install_extension</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.columns</p>
-<ul>
-<li>TODO: does that simplify my columns helper!?</li>
-</ul></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.describe</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.description</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.dtypes</p></li>
-<li><p><a href="https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.explain">explain</a></p></li>
-<li><p><a href="https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.execute">execute</a></p>
-<ul>
-<li>TODO: actually, what does this do?</li>
-</ul></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.query</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.show</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.sql_query</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.shape</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.histogram</p>
-<ul>
-<li>TODO: what’s the SQL for this, would make for a good example</li>
-</ul></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.type</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation.types</p></li>
-<li><p>https://duckdb.org/docs/api/python/reference/#duckdb.ExplainType</p></li>
-</ul>
+<p><code>duckboat</code> is a thin wrapper around DuckDB’s <a href="https://duckdb.org/docs/api/python/relational_api">relational API</a>. When you need to drop down to DuckDB directly, duckboat exposes its internals as escape hatches.</p>
+<section id="escape-hatches" class="level2">
+<h2 class="anchored" data-anchor-id="escape-hatches">Escape hatches</h2>
+<section id="uck.con-the-duckdb-connection" class="level3">
+<h3 class="anchored" data-anchor-id="uck.con-the-duckdb-connection"><code>uck.con</code> – the DuckDB connection</h3>
+<p>Access the underlying <code>DuckDBPyConnection</code> directly:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> duckboat <span class="im">as</span> uck</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>uck.con  <span class="co"># the shared in-memory DuckDB connection</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Install and load extensions</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>uck.con.install_extension(<span class="st">'spatial'</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>uck.con.load_extension(<span class="st">'spatial'</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Execute arbitrary SQL</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>uck.con.execute(<span class="st">"CREATE TABLE foo AS SELECT 42 AS x"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="uck.query-raw-sql-queries" class="level3">
+<h3 class="anchored" data-anchor-id="uck.query-raw-sql-queries"><code>uck.query()</code> – raw SQL queries</h3>
+<p>Run a SQL query directly on the connection and get back a <code>DuckDBPyRelation</code>:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rel <span class="op">=</span> uck.query(<span class="st">'select 1 + 1 as result'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You can pass keyword arguments to make Python objects available as table names:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame({<span class="st">'x'</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]})</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>rel <span class="op">=</span> uck.query(<span class="st">'select * from df where x &gt; 1'</span>, df<span class="op">=</span>df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="t.rel-the-underlying-relation" class="level3">
+<h3 class="anchored" data-anchor-id="t.rel-the-underlying-relation"><code>t.rel</code> – the underlying relation</h3>
+<p>Every <code>Table</code> wraps a <code>DuckDBPyRelation</code>. Access it directly for DuckDB-native operations:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> uck.Table({<span class="st">'x'</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]})</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>t.rel              <span class="co"># the DuckDBPyRelation</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>t.rel.columns      <span class="co"># column names</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>t.rel.dtypes       <span class="co"># column types</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>t.rel.describe()   <span class="co"># summary statistics</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>t.rel.explain()    <span class="co"># query execution plan</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
 <section id="whats-different-from-duckdbs-relational-api" class="level2">
-<h2 class="anchored" data-anchor-id="whats-different-from-duckdbs-relational-api">What’s different from DuckDB’s relational api</h2>
+<h2 class="anchored" data-anchor-id="whats-different-from-duckdbs-relational-api">What’s different from DuckDB’s relational API</h2>
+<p>Duckboat adds a few ergonomic improvements over using DuckDB’s Python API directly:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 31%">
+<col style="width: 42%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>DuckDB relational API</th>
+<th>Duckboat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Connection management</strong></td>
+<td>Must create and pass connections</td>
+<td>Shared connection handled automatically</td>
+</tr>
+<tr class="even">
+<td><strong>SQL <code>from</code> clause</strong></td>
+<td>Must write full SQL</td>
+<td>Auto-prepended by <code>Table.sql()</code></td>
+</tr>
+<tr class="odd">
+<td><strong>Chaining</strong></td>
+<td><code>.query()</code> with manual naming</td>
+<td><code>.do()</code> chains snippets, functions, and more</td>
+</tr>
+<tr class="even">
+<td><strong>Output conversion</strong></td>
+<td><code>.df()</code>, <code>.arrow()</code>, etc.</td>
+<td>Also via <code>do('pandas')</code>, <code>do('arrow')</code></td>
+</tr>
+<tr class="odd">
+<td><strong>Multi-table queries</strong></td>
+<td>Register tables manually</td>
+<td><code>Database(name=data)</code> handles registration</td>
+</tr>
+<tr class="even">
+<td><strong>Repr safety</strong></td>
+<td>Not addressed</td>
+<td><code>hide()</code>/<code>show()</code> for lazy repr control</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="useful-duckdb-references" class="level2">
+<h2 class="anchored" data-anchor-id="useful-duckdb-references">Useful DuckDB references</h2>
 <ul>
-<li>avoid connection objects</li>
+<li><a href="https://duckdb.org/docs/api/python/relational_api">Relational API overview</a></li>
+<li><a href="https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyRelation"><code>DuckDBPyRelation</code> reference</a></li>
+<li><a href="https://duckdb.org/docs/api/python/reference/#duckdb.DuckDBPyConnection"><code>DuckDBPyConnection</code> reference</a></li>
+<li><a href="https://duckdb.org/docs/sql/dialect/friendly_sql.html">Friendly SQL</a></li>
+<li><a href="https://duckdb.org/docs/extensions/overview">Extensions</a></li>
 </ul>
 
 

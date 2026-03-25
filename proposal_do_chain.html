@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2026-03-25">
 
-<title>Design Philosophy – duckboat</title>
+<title>Proposal: Unifying the duckboat API with do() Chain Dispatch – duckboat</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -146,7 +147,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ramble.html">Development</a></li><li class="breadcrumb-item"><a href="./ramble.html">Design Philosophy</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Proposal: Unifying the duckboat API with do() Chain Dispatch</li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -236,7 +237,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ramble.html" class="sidebar-item-text sidebar-link active">
+  <a href="./ramble.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Design Philosophy</span></a>
   </div>
 </li>
@@ -257,9 +258,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ramble.html">Development</a></li><li class="breadcrumb-item"><a href="./ramble.html">Design Philosophy</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Design Philosophy</h1>
+<h1 class="title">Proposal: Unifying the duckboat API with do() Chain Dispatch</h1>
 </div>
 
 
@@ -267,6 +268,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="quarto-title-meta">
 
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 25, 2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -276,54 +283,212 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>Duckboat is an experiment in taking SQL seriously as a dataframe API. Rather than wrapping SQL behind Python method chains, it makes SQL itself composable.</p>
-<section id="sql-first" class="level2">
-<h2 class="anchored" data-anchor-id="sql-first">SQL-first</h2>
-<p>Most Python dataframe libraries (Pandas, Polars, Ibis) create a new API layer on top of SQL. You learn their expression syntax, their method names, their way of doing group-bys and joins. This gives you IDE autocomplete, type checking, and discoverability – real benefits.</p>
-<p>Duckboat takes a different route: SQL is already a great DSL for data. Millions of people already know it. DuckDB has made it <a href="https://duckdb.org/2022/05/04/friendlier-sql.html">friendlier than ever</a>. The missing piece is composability – raw SQL strings aren’t naturally composable. Duckboat’s <code>Table.sql()</code> fixes this with one trick: auto-prepending <code>from &lt;table&gt;</code>, which turns SQL snippets into composable fragments.</p>
-</section>
-<section id="snippet-composability" class="level2">
-<h2 class="anchored" data-anchor-id="snippet-composability">Snippet composability</h2>
-<p>A SQL snippet like <code>where x &gt; 5</code> isn’t useful on its own – it needs a <code>from</code> clause. Duckboat provides that automatically, so snippets chain naturally:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>t.do(</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"where status = 'active'"</span>,</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select id, name, score'</span>,</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by score desc'</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'limit 10'</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Each string is a SQL fragment. Duckboat prepends the <code>from</code> clause, chains them through DuckDB’s relation API, and lets the query planner optimize the whole pipeline. This is semantically similar to <a href="https://research.google/pubs/sql-has-problems-we-can-fix-them-pipe-syntax-in-sql/">Google’s Pipe Syntax proposal for SQL</a>, achieved at the Python level.</p>
-</section>
-<section id="minimal-api-surface" class="level2">
-<h2 class="anchored" data-anchor-id="minimal-api-surface">Minimal API surface</h2>
-<p>The entire library is essentially three things:</p>
+<section id="background" class="level1">
+<h1>Background</h1>
+<p>duckboat currently has two main objects:</p>
 <ul>
-<li><code>Table</code> – wraps a DuckDB relation</li>
-<li><code>Database</code> – a named dict of tables for multi-table queries</li>
-<li><code>do()</code> – chains operations and dispatches on argument type</li>
+<li><strong><code>Table</code>:</strong> A single lazy DuckDB relation. <code>Table.do()</code> chains SQL snippets, auto-wrapping each as <code>SELECT * FROM _prev_ &lt;step&gt;</code>.</li>
+<li><strong><code>Database</code>:</strong> A named dict of tables. <code>Database.do()</code> and <code>Database.sql()</code> run SQL with explicit table names. Used for joins.</li>
 </ul>
-<p>That’s it. There are no expression builders, no column reference objects, no custom aggregation APIs. The “API” is SQL.</p>
+<p>There is also <code>alias</code>, which wraps a single <code>Table</code> into a <code>Database</code> with a given name (used for self-joins).</p>
+<p>The <code>Database</code> object exists only to give tables names for SQL queries. This proposal replaces it with two simpler mechanisms in the <code>do()</code> chain, rolled out in two stages.</p>
 </section>
-<section id="tradeoffs" class="level2">
-<h2 class="anchored" data-anchor-id="tradeoffs">Tradeoffs</h2>
-<p>This approach has real costs:</p>
-<p><strong>No IDE autocomplete on columns.</strong> Column names live inside SQL strings. Your editor can’t tab-complete <code>t.do('select na|')</code> the way it can with <code>df.name</code> in Pandas or <code>col("name")</code> in Polars. Typos are caught at runtime, not in the editor.</p>
-<p><strong>Discoverability.</strong> The <code>do()</code> dispatch conventions – passing <code>int</code> to extract a scalar, <code>"pandas"</code> to convert, <code>"hide"</code> to suppress display – are terse and powerful, but you need to know they exist. They can’t be discovered by browsing method signatures.</p>
-<p><strong>Not ideal for production pipelines.</strong> For code that needs to be maintained by a team, reviewed in PRs, and validated by CI, the static analysis benefits of a typed API are significant. Duckboat is better suited to interactive exploration.</p>
+<section id="stage-1-dict-dispatch-any-python-version" class="level1">
+<h1>Stage 1: Dict dispatch (any Python version)</h1>
+<section id="what-changes" class="level2">
+<h2 class="anchored" data-anchor-id="what-changes">What changes</h2>
+<p>The <code>do()</code> chain gains dict as a new argument type. A dict in the chain registers named tables for the next SQL step. After the SQL executes, the names are forgotten—only the result carries forward.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Multi-table join</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>uck.do(</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"orders"</span>: orders_df, <span class="st">"customers"</span>: customers_df},</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"select * from orders join customers using (id)"</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"where total &gt; 100"</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Mid-chain join</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>t1.do(</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"where total_amount &gt; 0"</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"select *, pickup_zone_id as zid"</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"zones"</span>: zones_df},</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"join zones on zid = zones.id"</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"select zone_name, avg(total_amount) group by 1"</span>,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Self-join</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>t1.do(</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"t"</span>: t1},</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"select * from t a join t b using (hexid)"</span>,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="where-duckboat-fits" class="level2">
-<h2 class="anchored" data-anchor-id="where-duckboat-fits">Where duckboat fits</h2>
-<p>Duckboat is at its best for:</p>
+<section id="what-gets-deprecated" class="level2">
+<h2 class="anchored" data-anchor-id="what-gets-deprecated">What gets deprecated</h2>
 <ul>
-<li><strong>Interactive notebooks</strong> where you’re exploring data and iterating quickly</li>
-<li><strong>SQL-fluent teams</strong> who don’t want to learn a new API for ad-hoc analysis</li>
-<li><strong>Quick scripts</strong> where ceremony and boilerplate slow you down</li>
+<li><strong><code>Database</code> class</strong> (public API): replaced by dict-in-chain.</li>
+<li><strong><code>alias</code> method:</strong> replaced by dict-in-chain.</li>
+<li><strong><code>Database.sql()</code>:</strong> replaced by dict + SQL string in chain.</li>
+<li><strong><code>Database.hold()</code>:</strong> users materialize individual tables instead.</li>
 </ul>
-<p>If you need IDE support, type safety, or backend portability, consider <a href="https://pola.rs/">Polars</a> or <a href="https://ibis-project.org/">Ibis</a>. If some operation is easier in those libraries, duckboat makes it straightforward to convert between them.</p>
+<p><code>Database</code> and <code>alias</code> continue to work in this release but are no longer documented as the recommended approach. They can be removed in a future release once the dict syntax has had time to settle.</p>
 </section>
-<section id="a-small-library-deliberately" class="level2">
-<h2 class="anchored" data-anchor-id="a-small-library-deliberately">A small library, deliberately</h2>
-<p>Duckboat is small – both in API surface and codebase. This is intentional. It’s an experiment in one direction of the design space: what happens when you lean fully into SQL as your dataframe API, with minimal Python wrapping?</p>
-<p>The answer, I think, is a tool that’s surprisingly pleasant for interactive work. Not for everything, but for the kind of exploratory data analysis where you’re thinking in SQL anyway.</p>
+<section id="migration" class="level2">
+<h2 class="anchored" data-anchor-id="migration">Migration</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 47%">
+<col style="width: 52%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Before</th>
+<th>After</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Database(a=df1, b=df2).sql("select ...")</code></td>
+<td><code>uck.do({"a": df1, "b": df2}, "select ...")</code></td>
+</tr>
+<tr class="even">
+<td><code>t.alias("name").do("select ...")</code></td>
+<td><code>t.do({"name": t}, "select ...")</code></td>
+</tr>
+<tr class="odd">
+<td><code>Database(a=df1, b=df2).hold("pandas")</code></td>
+<td>Call <code>.do("pandas")</code> on each table individually</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="what-stays" class="level2">
+<h2 class="anchored" data-anchor-id="what-stays">What stays</h2>
+<ul>
+<li><strong><code>Table</code>:</strong> unchanged, still the core object.</li>
+<li><strong><code>Table.do()</code> / <code>uck.do()</code>:</strong> unchanged interface, one new dispatch case.</li>
+<li><strong><code>Table.hold()</code>:</strong> materialize a single table.</li>
+</ul>
+<p>The internal <code>query()</code> function that registers named relations with DuckDB stays—it is the backend for the dict step.</p>
+</section>
+<section id="open-questions-for-stage-1" class="level2">
+<h2 class="anchored" data-anchor-id="open-questions-for-stage-1">Open questions for Stage 1</h2>
+<ul>
+<li><strong>Dict scope:</strong> should the dict register names only for the next step, or until the end of the chain? Proposed: next step only, to avoid hidden state.</li>
+<li><strong>Arrow detection:</strong> should we detect <code>__arrow_c_stream__</code> on dict values to accept any Arrow-compatible tabular object, or just check for types we know (DataFrame, <code>Table</code>, filename)?</li>
+</ul>
+</section>
+</section>
+<section id="stage-2-t-string-syntactic-sugar-python-3.14" class="level1">
+<h1>Stage 2: T-string syntactic sugar (Python 3.14+)</h1>
+<p>Stage 2 depends on Stage 1 being stable. It adds t-string as another dispatch type—syntactic sugar that builds the dict automatically from interpolated variables.</p>
+<section id="what-changes-1" class="level2">
+<h2 class="anchored" data-anchor-id="what-changes-1">What changes</h2>
+<p>A <a href="https://peps.python.org/pep-0750/">t-string</a> (template string, Python 3.14) in the <code>do()</code> chain is processed as follows:</p>
+<ol type="1">
+<li>Walk the template’s interpolations.</li>
+<li>For each interpolation, use <code>.expression</code> as the table name and <code>.value</code> as the data.</li>
+<li>Build a dict from these pairs.</li>
+<li>Merge into the current context.</li>
+<li>Reconstruct the SQL from the template’s static strings and expression names.</li>
+<li>Execute and return a <code>Table</code>.</li>
+</ol>
+<p>This is exactly the dict step from Stage 1, with the dict built implicitly from variable names.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Multi-table join</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>uck.do(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    t<span class="st">"select * from </span><span class="sc">{orders}</span><span class="st"> join </span><span class="sc">{customers}</span><span class="st"> using (id)"</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"where total &gt; 100"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Mid-chain join</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>t1.do(</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"where total_amount &gt; 0"</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    t<span class="st">"join </span><span class="sc">{zones}</span><span class="st"> on zid = zones.id"</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"select zone_name, avg(total_amount) group by 1"</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Self-join (same variable referenced twice is fine)</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>t1.do(</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    t<span class="st">"select * from </span><span class="sc">{t1}</span><span class="st"> a join </span><span class="sc">{t1}</span><span class="st"> b using (hexid)"</span>,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="why-stage-2-is-separate" class="level2">
+<h2 class="anchored" data-anchor-id="why-stage-2-is-separate">Why Stage 2 is separate</h2>
+<ul>
+<li><strong>Python 3.14 is pre-release</strong> as of this writing. Requiring it would limit adoption. The dict syntax from Stage 1 works on any Python version.</li>
+<li><strong>The dict syntax validates the design.</strong> If the “register, use, forget” semantics work well with dicts, adding t-string sugar is low-risk. If something needs to change, it is better to learn that before adding a second syntax for the same thing.</li>
+<li><strong>T-strings are sugar, not substance.</strong> They produce the same dict internally. No new semantics, just ergonomics.</li>
+</ul>
+</section>
+<section id="relationship-between-dict-and-t-string" class="level2">
+<h2 class="anchored" data-anchor-id="relationship-between-dict-and-t-string">Relationship between dict and t-string</h2>
+<p>The t-string step is equivalent to a dict step followed by a SQL string step. This t-string:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>t1.do(t<span class="st">"join </span><span class="sc">{zones}</span><span class="st"> on zid = zones.id"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>is equivalent to:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>t1.do({<span class="st">"zones"</span>: zones}, <span class="st">"join zones on zid = zones.id"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The t-string just infers the dict and reconstructs the SQL from the template.</p>
+</section>
+<section id="open-questions-for-stage-2" class="level2">
+<h2 class="anchored" data-anchor-id="open-questions-for-stage-2">Open questions for Stage 2</h2>
+<ul>
+<li><strong><code>uck.sql()</code> convenience:</strong> should it exist as an alias for <code>uck.do(t"...")</code>? Or is <code>uck.do</code> sufficient as the single entry point?</li>
+<li><strong>Minimum Python version:</strong> should duckboat bump <code>requires-python</code> to 3.14 when t-string support ships, or should t-strings be an optional feature that works if available?</li>
+</ul>
+</section>
+</section>
+<section id="dispatch-rules-both-stages-combined" class="level1">
+<h1>Dispatch rules (both stages combined)</h1>
+<p>The <code>do()</code> chain processes arguments left to right. At each step, it has a “current context”—a dict mapping names to tables, with <code>_</code> as the key for the implicit/current table.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 4%">
+<col style="width: 70%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Argument type</th>
+<th>Stage</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>DataFrame, filename, or Arrow object</td>
+<td>–</td>
+<td>Wrap as a <code>Table</code>, set as <code>{"_": table}</code></td>
+</tr>
+<tr class="even">
+<td>SQL string</td>
+<td>–</td>
+<td>Execute against the current context. Implicit table available for auto-wrapping. Result becomes <code>{"_": new_table}</code></td>
+</tr>
+<tr class="odd">
+<td>Dict</td>
+<td>1</td>
+<td>Merge into the current context. Names available for the next SQL step only</td>
+</tr>
+<tr class="even">
+<td>T-string</td>
+<td>2</td>
+<td>Build dict from interpolations, merge into context, reconstruct SQL, execute. Result becomes <code>{"_": new_table}</code></td>
+</tr>
+<tr class="odd">
+<td>Materializer (<code>"pandas"</code>, <code>list</code>, etc.)</td>
+<td>–</td>
+<td>Convert the current <code>_</code> table and return</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="benefits" class="level1">
+<h1>Benefits</h1>
+<ul>
+<li><strong>One entry point</strong> (<code>do</code>) instead of two objects with different SQL semantics.</li>
+<li><strong>Nothing new to learn.</strong> No <code>Database</code>, <code>alias</code>, or decision about when to use <code>sql()</code> vs <code>do()</code>.</li>
+<li><strong>Dict syntax works on all Python versions.</strong> T-strings are a bonus for 3.14+.</li>
+<li><strong>Self-joins are natural.</strong> Same variable in two positions, SQL aliases handle the rest.</li>
+<li><strong>No hidden state.</strong> “Register, use, forget”—names exist only for the next step.</li>
+<li><strong>Chaining always works.</strong> Every step produces a <code>Table</code>.</li>
+<li><strong>Incremental rollout.</strong> Stage 1 validates the design on stable Python. Stage 2 adds sugar once the foundation is solid.</li>
+</ul>
 
 
 </section>
@@ -754,4 +919,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/duckboat/edit/main/docs/ramble.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/duckboat/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/duckboat/edit/main/docs/proposal_do_chain.md" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/duckboat/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

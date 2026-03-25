@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2026-03-25">
 
-<title>Design Philosophy – duckboat</title>
+<title>The Arrow PyCapsule Interface: arrow_c_stream – duckboat</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -146,7 +147,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ramble.html">Development</a></li><li class="breadcrumb-item"><a href="./ramble.html">Design Philosophy</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">The Arrow PyCapsule Interface: <strong>arrow_c_stream</strong></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -236,7 +237,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ramble.html" class="sidebar-item-text sidebar-link active">
+  <a href="./ramble.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Design Philosophy</span></a>
   </div>
 </li>
@@ -257,9 +258,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ramble.html">Development</a></li><li class="breadcrumb-item"><a href="./ramble.html">Design Philosophy</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Design Philosophy</h1>
+<h1 class="title">The Arrow PyCapsule Interface: <strong>arrow_c_stream</strong></h1>
 </div>
 
 
@@ -267,6 +268,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="quarto-title-meta">
 
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 25, 2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -276,54 +283,193 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>Duckboat is an experiment in taking SQL seriously as a dataframe API. Rather than wrapping SQL behind Python method chains, it makes SQL itself composable.</p>
-<section id="sql-first" class="level2">
-<h2 class="anchored" data-anchor-id="sql-first">SQL-first</h2>
-<p>Most Python dataframe libraries (Pandas, Polars, Ibis) create a new API layer on top of SQL. You learn their expression syntax, their method names, their way of doing group-bys and joins. This gives you IDE autocomplete, type checking, and discoverability – real benefits.</p>
-<p>Duckboat takes a different route: SQL is already a great DSL for data. Millions of people already know it. DuckDB has made it <a href="https://duckdb.org/2022/05/04/friendlier-sql.html">friendlier than ever</a>. The missing piece is composability – raw SQL strings aren’t naturally composable. Duckboat’s <code>Table.sql()</code> fixes this with one trick: auto-prepending <code>from &lt;table&gt;</code>, which turns SQL snippets into composable fragments.</p>
+<section id="what-problem-does-it-solve" class="level1">
+<h1>What Problem Does It Solve?</h1>
+<p>The Python data ecosystem has many DataFrame libraries—pandas, Polars, PyArrow, DuckDB, cuDF—and passing tabular data between them has always been awkward. Each library has its own types, and converting between them meant copies, wrappers, or library-specific glue code.</p>
+<p>The <a href="https://data-apis.org/">Data APIs Consortium</a> tried to solve this with the <code>__dataframe__</code> interchange protocol around 2022. It never quite worked: the implementation had <a href="https://github.com/pandas-dev/pandas/issues/57643">critical bugs</a> with nullable PyArrow dtypes, the spec was complex, and the consortium repo went dormant by late 2023.</p>
+<p>The <a href="https://arrow.apache.org/docs/format/CDataInterface/PyCapsuleInterface.html">Arrow PyCapsule Interface</a> replaced it. It is simpler, truly zero-copy, and now universally adopted. It is the standard way for a Python object to say “I am tabular data—consume me.”</p>
 </section>
-<section id="snippet-composability" class="level2">
-<h2 class="anchored" data-anchor-id="snippet-composability">Snippet composability</h2>
-<p>A SQL snippet like <code>where x &gt; 5</code> isn’t useful on its own – it needs a <code>from</code> clause. Duckboat provides that automatically, so snippets chain naturally:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>t.do(</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"where status = 'active'"</span>,</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select id, name, score'</span>,</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by score desc'</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'limit 10'</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Each string is a SQL fragment. Duckboat prepends the <code>from</code> clause, chains them through DuckDB’s relation API, and lets the query planner optimize the whole pipeline. This is semantically similar to <a href="https://research.google/pubs/sql-has-problems-we-can-fix-them-pipe-syntax-in-sql/">Google’s Pipe Syntax proposal for SQL</a>, achieved at the Python level.</p>
+<section id="the-three-dunder-methods" class="level1">
+<h1>The Three Dunder Methods</h1>
+<p>The interface defines three methods. For dataframe interchange, <code>__arrow_c_stream__</code> is the one that matters.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 38%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Returns</th>
+<th>Use case</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>__arrow_c_stream__</code></td>
+<td>PyCapsule (ArrowArrayStream pointer)</td>
+<td>Tabular data: dataframes, record batches</td>
+</tr>
+<tr class="even">
+<td><code>__arrow_c_array__</code></td>
+<td>Tuple of two PyCapsules (schema, array)</td>
+<td>A single array or record batch (one chunk)</td>
+</tr>
+<tr class="odd">
+<td><code>__arrow_c_schema__</code></td>
+<td>PyCapsule (ArrowSchema pointer)</td>
+<td>Schema/type information only</td>
+</tr>
+</tbody>
+</table>
+<p>All three accept an optional <code>requested_schema</code> parameter that lets the consumer request a specific type or schema, enabling negotiation between producer and consumer.</p>
 </section>
-<section id="minimal-api-surface" class="level2">
-<h2 class="anchored" data-anchor-id="minimal-api-surface">Minimal API surface</h2>
-<p>The entire library is essentially three things:</p>
+<section id="how-it-works-under-the-hood" class="level1">
+<h1>How It Works Under the Hood</h1>
+<p>The <a href="https://arrow.apache.org/docs/format/CDataInterface.html">Arrow C Data Interface</a> defines C structs—<code>ArrowArrayStream</code>, <code>ArrowArray</code>, <code>ArrowSchema</code>—for sharing columnar data across language boundaries. These structs describe memory layout, types, and ownership without copying data.</p>
+<p>Python’s <code>PyCapsule</code> is a built-in type that wraps a raw C pointer so it can be passed between Python objects. When a library calls <code>obj.__arrow_c_stream__()</code>, it gets back a PyCapsule containing a pointer to an <code>ArrowArrayStream</code>. The consuming library unwraps the capsule and reads directly from that memory—no copying, no intermediate Python objects, no serialization.</p>
+<p>The flow:</p>
+<ol type="1">
+<li><strong>Producer</strong> exposes <code>__arrow_c_stream__()</code>, which returns a PyCapsule.</li>
+<li><strong>Consumer</strong> calls something like <code>pa.RecordBatchReader.from_stream(obj)</code> or <code>pl.from_arrow(obj)</code>, which internally calls <code>__arrow_c_stream__()</code>.</li>
+<li>Data stays in memory exactly where it is. The PyCapsule is just a handle.</li>
+</ol>
+</section>
+<section id="who-implements-it" class="level1">
+<h1>Who Implements It</h1>
+<p>As of 2026, the major libraries all support the PyCapsule interface:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 13%">
+<col style="width: 44%">
+<col style="width: 13%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Library</th>
+<th>Version</th>
+<th>Produces</th>
+<th>Consumes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>PyArrow</td>
+<td>&gt;= 14.0</td>
+<td>Table, RecordBatchReader, Array</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td>Polars</td>
+<td>&gt;= 0.20</td>
+<td>DataFrame, Series</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td>DuckDB</td>
+<td>&gt;= 0.10</td>
+<td>Query results, relations</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td>cuDF (RAPIDS)</td>
+<td>&gt;= 24.02</td>
+<td>DataFrame, Series</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td>pandas</td>
+<td>&gt;= 2.1</td>
+<td>Via ArrowDtype backend</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td>nanoarrow</td>
+<td>&gt;= 0.1</td>
+<td>Full support</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td>ADBC drivers</td>
+<td>Various</td>
+<td>Query results</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td>DataFusion (Python)</td>
+<td>Various</td>
+<td>Query results</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="practical-usage" class="level1">
+<h1>Practical Usage</h1>
+<section id="producing-exporting-data" class="level2">
+<h2 class="anchored" data-anchor-id="producing-exporting-data">Producing: exporting data</h2>
+<p>Any object with <code>__arrow_c_stream__</code> can be consumed by any Arrow-aware library:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pyarrow <span class="im">as</span> pa</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Polars DataFrame -&gt; PyArrow Table (zero-copy via PyCapsule)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pl.DataFrame({<span class="st">"a"</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], <span class="st">"b"</span>: [<span class="st">"x"</span>, <span class="st">"y"</span>, <span class="st">"z"</span>]})</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>table <span class="op">=</span> pa.RecordBatchReader.from_stream(df).read_all()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="consuming-importing-data" class="level2">
+<h2 class="anchored" data-anchor-id="consuming-importing-data">Consuming: importing data</h2>
+<p>Libraries that accept Arrow data call <code>__arrow_c_stream__</code> automatically:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># PyArrow Table -&gt; Polars (zero-copy)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>arrow_table <span class="op">=</span> pa.table({<span class="st">"a"</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]})</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pl.from_arrow(arrow_table)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Any __arrow_c_stream__ object -&gt; DuckDB</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> duckdb</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> duckdb.sql(<span class="st">"SELECT * FROM df"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="duck-typing-check" class="level2">
+<h2 class="anchored" data-anchor-id="duck-typing-check">Duck-typing check</h2>
+<p>To test whether an object is tabular data that speaks Arrow:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> is_tabular(obj):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">hasattr</span>(obj, <span class="st">'__arrow_c_stream__'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>No need to check <code>isinstance</code> for pandas, Polars, or PyArrow separately. Anything that speaks Arrow will have this method.</p>
+</section>
+</section>
+<section id="how-it-replaced-__dataframe__" class="level1">
+<h1>How It Replaced <code>__dataframe__</code></h1>
+<p>The <code>__dataframe__</code> protocol was designed to be Arrow-agnostic, supporting non-Arrow memory layouts. In theory this was more general. In practice, Arrow won as the universal in-memory columnar format, and the generality became unnecessary complexity.</p>
+<p>The timeline:</p>
 <ul>
-<li><code>Table</code> – wraps a DuckDB relation</li>
-<li><code>Database</code> – a named dict of tables for multi-table queries</li>
-<li><code>do()</code> – chains operations and dispatches on argument type</li>
+<li><strong>2022:</strong> <code>__dataframe__</code> interchange protocol introduced. Adopted by pandas 1.5, Polars, Vaex, cuDF.</li>
+<li><strong>Late 2023:</strong> Arrow PyCapsule interface ships in PyArrow 14.0. Rapid adoption across the ecosystem.</li>
+<li><strong>Dec 2023:</strong> Last substantive commit to the <a href="https://github.com/data-apis/dataframe-api">Data APIs Consortium repo</a>.</li>
+<li><strong>Jan 2025:</strong> cuDF <a href="https://github.com/rapidsai/cudf/issues/17403">fully removes</a> <code>__dataframe__</code> support.</li>
+<li><strong>Jan 2026:</strong> pandas 3.0 <a href="https://github.com/pandas-dev/pandas/pull/62920">officially deprecates</a> <code>__dataframe__</code>, pointing users to PyCapsule.</li>
+<li><strong>Mar 2026:</strong> Polars has <a href="https://github.com/pola-rs/polars/issues/20065">deprecation on its roadmap</a>.</li>
 </ul>
-<p>That’s it. There are no expression builders, no column reference objects, no custom aggregation APIs. The “API” is SQL.</p>
+<p>The PyCapsule interface won because it is simpler (C pointers, no Python-level buffer protocol), faster (true zero-copy), and backed by the format that everything already uses internally.</p>
 </section>
-<section id="tradeoffs" class="level2">
-<h2 class="anchored" data-anchor-id="tradeoffs">Tradeoffs</h2>
-<p>This approach has real costs:</p>
-<p><strong>No IDE autocomplete on columns.</strong> Column names live inside SQL strings. Your editor can’t tab-complete <code>t.do('select na|')</code> the way it can with <code>df.name</code> in Pandas or <code>col("name")</code> in Polars. Typos are caught at runtime, not in the editor.</p>
-<p><strong>Discoverability.</strong> The <code>do()</code> dispatch conventions – passing <code>int</code> to extract a scalar, <code>"pandas"</code> to convert, <code>"hide"</code> to suppress display – are terse and powerful, but you need to know they exist. They can’t be discovered by browsing method signatures.</p>
-<p><strong>Not ideal for production pipelines.</strong> For code that needs to be maintained by a team, reviewed in PRs, and validated by CI, the static analysis benefits of a typed API are significant. Duckboat is better suited to interactive exploration.</p>
-</section>
-<section id="where-duckboat-fits" class="level2">
-<h2 class="anchored" data-anchor-id="where-duckboat-fits">Where duckboat fits</h2>
-<p>Duckboat is at its best for:</p>
-<ul>
-<li><strong>Interactive notebooks</strong> where you’re exploring data and iterating quickly</li>
-<li><strong>SQL-fluent teams</strong> who don’t want to learn a new API for ad-hoc analysis</li>
-<li><strong>Quick scripts</strong> where ceremony and boilerplate slow you down</li>
-</ul>
-<p>If you need IDE support, type safety, or backend portability, consider <a href="https://pola.rs/">Polars</a> or <a href="https://ibis-project.org/">Ibis</a>. If some operation is easier in those libraries, duckboat makes it straightforward to convert between them.</p>
-</section>
-<section id="a-small-library-deliberately" class="level2">
-<h2 class="anchored" data-anchor-id="a-small-library-deliberately">A small library, deliberately</h2>
-<p>Duckboat is small – both in API surface and codebase. This is intentional. It’s an experiment in one direction of the design space: what happens when you lean fully into SQL as your dataframe API, with minimal Python wrapping?</p>
-<p>The answer, I think, is a tool that’s surprisingly pleasant for interactive work. Not for everything, but for the kind of exploratory data analysis where you’re thinking in SQL anyway.</p>
+<section id="why-this-matters-for-library-authors" class="level1">
+<h1>Why This Matters for Library Authors</h1>
+<p>If you are building a library that accepts tabular data from users, check for <code>__arrow_c_stream__</code>. It is the universal “I am a table” signal. DuckDB can consume any object that implements it directly—no conversion code needed on your end.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> duckdb</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> query(sql, <span class="op">**</span>tables):</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    con <span class="op">=</span> duckdb.<span class="ex">connect</span>()</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> name, obj <span class="kw">in</span> tables.items():</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        con.register(name, obj)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> con.sql(sql)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Works with pandas, Polars, PyArrow, cuDF, or anything else</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># that implements __arrow_c_stream__</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> query(</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"SELECT * FROM orders JOIN customers USING (id)"</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    orders<span class="op">=</span>polars_df,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    customers<span class="op">=</span>pandas_df,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You write the registration logic once. The Arrow PyCapsule interface handles the rest.</p>
 
 
 </section>
@@ -754,4 +900,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/duckboat/edit/main/docs/ramble.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/duckboat/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/duckboat/edit/main/docs/arrow_pycapsule.md" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/duckboat/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

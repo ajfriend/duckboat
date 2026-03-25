@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2026-03-25">
 
-<title>Design Philosophy – duckboat</title>
+<title>DuckDB’s Arrow API Change: RecordBatchReader – duckboat</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -146,7 +147,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ramble.html">Development</a></li><li class="breadcrumb-item"><a href="./ramble.html">Design Philosophy</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">DuckDB’s Arrow API Change: RecordBatchReader</li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -236,7 +237,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ramble.html" class="sidebar-item-text sidebar-link active">
+  <a href="./ramble.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Design Philosophy</span></a>
   </div>
 </li>
@@ -257,9 +258,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ramble.html">Development</a></li><li class="breadcrumb-item"><a href="./ramble.html">Design Philosophy</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Design Philosophy</h1>
+<h1 class="title">DuckDB’s Arrow API Change: RecordBatchReader</h1>
 </div>
 
 
@@ -267,6 +268,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="quarto-title-meta">
 
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 25, 2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -276,54 +283,151 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>Duckboat is an experiment in taking SQL seriously as a dataframe API. Rather than wrapping SQL behind Python method chains, it makes SQL itself composable.</p>
-<section id="sql-first" class="level2">
-<h2 class="anchored" data-anchor-id="sql-first">SQL-first</h2>
-<p>Most Python dataframe libraries (Pandas, Polars, Ibis) create a new API layer on top of SQL. You learn their expression syntax, their method names, their way of doing group-bys and joins. This gives you IDE autocomplete, type checking, and discoverability – real benefits.</p>
-<p>Duckboat takes a different route: SQL is already a great DSL for data. Millions of people already know it. DuckDB has made it <a href="https://duckdb.org/2022/05/04/friendlier-sql.html">friendlier than ever</a>. The missing piece is composability – raw SQL strings aren’t naturally composable. Duckboat’s <code>Table.sql()</code> fixes this with one trick: auto-prepending <code>from &lt;table&gt;</code>, which turns SQL snippets into composable fragments.</p>
-</section>
-<section id="snippet-composability" class="level2">
-<h2 class="anchored" data-anchor-id="snippet-composability">Snippet composability</h2>
-<p>A SQL snippet like <code>where x &gt; 5</code> isn’t useful on its own – it needs a <code>from</code> clause. Duckboat provides that automatically, so snippets chain naturally:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>t.do(</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"where status = 'active'"</span>,</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select id, name, score'</span>,</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by score desc'</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'limit 10'</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Each string is a SQL fragment. Duckboat prepends the <code>from</code> clause, chains them through DuckDB’s relation API, and lets the query planner optimize the whole pipeline. This is semantically similar to <a href="https://research.google/pubs/sql-has-problems-we-can-fix-them-pipe-syntax-in-sql/">Google’s Pipe Syntax proposal for SQL</a>, achieved at the Python level.</p>
-</section>
-<section id="minimal-api-surface" class="level2">
-<h2 class="anchored" data-anchor-id="minimal-api-surface">Minimal API surface</h2>
-<p>The entire library is essentially three things:</p>
+<section id="what-is-recordbatchreader" class="level1">
+<h1>What is RecordBatchReader?</h1>
+<p><code>RecordBatchReader</code> is a <strong>PyArrow type</strong> (<code>pyarrow.RecordBatchReader</code>), not a DuckDB type. It is a streaming interface—a lazy iterator that yields <code>pyarrow.RecordBatch</code> objects one at a time. Data is not materialized until you explicitly consume it.</p>
+<p>Key methods:</p>
 <ul>
-<li><code>Table</code> – wraps a DuckDB relation</li>
-<li><code>Database</code> – a named dict of tables for multi-table queries</li>
-<li><code>do()</code> – chains operations and dispatches on argument type</li>
+<li><code>read_all()</code>: consumes the entire stream and returns a <code>pyarrow.Table</code></li>
+<li><code>read_next_batch()</code>: returns the next <code>RecordBatch</code>; raises <code>StopIteration</code> at end</li>
+<li><code>schema</code>: property returning the shared schema of the stream</li>
 </ul>
-<p>That’s it. There are no expression builders, no column reference objects, no custom aggregation APIs. The “API” is SQL.</p>
 </section>
-<section id="tradeoffs" class="level2">
-<h2 class="anchored" data-anchor-id="tradeoffs">Tradeoffs</h2>
-<p>This approach has real costs:</p>
-<p><strong>No IDE autocomplete on columns.</strong> Column names live inside SQL strings. Your editor can’t tab-complete <code>t.do('select na|')</code> the way it can with <code>df.name</code> in Pandas or <code>col("name")</code> in Polars. Typos are caught at runtime, not in the editor.</p>
-<p><strong>Discoverability.</strong> The <code>do()</code> dispatch conventions – passing <code>int</code> to extract a scalar, <code>"pandas"</code> to convert, <code>"hide"</code> to suppress display – are terse and powerful, but you need to know they exist. They can’t be discovered by browsing method signatures.</p>
-<p><strong>Not ideal for production pipelines.</strong> For code that needs to be maintained by a team, reviewed in PRs, and validated by CI, the static analysis benefits of a typed API are significant. Duckboat is better suited to interactive exploration.</p>
+<section id="pyarrows-type-hierarchy" class="level1">
+<h1>PyArrow’s Type Hierarchy</h1>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 46%">
+<col style="width: 35%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+<th>Memory Model</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>RecordBatch</code></td>
+<td>A single contiguous chunk of columnar data</td>
+<td>Fully materialized, single chunk</td>
+</tr>
+<tr class="even">
+<td><code>Table</code></td>
+<td>A logical table of one or more <code>RecordBatch</code> chunks</td>
+<td>Fully materialized, possibly multi-chunk</td>
+</tr>
+<tr class="odd">
+<td><code>RecordBatchReader</code></td>
+<td>A streaming iterator yielding <code>RecordBatch</code>es lazily</td>
+<td>Lazy/streaming, one batch at a time</td>
+</tr>
+</tbody>
+</table>
+<p>A <code>Table</code> is like a list of <code>RecordBatch</code>es glued together. A <code>RecordBatchReader</code> is a generator that produces them lazily.</p>
 </section>
-<section id="where-duckboat-fits" class="level2">
-<h2 class="anchored" data-anchor-id="where-duckboat-fits">Where duckboat fits</h2>
-<p>Duckboat is at its best for:</p>
+<section id="what-changed-in-duckdb" class="level1">
+<h1>What Changed in DuckDB</h1>
+<p>DuckDB’s <code>.arrow()</code> method historically returned a <code>pyarrow.Table</code>. <a href="https://github.com/duckdb/duckdb/pull/18642">PR #18642</a> (by Pedro Holanda, merged Aug 19, 2025) changed it to return a <code>pyarrow.RecordBatchReader</code>. This shipped in <strong>DuckDB 1.4.0</strong> (Sep 16, 2025).</p>
+<section id="motivation" class="level2">
+<h2 class="anchored" data-anchor-id="motivation">Motivation</h2>
+<p>From the PR description:</p>
+<blockquote class="blockquote">
+<p>“Users mostly want to interact with arrow in a streaming fashion. This is especially important to avoid OOM of naively calling <code>arrow()</code>.”</p>
+</blockquote>
+<p>The core reasons:</p>
 <ul>
-<li><strong>Interactive notebooks</strong> where you’re exploring data and iterating quickly</li>
-<li><strong>SQL-fluent teams</strong> who don’t want to learn a new API for ad-hoc analysis</li>
-<li><strong>Quick scripts</strong> where ceremony and boilerplate slow you down</li>
+<li><strong>Memory efficiency:</strong> users would call <code>.arrow()</code> on large datasets, materializing everything into memory and getting OOM errors. <code>RecordBatchReader</code> streams data in batches.</li>
+<li><strong>Streaming-first philosophy:</strong> DuckDB’s Arrow integration is designed around zero-copy streaming. Returning a reader aligns with this.</li>
+<li><strong>Dedicated alternatives exist:</strong> <code>fetch_arrow_table()</code> was already available for users who explicitly wanted full materialization.</li>
 </ul>
-<p>If you need IDE support, type safety, or backend portability, consider <a href="https://pola.rs/">Polars</a> or <a href="https://ibis-project.org/">Ibis</a>. If some operation is easier in those libraries, duckboat makes it straightforward to convert between them.</p>
 </section>
-<section id="a-small-library-deliberately" class="level2">
-<h2 class="anchored" data-anchor-id="a-small-library-deliberately">A small library, deliberately</h2>
-<p>Duckboat is small – both in API surface and codebase. This is intentional. It’s an experiment in one direction of the design space: what happens when you lean fully into SQL as your dataframe API, with minimal Python wrapping?</p>
-<p>The answer, I think, is a tool that’s surprisingly pleasant for interactive work. Not for everything, but for the kind of exploratory data analysis where you’re thinking in SQL anyway.</p>
+<section id="duckdb-1.5.0-api-cleanup-mar-9-2026" class="level2">
+<h2 class="anchored" data-anchor-id="duckdb-1.5.0-api-cleanup-mar-9-2026">DuckDB 1.5.0 API Cleanup (Mar 9, 2026)</h2>
+<p>The change was a breaking change that was not well documented initially, causing significant user confusion (<a href="https://github.com/duckdb/duckdb-python/issues/71">#71</a>, <a href="https://github.com/duckdb/duckdb-python/issues/85">#85</a>, <a href="https://github.com/duckdb/duckdb-python/issues/95">#95</a> in duckdb-python).</p>
+<p>DuckDB 1.5.0 cleaned up the API:</p>
+<ul>
+<li><code>to_arrow_reader()</code> -&gt; <code>RecordBatchReader</code> (new, preferred)</li>
+<li><code>to_arrow_table()</code> -&gt; <code>Table</code> (new, preferred)</li>
+<li><code>arrow()</code> -&gt; <code>RecordBatchReader</code> (kept but discouraged)</li>
+<li>Deprecated: <code>fetch_record_batch()</code>, <code>fetch_arrow_table()</code>, <code>fetch_arrow_reader()</code></li>
+</ul>
+</section>
+</section>
+<section id="why-this-causes-problems" class="level1">
+<h1>Why This Causes Problems</h1>
+<section id="one-shot-consumption" class="level2">
+<h2 class="anchored" data-anchor-id="one-shot-consumption">One-shot consumption</h2>
+<p>A <code>RecordBatchReader</code> is <strong>single-use</strong>. Once you have read from it, the stream is exhausted. You cannot rewind or re-read. If you pass a <code>RecordBatchReader</code> to DuckDB as input (e.g., <code>SELECT * FROM reader</code>), DuckDB will consume it. Any subsequent query against it finds an empty stream.</p>
+</section>
+<section id="deadlocks" class="level2">
+<h2 class="anchored" data-anchor-id="deadlocks">Deadlocks</h2>
+<p>When DuckDB returns a <code>RecordBatchReader</code>, it holds a <strong>streaming query</strong> on that connection. The reader is backed by a <code>StreamQueryResult</code> which starts an execution pipeline that blocks until batches are consumed.</p>
+<p>If you then try to execute a new query on the <strong>same connection</strong> that scans that <code>RecordBatchReader</code>, two things happen:</p>
+<ol type="1">
+<li>The new query needs the <code>ClientContextLock</code> to execute.</li>
+<li>The <code>RecordBatchReader</code>’s <code>GetNextChunk</code> also needs the <code>ClientContextLock</code> to produce data.</li>
+</ol>
+<p>This creates a deadlock: the new query holds the lock waiting for data from the reader, while the reader needs the lock to produce data. This was documented in <a href="https://github.com/duckdb/duckdb-python/issues/85">duckdb-python #85</a>, where stack traces showed two threads deadlocked on <code>ResultArrowArrayStreamWrapper::MyStreamGetNext</code> and <code>ArrowArrayStreamWrapper::GetNextChunk</code>.</p>
+</section>
+<section id="workarounds" class="level2">
+<h2 class="anchored" data-anchor-id="workarounds">Workarounds</h2>
+<ol type="1">
+<li><strong>Materialize first:</strong> call <code>.read_all()</code> to consume the reader into a <code>Table</code> before passing it back to DuckDB.</li>
+<li><strong>Use <code>to_arrow_table()</code></strong> (1.5.0+) to get a <code>Table</code> directly, bypassing the <code>RecordBatchReader</code> entirely.</li>
+<li><strong>Use separate connections</strong> if streaming is needed.</li>
+</ol>
+</section>
+</section>
+<section id="version-timeline" class="level1">
+<h1>Version Timeline</h1>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 22%">
+<col style="width: 63%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Version</th>
+<th>Date</th>
+<th><code>.arrow()</code> returns</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>&lt;= 1.3</td>
+<td>through May 2025</td>
+<td><code>pyarrow.Table</code></td>
+</tr>
+<tr class="even">
+<td><strong>1.4.0</strong></td>
+<td><strong>Sep 16, 2025</strong></td>
+<td><strong><code>RecordBatchReader</code></strong> (breaking change)</td>
+</tr>
+<tr class="odd">
+<td><strong>1.5.0</strong></td>
+<td><strong>Mar 9, 2026</strong></td>
+<td><code>RecordBatchReader</code> + new <code>to_arrow_table()</code> API</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="converting-between-types" class="level1">
+<h1>Converting Between Types</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># RecordBatchReader -&gt; Table (consumes the stream)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>table <span class="op">=</span> reader.read_all()</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Table -&gt; RecordBatchReader (zero-copy)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>reader <span class="op">=</span> table.to_reader()</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Table -&gt; list of RecordBatches</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>batches <span class="op">=</span> table.to_batches()</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># list of RecordBatches -&gt; Table</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>table <span class="op">=</span> pa.Table.from_batches(batches)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 
 </section>
@@ -754,4 +858,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/duckboat/edit/main/docs/ramble.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/duckboat/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/duckboat/edit/main/docs/duckdb_arrow_change.md" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/duckboat/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
