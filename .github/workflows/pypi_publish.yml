@@ -17,8 +17,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
       - name: Build SDist and wheel
-        run: pipx run build
+        run: uv build
 
       - uses: actions/upload-artifact@v4
         with:
@@ -26,20 +29,22 @@ jobs:
           path: dist/*
 
       - name: Check metadata
-        run: pipx run twine check dist/*
+        run: uvx twine check dist/*
 
       - name: Install from wheel
-        run: |
-          pip install "$(find dist -name 'duckboat-*-py3-none-any.whl' -type f -print -quit)"[test]
+        run: uv pip install --system "$(find dist -name 'duckboat-*-py3-none-any.whl' -type f -print -quit)"
+
+      - name: Install test deps
+        run: uv pip install --system pytest pytest-cov
 
       - name: Test wheel
         run: pytest
 
       - name: Install from sdist
         run: |
-          pip uninstall duckboat -y
+          uv pip uninstall --system duckboat
           cp dist/duckboat-*.tar.gz duckboat.tar.gz
-          pip install duckboat.tar.gz[test]
+          uv pip install --system duckboat.tar.gz
 
       - name: Test sdist
         run: pytest
