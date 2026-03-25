@@ -60,6 +60,8 @@ t1.do(
 - **`alias` method:** replaced by dict-in-chain.
 - **`Database.sql()`:** replaced by dict + SQL string in chain.
 - **`Database.hold()`:** users materialize individual tables instead.
+- **`Database.__repr__()`**, **`keys()`**, **`__getitem__()`:** no longer needed
+  when the user holds the dict themselves.
 
 ## Migration
 
