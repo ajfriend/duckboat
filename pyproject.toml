@@ -16,7 +16,7 @@ dependencies = [
     'pandas',
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     'pytest', 'pytest-cov', 'ruff',
     'jupyterlab', 'ipykernel', 'jupyterlab_execute_time',
