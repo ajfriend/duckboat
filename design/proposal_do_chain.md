@@ -33,54 +33,87 @@ are forgotten---only the result carries forward.
 ```python
 # Multi-table join
 uck.do(
-    {"orders": orders_df, "customers": customers_df},
-    "select * from orders join customers using (id)",
-    "where total > 100",
+    {'orders': orders_df, 'customers': customers_df},
+    'select * from orders join customers using (id)',
+    'where total > 100',
 )
 
 # Mid-chain join
 t1.do(
-    "where total_amount > 0",
-    "select *, pickup_zone_id as zid",
-    {"zones": zones_df},
-    "join zones on zid = zones.id",
-    "select zone_name, avg(total_amount) group by 1",
+    'where total_amount > 0',
+    'select *, pickup_zone_id as zid',
+    {'zones': zones_df},
+    'join zones on zid = zones.id',
+    'select zone_name, avg(total_amount) group by 1',
 )
 
 # Self-join
 t1.do(
-    {"t": t1},
-    "select * from t a join t b using (hexid)",
+    {'t': t1},
+    'select * from t a join t b using (hexid)',
 )
 ```
 
-## What gets deprecated
+## What gets removed
 
 - **`Database` class** (public API): replaced by dict-in-chain.
 - **`alias` method:** replaced by dict-in-chain.
 - **`Database.sql()`:** replaced by dict + SQL string in chain.
 - **`Database.hold()`:** users materialize individual tables instead.
 
-`Database` and `alias` continue to work in this release but are no longer
-documented as the recommended approach. They can be removed in a future release
-once the dict syntax has had time to settle.
-
 ## Migration
 
-| Before                                     | After                                           |
-|--------------------------------------------|-------------------------------------------------|
-| `Database(a=df1, b=df2).sql("select ...")` | `uck.do({"a": df1, "b": df2}, "select ...")`    |
-| `t.alias("name").do("select ...")`         | `t.do({"name": t}, "select ...")`               |
-| `Database(a=df1, b=df2).hold("pandas")`    | Call `.do("pandas")` on each table individually |
+**Multi-table query:**
+
+```python
+# before
+Database(a=df1, b=df2).sql('select ...')
+
+# after
+uck.do({'a': df1, 'b': df2}, 'select ...')
+```
+
+**Self-join:**
+
+```python
+# before
+t.alias('name').do('select ...')
+
+# after
+t.do({'name': t}, 'select ...')
+```
+
+**Materialize all tables:**
+
+```python
+# before
+Database(a=df1, b=df2).hold('pandas')
+
+# after -- call .do('pandas') on each table individually
+```
 
 ## What stays
 
 - **`Table`:** unchanged, still the core object.
-- **`Table.do()` / `uck.do()`:** unchanged interface, one new dispatch case.
+- **`Table.do()` / `uck.do()`:** unchanged interface, new dispatch cases.
 - **`Table.hold()`:** materialize a single table.
 
 The internal `query()` function that registers named relations with DuckDB
 stays---it is the backend for the dict step.
+
+## Internal cleanup
+
+With `Database` removed, the `do()` internals get simpler. The current code has
+two parallel class hierarchies (`Table` and `Database`), each with their own
+`sql()` method, and `do_one()` dispatches via `isinstance` checks. The sentinel
+`_PREV` (see Dispatch Rules below) collapses this into one code path:
+
+- No more `isinstance(A, Table)` vs `isinstance(A, Database)`.
+- The presence of `_PREV` in the context dict is the sole signal for whether to
+  auto-wrap SQL with `FROM`.
+- `DoMixin`, `DatabaseMixin`, and `mixin_database.py` are removed entirely.
+- `do_one()` becomes a single dispatch on the argument type, not the accumulator
+  type.
 
 ## Open questions for Stage 1
 
@@ -117,14 +150,14 @@ variable names.
 # Multi-table join
 uck.do(
     t"select * from {orders} join {customers} using (id)",
-    "where total > 100",
+    'where total > 100',
 )
 
 # Mid-chain join
 t1.do(
-    "where total_amount > 0",
+    'where total_amount > 0',
     t"join {zones} on zid = zones.id",
-    "select zone_name, avg(total_amount) group by 1",
+    'select zone_name, avg(total_amount) group by 1',
 )
 
 # Self-join (same variable referenced twice is fine)
@@ -156,7 +189,7 @@ t1.do(t"join {zones} on zid = zones.id")
 is equivalent to:
 
 ```python
-t1.do({"zones": zones}, "join zones on zid = zones.id")
+t1.do({'zones': zones}, 'join zones on zid = zones.id')
 ```
 
 The t-string just infers the dict and reconstructs the SQL from the template.
@@ -173,16 +206,29 @@ The t-string just infers the dict and reconstructs the SQL from the template.
 # Dispatch rules (both stages combined)
 
 The `do()` chain processes arguments left to right. At each step, it has a
-"current context"---a dict mapping names to tables, with `_` as the key for the
-implicit/current table.
+"current context"---a dict mapping names to tables. The implicit/current table
+is stored under a sentinel key `_PREV`, a private Python object that can never
+collide with any string key:
 
-| Argument type                           | Stage | Behavior                                                                                                           |
-|-----------------------------------------|-------|--------------------------------------------------------------------------------------------------------------------|
-| DataFrame, filename, or Arrow object    | --    | Wrap as a `Table`, set as `{"_": table}`                                                                           |
-| SQL string                              | --    | Execute against the current context. Implicit table available for auto-wrapping. Result becomes `{"_": new_table}` |
-| Dict                                    | 1     | Merge into the current context. Names available for the next SQL step only                                         |
-| T-string                                | 2     | Build dict from interpolations, merge into context, reconstruct SQL, execute. Result becomes `{"_": new_table}`    |
-| Materializer (`"pandas"`, `list`, etc.) | --    | Convert the current `_` table and return                                                                           |
+```python
+class _Prev:
+    __slots__ = ()
+    def __repr__(self):
+        return '_Prev'
+
+_PREV = _Prev()
+```
+
+Using a sentinel object instead of a string like `'_'` avoids any conflict with
+user-chosen table names or SQL identifiers.
+
+| Argument type                           | Stage | Behavior                                                                                                               |
+|-----------------------------------------|-------|------------------------------------------------------------------------------------------------------------------------|
+| DataFrame, filename, or Arrow object    | --    | Wrap as a `Table`, set as `{_PREV: table}`                                                                             |
+| SQL string                              | --    | Execute against the current context. Implicit table available for auto-wrapping. Result becomes `{_PREV: new_table}`   |
+| Dict                                    | 1     | Merge into the current context. Names available for the next SQL step only                                             |
+| T-string                                | 2     | Build dict from interpolations, merge into context, reconstruct SQL, execute. Result becomes `{_PREV: new_table}`      |
+| Materializer (`'pandas'`, `list`, etc.) | --    | Convert the current `_PREV` table and return                                                                           |
 
 
 # Benefits
