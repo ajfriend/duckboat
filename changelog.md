@@ -3,6 +3,7 @@
 - require Python >= 3.10
 - require duckdb >= 1.5
 - use `to_arrow_table()` for Arrow export (fixes deadlock with DuckDB 1.5)
+- documentation updated
 
 # v0.17.0
 
