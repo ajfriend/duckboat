@@ -45,12 +45,12 @@ lab:
 
 
 [group('docs')]
-render:
+render: reinstall
     uv run quarto render docs/
     open docs_output/index.html
 
 [group('docs')]
-publish:
+publish: reinstall
     cd docs && uv run quarto publish gh-pages
 
 

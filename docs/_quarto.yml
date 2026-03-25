@@ -4,7 +4,7 @@ project:
 
 website:
   title: "duckboat"
-  site-url: https://ajfriend.github.io/duckboat/
+  site-url: https://ajfriend.com/duckboat/
   repo-url: https://github.com/ajfriend/duckboat
   repo-subdir: docs/
   repo-actions: [edit, issue]
