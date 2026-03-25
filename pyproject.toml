@@ -8,10 +8,10 @@ authors = [
 license = { file = 'LICENSE' }
 keywords = ['data-wrangling', 'duckdb', 'SQL', 'ETL', 'pipelines']
 readme = 'readme.md'
-requires-python = '>=3.9'
+requires-python = '>=3.10'
 
 dependencies = [
-    'duckdb',
+    'duckdb>=1.5',
     'pyarrow',
     'pandas',
 ]

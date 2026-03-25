@@ -4,7 +4,6 @@ export UV_OFFLINE := "0"
 _:
     @just --list
 
-
 clean:
     just _rm '__pycache__'
     just _rm '*.egg-info'
@@ -28,7 +27,10 @@ purge: clean
 _rm pattern:
     -@find . -name "{{pattern}}" -prune -exec rm -rf {} +
 
-test:
+reinstall:
+    uv sync --reinstall-package duckboat
+
+test: reinstall
     uv run pytest
 
 lint:
