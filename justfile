@@ -1,18 +1,8 @@
 default:
       @just --list
 
-init: purge
-	python -m venv env
-	env/bin/pip install --upgrade pip wheel setuptools
-	just lib
-
-lib:
-	env/bin/pip install .[all]
-
-# uninstall duckboat and remove extranous files
+# remove extranous files
 clear:
-	-env/bin/pip uninstall -y duckboat
-
 	just _remove d '__pycache__'
 	just _remove d '*.egg-info'
 	just _remove d '*.ipynb_checkpoints'
@@ -27,32 +17,29 @@ clear:
 	just _remove f '*.pyc'
 	just _remove f '.coverage'
 
-rebuild: clear lib
-
-# remove env
+# remove venv
 purge:
-	-rm -rf env
+	-rm -rf .venv
 	just clear
 
 test:
-	env/bin/pytest
+	uv run pytest
 
 lab:
-	env/bin/pip install jupyterlab
-	env/bin/jupyter lab
+	uv run jupyter lab
 
 render:
-	source env/bin/activate; quarto render docs/
+	uv run quarto render docs/
 	open docs_output/index.html
 
 publish:
-	source env/bin/activate; cd docs; quarto publish gh-pages
+	cd docs && uv run quarto publish gh-pages
 
 _remove type name:
     -@find . -type {{type}} -name {{name}} | xargs rm -r
 
 lint:
-	./env/bin/ruff check
+	uv run ruff check
 
 fix:
-	./env/bin/ruff check --fix
+	uv run ruff check --fix

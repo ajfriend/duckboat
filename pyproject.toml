@@ -17,13 +17,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ['pytest', 'pytest-cov', 'ruff']
-dev = ['jupyterlab', 'ipykernel', 'jupyterlab_execute_time']
-docs = ['matplotlib']
-all = [
-    'duckboat[test]',
-    'duckboat[dev]',
-    'duckboat[docs]',
+dev = [
+    'pytest', 'pytest-cov', 'ruff',
+    'jupyterlab', 'ipykernel', 'jupyterlab_execute_time',
+    'matplotlib',
     'polars',
 ]
 

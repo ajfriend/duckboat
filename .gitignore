@@ -9,3 +9,4 @@ docs_output/
 *.csv
 *.parquet
 *.coverage
+uv.lock
