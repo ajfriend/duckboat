@@ -17,10 +17,13 @@ clean:
     just _rm '*.DS_Store'
     just _rm '*.pyc'
     just _rm '.coverage'
+    just _rm '.ruff_cache'
+    just _rm 'uv.lock'
 
-purge:
+purge: clean
     -rm -rf .venv
-    just clean
+    just _rm '.claude'
+
 
 _rm pattern:
     -@find . -name "{{pattern}}" -prune -exec rm -rf {} +

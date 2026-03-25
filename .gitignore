@@ -10,3 +10,4 @@ docs_output/
 *.parquet
 *.coverage
 uv.lock
+.claude
