@@ -231,7 +231,8 @@ user-chosen table names or SQL identifiers.
 | T-string                                | 2     | Build dict from interpolations, merge into context, reconstruct SQL, execute. Result becomes `{_PREV: new_table}`      |
 | List                                    | --    | Recursively call `do()` with the list contents (reusable pipeline fragments)                                           |
 | Callable                                | --    | Call with the current table, result becomes `{_PREV: new_table}`                                                       |
-| Materializer (`'pandas'`, `list`, etc.) | --    | Convert the current `_PREV` table and return                                                                           |
+| Type (`list`, `dict`, `int`, etc.)      | --    | Materialize the current table as that type and return                                                                  |
+| String materializer (`'pandas'`, `'arrow'`) | -- | Materialize the current table via `hold()` and return                                                                  |
 
 
 # Benefits
