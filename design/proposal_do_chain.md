@@ -111,17 +111,20 @@ two parallel class hierarchies (`Table` and `Database`), each with their own
 - No more `isinstance(A, Table)` vs `isinstance(A, Database)`.
 - The presence of `_PREV` in the context dict is the sole signal for whether to
   auto-wrap SQL with `FROM`.
-- `DoMixin`, `DatabaseMixin`, and `mixin_database.py` are removed entirely.
+- `DatabaseMixin` and `mixin_database.py` are removed entirely.
+- `DoMixin` stays but gets simplified---one code path instead of two.
 - `do_one()` becomes a single dispatch on the argument type, not the accumulator
   type.
 
-## Open questions for Stage 1
+## Design decisions for Stage 1
 
-- **Dict scope:** should the dict register names only for the next step, or
-  until the end of the chain? Proposed: next step only, to avoid hidden state.
-- **Arrow detection:** should we detect `__arrow_c_stream__` on dict values to
-  accept any Arrow-compatible tabular object, or just check for types we know
-  (DataFrame, `Table`, filename)?
+- **Dict scope:** next step only. After the SQL executes, named tables are
+  forgotten. No hidden state accumulation.
+
+## Future work
+
+- **Arrow detection:** detect `__arrow_c_stream__` on dict values to accept any
+  Arrow-compatible tabular object. Separate PR.
 
 
 # Stage 2: T-string syntactic sugar (Python 3.14+)
@@ -194,10 +197,8 @@ t1.do({'zones': zones}, 'join zones on zid = zones.id')
 
 The t-string just infers the dict and reconstructs the SQL from the template.
 
-## Open questions for Stage 2
+## Open question for Stage 2
 
-- **`uck.sql()` convenience:** should it exist as an alias for
-  `uck.do(t"...")`? Or is `uck.do` sufficient as the single entry point?
 - **Minimum Python version:** should duckboat bump `requires-python` to 3.14
   when t-string support ships, or should t-strings be an optional feature that
   works if available?
@@ -228,6 +229,8 @@ user-chosen table names or SQL identifiers.
 | SQL string                              | --    | Execute against the current context. Implicit table available for auto-wrapping. Result becomes `{_PREV: new_table}`   |
 | Dict                                    | 1     | Merge into the current context. Names available for the next SQL step only                                             |
 | T-string                                | 2     | Build dict from interpolations, merge into context, reconstruct SQL, execute. Result becomes `{_PREV: new_table}`      |
+| List                                    | --    | Recursively call `do()` with the list contents (reusable pipeline fragments)                                           |
+| Callable                                | --    | Call with the current table, result becomes `{_PREV: new_table}`                                                       |
 | Materializer (`'pandas'`, `list`, etc.) | --    | Convert the current `_PREV` table and return                                                                           |
 
 
