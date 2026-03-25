@@ -27,7 +27,7 @@ dev = [
 [project.urls]
 homepage   = 'https://github.com/ajfriend/duckboat'
 repository = 'https://github.com/ajfriend/duckboat'
-documentation = 'https://ajfriend.github.io/duckboat'
+documentation = 'https://ajfriend.com/duckboat'
 pypi = 'https://pypi.org/project/duckboat'
 
 [build-system]

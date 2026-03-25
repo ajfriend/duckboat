@@ -22,3 +22,13 @@ just test
 just lint
 just fix   # auto-fix
 ```
+
+## Publishing docs
+
+```
+just publish
+```
+
+This renders the Quarto docs and pushes to the `gh-pages` branch, which deploys to https://ajfriend.com/duckboat/.
+
+Note: `tut_nyc_join.qmd` executes Python code against large parquet files in `docs/data/` (gitignored, ~1.4GB). You need those files locally for the tutorial to render.
