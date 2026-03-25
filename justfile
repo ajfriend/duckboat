@@ -1,45 +1,51 @@
-default:
-      @just --list
+export UV_NO_EDITABLE := "1"
+export UV_OFFLINE := "0"
 
-# remove extranous files
-clear:
-	just _remove d '__pycache__'
-	just _remove d '*.egg-info'
-	just _remove d '*.ipynb_checkpoints'
-	just _remove d '.pytest_cache'
+_:
+    @just --list
 
-	just _remove d 'docs_output'
-	just _remove d 'site_libs'
-	just _remove d '.quarto'
-	just _remove f '*.quarto_ipynb'
 
-	just _remove f '*.DS_Store'
-	just _remove f '*.pyc'
-	just _remove f '.coverage'
+clean:
+    just _rm '__pycache__'
+    just _rm '*.egg-info'
+    just _rm '*.ipynb_checkpoints'
+    just _rm '.pytest_cache'
+    just _rm 'docs_output'
+    just _rm 'site_libs'
+    just _rm '.quarto'
+    just _rm '*.quarto_ipynb'
+    just _rm '*.DS_Store'
+    just _rm '*.pyc'
+    just _rm '.coverage'
 
-# remove venv
 purge:
-	-rm -rf .venv
-	just clear
+    -rm -rf .venv
+    just clean
+
+_rm pattern:
+    -@find . -name "{{pattern}}" -prune -exec rm -rf {} +
 
 test:
-	uv run pytest
-
-lab:
-	uv run jupyter lab
-
-render:
-	uv run quarto render docs/
-	open docs_output/index.html
-
-publish:
-	cd docs && uv run quarto publish gh-pages
-
-_remove type name:
-    -@find . -type {{type}} -name {{name}} | xargs rm -r
+    uv run pytest
 
 lint:
-	uv run ruff check
+    uv run ruff check
 
 fix:
-	uv run ruff check --fix
+    uv run ruff check --fix
+
+[group('extra')]
+lab:
+    uv run jupyter lab
+
+
+[group('docs')]
+render:
+    uv run quarto render docs/
+    open docs_output/index.html
+
+[group('docs')]
+publish:
+    cd docs && uv run quarto publish gh-pages
+
+
