@@ -1,55 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://ajfriend.github.io/duckboat/related.html</loc>
+    <loc>https://ajfriend.com/duckboat/related.html</loc>
     <lastmod>2026-03-25T21:51:55.650Z</lastmod>
   </url>
   <url>
-    <loc>https://ajfriend.github.io/duckboat/proposal_do_chain.html</loc>
-    <lastmod>2026-03-25T21:51:55.649Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ajfriend.github.io/duckboat/ramble.html</loc>
-    <lastmod>2026-03-25T21:51:55.650Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ajfriend.github.io/duckboat/tut_fsq.html</loc>
-    <lastmod>2024-12-26T22:30:16.439Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ajfriend.github.io/duckboat/concepts.html</loc>
-    <lastmod>2026-03-25T21:51:55.648Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ajfriend.github.io/duckboat/arrow_pycapsule.html</loc>
-    <lastmod>2026-03-25T21:51:55.648Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ajfriend.github.io/duckboat/duckdb_stuff.html</loc>
-    <lastmod>2026-03-25T21:51:55.649Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ajfriend.github.io/duckboat/tut_nyc_join.html</loc>
-    <lastmod>2026-03-25T21:51:55.650Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ajfriend.github.io/duckboat/todo.html</loc>
-    <lastmod>2024-12-26T22:30:16.942Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ajfriend.github.io/duckboat/duckdb_arrow_change.html</loc>
-    <lastmod>2026-03-25T21:51:55.648Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ajfriend.github.io/duckboat/index.html</loc>
-    <lastmod>2024-12-26T21:58:17.360Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ajfriend.github.io/duckboat/tut_lazy.html</loc>
+    <loc>https://ajfriend.com/duckboat/tut_lazy.html</loc>
     <lastmod>2024-12-26T22:30:15.898Z</lastmod>
   </url>
   <url>
-    <loc>https://ajfriend.github.io/duckboat/lazy.html</loc>
+    <loc>https://ajfriend.com/duckboat/index.html</loc>
+    <lastmod>2024-12-26T21:58:17.360Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ajfriend.com/duckboat/concepts.html</loc>
+    <lastmod>2026-03-25T21:51:55.648Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ajfriend.com/duckboat/tut_nyc_join.html</loc>
+    <lastmod>2026-03-25T21:51:55.650Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ajfriend.com/duckboat/duckdb_stuff.html</loc>
+    <lastmod>2026-03-25T21:51:55.649Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ajfriend.com/duckboat/todo.html</loc>
+    <lastmod>2024-12-26T22:30:16.942Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ajfriend.com/duckboat/tut_fsq.html</loc>
+    <lastmod>2024-12-26T22:30:16.439Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ajfriend.com/duckboat/ramble.html</loc>
+    <lastmod>2026-03-25T21:51:55.650Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ajfriend.com/duckboat/lazy.html</loc>
     <lastmod>2026-03-25T21:51:55.649Z</lastmod>
   </url>
 </urlset>

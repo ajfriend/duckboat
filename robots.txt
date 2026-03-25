@@ -1,1 +1,1 @@
-Sitemap: https://ajfriend.github.io/duckboat/sitemap.xml
+Sitemap: https://ajfriend.com/duckboat/sitemap.xml
