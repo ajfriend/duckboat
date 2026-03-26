@@ -16,12 +16,15 @@ dependencies = [
     'pandas',
 ]
 
+[project.optional-dependencies]
+testing = ['pytest', 'pytest-cov', 'coverage', 'polars']
+
 [dependency-groups]
 dev = [
-    'pytest', 'coverage', 'ruff',
+    'pytest', 'pytest-cov', 'coverage', 'polars',
+    'ruff',
     'jupyterlab', 'ipykernel', 'jupyterlab_execute_time',
     'matplotlib',
-    'polars',
 ]
 
 [project.urls]
@@ -118,7 +121,7 @@ requires = ['tox-uv']
 
 [tool.tox.env_run_base]
 runner = 'uv-venv-runner'
-deps = ['pytest', 'coverage', 'polars']
+extras = ['testing']
 commands = [['coverage', 'run', '-m', 'pytest']]
 
 [tool.tox.env.report]
