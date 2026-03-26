@@ -18,7 +18,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    'pytest', 'pytest-cov', 'ruff',
+    'pytest', 'coverage', 'ruff',
     'jupyterlab', 'ipykernel', 'jupyterlab_execute_time',
     'matplotlib',
     'polars',
@@ -95,7 +95,35 @@ include = [
 
 
 [tool.pytest.ini_options]
-addopts = "--cov=duckboat --cov=tests --cov-report=term-missing --cov-fail-under=100"
 
 [tool.coverage.run]
-omit = ['src/duckboat/_tstrings.py']
+source = ['duckboat', 'tests']
+parallel = true
+
+[tool.coverage.paths]
+source = [
+    'src/duckboat',
+    '.tox/*/lib/*/site-packages/duckboat',
+]
+tests = [
+    'tests',
+]
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+
+[tool.tox]
+requires = ['tox-uv']
+
+[tool.tox.env_run_base]
+runner = 'uv-venv-runner'
+deps = ['pytest', 'coverage']
+commands = [['coverage', 'run', '-m', 'pytest']]
+
+[tool.tox.env.report]
+deps = ['coverage']
+commands = [
+    ['coverage', 'combine'],
+    ['coverage', 'report'],
+]

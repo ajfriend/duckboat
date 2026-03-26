@@ -3,11 +3,11 @@ from pathlib import Path
 from .ddb import query
 
 try:
-    from string.templatelib import Template as _Template  # pragma: no cover
-    from ._tstrings import _process_template  # pragma: no cover
-except ImportError:  # pragma: no cover
-    _Template = type(None)  # pragma: no cover
-    _process_template = None  # pragma: no cover
+    from string.templatelib import Template as _Template
+    from ._tstrings import _process_template
+except ImportError:
+    _Template = type(None)
+    _process_template = None
 
 _PREV = '_'
 
@@ -72,11 +72,11 @@ def _do_one(ctx, x):
         tbl = ctx.pop(_PREV)
         return {**ctx, x.name: tbl}
 
-    if isinstance(x, _Template):  # pragma: no cover
-        sql, tables = _process_template(x)  # pragma: no cover
-        if tables:  # pragma: no cover
-            ctx = _do_one(ctx, tables)  # pragma: no cover
-        return _do_one(ctx, sql)  # pragma: no cover
+    if isinstance(x, _Template):
+        sql, tables = _process_template(x)
+        if tables:
+            ctx = _do_one(ctx, tables)
+        return _do_one(ctx, sql)
 
     tbl = ctx.get(_PREV)
 
@@ -122,8 +122,8 @@ def _do_one(ctx, x):
 
 
 def _do(A, *xs):
-    if isinstance(A, _Template):  # pragma: no cover
-        ctx = _do_one({}, A)  # pragma: no cover
+    if isinstance(A, _Template):
+        ctx = _do_one({}, A)
     else:
         ctx = _to_context(A)
     for x in xs:

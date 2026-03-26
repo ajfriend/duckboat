@@ -65,7 +65,7 @@ IDEs like Positron proactively inspect objects in the namespace to show them in 
 **Solution:** use `hide()` to suppress evaluation:
 
 ```python
-big = uck.Table('huge_dataset.parquet').do(
+big = uck.do('huge_dataset.parquet').do(
     'select ...',
     'where ...',
     'hide',  # suppress repr
@@ -81,6 +81,6 @@ big.do('show')
 You can also call `hide()` and `show()` as methods:
 
 ```python
-big = uck.Table('huge_dataset.parquet').hide()
+big = uck.do('huge_dataset.parquet').hide()
 big.show()  # re-enables repr
 ```
