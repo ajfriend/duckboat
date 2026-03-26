@@ -7,19 +7,12 @@ numbersections: false
 
 # Background
 
-duckboat currently has two main objects:
+duckboat previously had two main objects: `Table` and `Database`. `Database`
+existed only to give tables names for SQL queries (joins). Stage 1 replaced it
+with dict-in-chain dispatch and `uck.rename()`, simplifying the API to a single
+entry point: `do()`.
 
-- **`Table`:** A single lazy DuckDB relation. `Table.do()` chains SQL snippets,
-  auto-wrapping each as `SELECT * FROM _prev_ <step>`.
-- **`Database`:** A named dict of tables. `Database.do()` and `Database.sql()`
-  run SQL with explicit table names. Used for joins.
-
-There is also `alias`, which wraps a single `Table` into a `Database` with a
-given name (used for self-joins).
-
-The `Database` object exists only to give tables names for SQL queries. This
-proposal replaces it with two simpler mechanisms in the `do()` chain, rolled out
-in two stages.
+This document covers both Stage 1 (implemented) and Stage 2 (planned).
 
 
 # Stage 1: Dict dispatch (any Python version)
@@ -129,7 +122,7 @@ SQL with `from _`.
 - **Consistent context type:** currently the internal context (`ctx`) is a dict
   most of the time, but materializers return raw values (int, DataFrame, etc.),
   breaking the invariant. Consider wrapping materializer returns as
-  `{_PREV: raw_value}` and only unwrapping at the end of `_do()`. This would
+  `{'_': raw_value}` and only unwrapping at the end of `_do()`. This would
   make `ctx` always a dict, remove the `isinstance(ctx, dict)` guard in
   `_do_one`, and make the variable name honest. Rename to `env` or `scope` to
   reflect that it's a name-to-table mapping.
@@ -206,9 +199,15 @@ t1.do(
     'select zone_name, avg(total_amount) group by 1',
 )
 
-# Self-join (same variable referenced twice is fine)
-t1.do(
+# Self-join (start from uck.do, no _ in context)
+uck.do(
     t'select * from {t1} a join {t1} b using (hexid)',
+)
+
+# Self-join (mid-chain, use rename to name the current table)
+t1.do(
+    uck.rename('t1'),
+    t'from t1 as a join t1 as b using (hexid)',
 )
 ```
 
@@ -225,8 +224,8 @@ t1.do(
 
 ## Relationship between dict and t-string
 
-The t-string step is equivalent to a dict step followed by a SQL string step.
-This t-string:
+For table references, the t-string step is equivalent to a dict step followed by
+a SQL string step. This t-string:
 
 ```python
 t1.do(t'join {zones} on zid = zones.id')
@@ -238,7 +237,9 @@ is equivalent to:
 t1.do({'zones': zones}, 'join zones on zid = zones.id')
 ```
 
-The t-string just infers the dict and reconstructs the SQL from the template.
+For scalar parameters, t-strings have no dict equivalent---they inline values
+directly into the SQL. This replaces what users currently do with f-strings, but
+with the safety of type-based dispatch instead of raw string interpolation.
 
 ## Testing
 
