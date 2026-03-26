@@ -58,7 +58,7 @@ def _do_one(ctx, x):
 
         named = {k: v.rel for k, v in ctx.items()}
         if _PREV in ctx:
-            sql = f'from _ ' + s
+            sql = 'from _ ' + s
         else:
             sql = s
         result = Table(query(sql, **named))

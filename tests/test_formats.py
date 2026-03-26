@@ -51,7 +51,6 @@ def test_arrow():
     assert_frame_equal(t1.do('pandas'), t2.do('pandas'))
 
 
-
 def test_to_from_csv():
     import tempfile
 
