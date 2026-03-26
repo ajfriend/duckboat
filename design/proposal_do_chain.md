@@ -47,11 +47,8 @@ t1.do(
     'select zone_name, avg(total_amount) group by 1',
 )
 
-# Self-join
-t1.do(
-    {'t': t1},
-    'select * from t a join t b using (hexid)',
-)
+# Self-join (the current table is always available as _)
+t1.do('as a join _ as b using (hexid)')
 ```
 
 ## What gets removed
@@ -82,7 +79,7 @@ uck.do({'a': df1, 'b': df2}, 'select ...')
 t.alias('name').do('select ...')
 
 # after
-t.do({'name': t}, 'select ...')
+t.do('as a join _ as b using (hexid)')
 ```
 
 **Materialize all tables:**
@@ -99,24 +96,23 @@ Database(a=df1, b=df2).hold('pandas')
 - **`Table`:** unchanged, still the core object.
 - **`Table.do()` / `uck.do()`:** unchanged interface, new dispatch cases.
 - **`Table.hold()`:** materialize a single table.
+- **`Table.sql()`:** removed. `do()` handles all SQL execution.
 
 The internal `query()` function that registers named relations with DuckDB
 stays---it is the backend for the dict step.
 
 ## Internal cleanup
 
-With `Database` removed, the `do()` internals get simpler. The current code has
-two parallel class hierarchies (`Table` and `Database`), each with their own
-`sql()` method, and `do_one()` dispatches via `isinstance` checks. The sentinel
-`_PREV` (see Dispatch Rules below) collapses this into one code path:
+With `Database` removed, the `do()` internals get simpler. The context is
+always a `dict[str, Table]`. The key `'_'` holds the implicit table. The
+presence of `'_'` in the context is the sole signal for whether to auto-wrap
+SQL with `from _`.
 
 - No more `isinstance(A, Table)` vs `isinstance(A, Database)`.
-- The presence of `_PREV` in the context dict is the sole signal for whether to
-  auto-wrap SQL with `FROM`.
-- `DatabaseMixin` and `mixin_database.py` are removed entirely.
+- `DatabaseMixin`, `mixin_database.py`, `Table.sql()`, and
+  `random_table_name()` are removed entirely.
 - `DoMixin` stays but gets simplified---one code path instead of two.
-- `do_one()` becomes a single dispatch on the argument type, not the accumulator
-  type.
+- `_do_one()` dispatches on the argument type only, not the accumulator type.
 
 ## Design decisions for Stage 1
 
@@ -216,32 +212,21 @@ The t-string just infers the dict and reconstructs the SQL from the template.
 # Dispatch rules (both stages combined)
 
 The `do()` chain processes arguments left to right. At each step, it has a
-"current context"---a dict mapping names to tables. The implicit/current table
-is stored under a sentinel key `_PREV`, a private Python object that can never
-collide with any string key:
+"current context"---a `dict[str, Table]` mapping names to tables. The
+implicit/current table is stored under the key `'_'`. This means the current
+table is always available as `_` in SQL, and `from _` is always prepended to
+SQL snippets when `'_'` is in the context.
 
-```python
-class _Prev:
-    __slots__ = ()
-    def __repr__(self):
-        return '_Prev'
-
-_PREV = _Prev()
-```
-
-Using a sentinel object instead of a string like `'_'` avoids any conflict with
-user-chosen table names or SQL identifiers.
-
-| Argument type                           | Stage | Behavior                                                                                                               |
-|-----------------------------------------|-------|------------------------------------------------------------------------------------------------------------------------|
-| DataFrame, filename, or Arrow object    | --    | Wrap as a `Table`, set as `{_PREV: table}`                                                                             |
-| SQL string                              | --    | Execute against the current context. Implicit table available for auto-wrapping. Result becomes `{_PREV: new_table}`   |
-| Dict                                    | 1     | Merge into the current context. Names available for the next SQL step only                                             |
-| T-string                                | 2     | Build dict from interpolations, merge into context, reconstruct SQL, execute. Result becomes `{_PREV: new_table}`      |
-| List                                    | --    | Recursively call `do()` with the list contents (reusable pipeline fragments)                                           |
-| Callable                                | --    | Call with the current table, result becomes `{_PREV: new_table}`                                                       |
-| Type (`list`, `dict`, `int`, etc.)      | --    | Materialize the current table as that type and return                                                                  |
-| String materializer (`'pandas'`, `'arrow'`) | -- | Materialize the current table via `hold()` and return                                                                  |
+| Argument type                               | Stage | Behavior                                                                                            |
+|---------------------------------------------|-------|-----------------------------------------------------------------------------------------------------|
+| DataFrame, filename, or Arrow object        | --    | Wrap as a `Table`, set as `{'_': table}`                                                            |
+| SQL string                                  | --    | If `'_'` in context, prepend `from _`. Execute against named tables. Result becomes `{'_': result}` |
+| Dict                                        | 1     | Merge into the current context. Names available for the next SQL step only                          |
+| T-string                                    | 2     | Build dict from interpolations, merge, reconstruct SQL, execute. Result becomes `{'_': result}`     |
+| List                                        | --    | Recursively call `do()` with the list contents (reusable pipeline fragments)                        |
+| Callable                                    | --    | Call with the current table, result becomes `{'_': result}`                                         |
+| Type (`list`, `dict`, `int`, etc.)          | --    | Materialize the current table as that type and return                                               |
+| String materializer (`'pandas'`, `'arrow'`) | --    | Materialize the current table via `hold()` and return                                               |
 
 
 # Benefits
@@ -252,8 +237,8 @@ user-chosen table names or SQL identifiers.
   use `sql()` vs `do()`.
 - **Dict syntax works on all Python versions.** T-strings are a bonus for
   3.14+.
-- **Self-joins are natural.** Same variable in two positions, SQL aliases handle
-  the rest.
+- **Self-joins are natural.** The current table is `_`, so
+  `t.do('as a join _ as b using (hexid)')` just works.
 - **No hidden state.** "Register, use, forget"---names exist only for the next
   step.
 - **Chaining always works.** Every step produces a `Table`.
