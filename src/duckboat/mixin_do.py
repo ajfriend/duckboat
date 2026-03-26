@@ -56,6 +56,11 @@ def _do_one(ctx, x):
         if s == 'show':
             return {_PREV: tbl.show()}
 
+        # TODO: if DuckDB ever exposes a way to detect whether SQL already
+        # has a FROM clause (e.g., parse AST), we could skip prepending
+        # 'from _' when the user writes a complete query like
+        # 'select * from _ as a join _ as b ...'. For now, users write
+        # 'as a join _ as b ...' and we prepend 'from _' unconditionally.
         named = {k: v.rel for k, v in ctx.items()}
         if _PREV in ctx:
             sql = 'from _ ' + s
