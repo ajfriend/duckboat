@@ -22,20 +22,25 @@ def _read_file(s):
 
     if isinstance(s, str):
         try:
-            if Path(s).is_file():
-                with open(s) as f:
-                    return f.read()
+            p = Path(s)
+            if p.is_file():
+                return p.read_text()
         except OSError:
             pass
 
     return s
 
 
+def _wrap_tables(d):
+    from .table import Table
+    return {k: Table(v) for k, v in d.items()}
+
+
 def _to_context(A):
     from .table import Table
 
     if isinstance(A, dict):
-        return {k: Table(v) for k, v in A.items()}
+        return _wrap_tables(A)
     return {_PREV: Table(A)}
 
 
@@ -46,8 +51,7 @@ def _do_one(ctx, x):
         ctx = _to_context(ctx)
 
     if isinstance(x, dict):
-        named = {k: Table(v) for k, v in x.items()}
-        return {**ctx, **named}
+        return {**ctx, **_wrap_tables(x)}
 
     if isinstance(x, list):
         for item in x:
@@ -57,7 +61,8 @@ def _do_one(ctx, x):
     if isinstance(x, _Rename):
         if _PREV not in ctx:
             raise ValueError('rename: no implicit table to rename')
-        return {x.name: ctx[_PREV]}
+        tbl = ctx.pop(_PREV)
+        return {**ctx, x.name: tbl}
 
     tbl = ctx.get(_PREV)
 

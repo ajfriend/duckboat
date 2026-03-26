@@ -56,6 +56,6 @@ class TableMixin:
             raise ValueError(f'Unrecognized filetype: {filename}')
 
 
-def _save_format(tbl, filename, format):
-    s = f"copy (select * from tbl) to '{filename}' {format};"
+def _save_format(tbl, filename, fmt):
+    s = f"copy (select * from tbl) to '{filename}' {fmt};"
     query(s, tbl=tbl.rel)
