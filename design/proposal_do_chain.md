@@ -240,11 +240,27 @@ t1.do({'zones': zones}, 'join zones on zid = zones.id')
 
 The t-string just infers the dict and reconstructs the SQL from the template.
 
-## Open question for Stage 2
+## Testing
 
-- **Minimum Python version:** should duckboat bump `requires-python` to 3.14
-  when t-string support ships, or should t-strings be an optional feature that
-  works if available?
+T-string syntax won't parse on Python < 3.14, so t-string tests live in a
+separate file from the dict tests:
+
+```
+tests/test_db.py           # dict tests (all versions)
+tests/test_tstrings.py     # t-string tests (3.14+ only)
+```
+
+`test_tstrings.py` has a module-level skip at the top:
+
+```python
+import sys
+import pytest
+if sys.version_info < (3, 14):
+    pytest.skip('t-strings require 3.14+', allow_module_level=True)
+```
+
+Each t-string test mirrors a corresponding dict test in `test_db.py`, making it
+easy to verify they produce the same results.
 
 
 # Dispatch rules (both stages combined)
