@@ -24,7 +24,7 @@ def test_bad_object():
 
     df = pd.DataFrame({'a': [0]})
 
-    with pytest.raises(duckdb.InvalidInputException):
+    with pytest.raises(TypeError, match='__arrow_c_stream__'):
         uck.Table(df).do(foo, 'select *')
 
 
@@ -75,6 +75,29 @@ def test_to_from_parquet():
         t1.save(name)
         t2 = uck.Table(name)
         assert repr(t1) == repr(t2)
+
+
+def test_arrow_c_stream_roundtrip():
+    import pyarrow as pa
+
+    df = pd.DataFrame({'a': [1, 2, 3], 'b': ['x', 'y', 'z']})
+    t = uck.Table(df)
+
+    reader = pa.RecordBatchReader.from_stream(t)
+    table = reader.read_all()
+    assert table.column_names == ['a', 'b']
+    assert table['a'].to_pylist() == [1, 2, 3]
+    assert table['b'].to_pylist() == ['x', 'y', 'z']
+
+
+def test_bad_type_error():
+    with pytest.raises(TypeError, match='__arrow_c_stream__'):
+        uck.Table(42)
+
+
+def test_missing_file_error():
+    with pytest.raises(duckdb.IOException, match='nonexistent.parquet'):
+        uck.Table('nonexistent.parquet')
 
 
 def test_to_unknown_format():

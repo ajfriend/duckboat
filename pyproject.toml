@@ -118,7 +118,7 @@ requires = ['tox-uv']
 
 [tool.tox.env_run_base]
 runner = 'uv-venv-runner'
-deps = ['pytest', 'coverage']
+deps = ['pytest', 'coverage', 'polars']
 commands = [['coverage', 'run', '-m', 'pytest']]
 
 [tool.tox.env.report]

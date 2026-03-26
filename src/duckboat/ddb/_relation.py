@@ -1,15 +1,18 @@
+from pathlib import Path
+
 from ._query import __duckboat_query__ as query
 from duckdb import DuckDBPyRelation
 
 
 def form_relation(x) -> DuckDBPyRelation:
-    """
-    inputs: string of filename, actual file, string of remote file, dataframe,
-    dictionary, polars, pyarrow, filename of database
-    """
-    # if isinstance(df, Relation):
-    #     df = df.arrow()
-    if isinstance(x, str):
-        return query(f'select * from "{x}"')
-    else:
+    if hasattr(x, '__arrow_c_stream__'):
         return query('select * from x', x=x)
+    if isinstance(x, (str, Path)):
+        try:
+            return query(f'select * from "{x}"')
+        except Exception as e:
+            raise type(e)(f'Could not read {x!r}: {e}') from e
+    raise TypeError(
+        f'Expected a tabular object implementing __arrow_c_stream__ '
+        f'or a filename string — got {type(x).__name__}'
+    )

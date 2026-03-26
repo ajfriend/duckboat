@@ -110,6 +110,30 @@ def test_rename_after_chain():
     assert out == 9
 
 
+def test_arrow_dict_value():
+    import pyarrow as pa
+
+    t = pa.table({'x': [1, 2, 3]})
+    out = uck.do(
+        {'t': t},
+        'select sum(x) from t',
+        int,
+    )
+    assert out == 6
+
+
+def test_polars_dict_value():
+    import polars as pl
+
+    df = pl.DataFrame({'x': [1, 2, 3]})
+    out = uck.do(
+        {'t': df},
+        'select sum(x) from t',
+        int,
+    )
+    assert out == 6
+
+
 def test_rename_no_table():
     with pytest.raises(ValueError, match='no implicit table'):
         uck.do({'a': pd.DataFrame({'x': [1]})}, uck.rename('b'))
