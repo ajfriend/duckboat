@@ -4,7 +4,7 @@
 - `do()` is now the single entry point for everything
 - pass a dict to `do()` to register named tables for joins
 - the current table is always available as `_` in SQL
-- self-joins via `t.do('as a join _ as b using (hexid)')`
+- self-joins via `_` or `uck.rename()`
 - step-level context dict replaces the `Table`/`Database` split
 
 # v0.18.1

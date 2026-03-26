@@ -82,6 +82,15 @@ Translate back to a pandas dataframe:
 t.do('pandas')
 ```
 
+You can mix duckboat with pandas or polars mid-workflow. Do the heavy lifting in
+SQL, pop into pandas for fiddly column operations, then come back:
+
+```python
+df = t.do('where body_mass_g between 3500 and 4000', 'pandas')
+df = df.rename(columns=str.upper)
+result = uck.do(df, 'select SPECIES, count(*) as n group by 1')
+```
+
 
 ### Chaining expressions
 
@@ -219,45 +228,41 @@ t.do(
 )
 ```
 
-### Extravagant affordances
+### Dispatch rules
 
-`do()` dispatches on the type of its arguments, providing some handy shortcuts.
+`do()` dispatches on the type of each argument.
 
-**Extract scalars, lists, and dicts:**
+**SQL:**
 
 ```python
-t.do('select count(*)', int)       # returns a Python int
-t.do('select distinct a', list)    # returns a Python list
-t.do('limit 1', dict)              # returns a Python dict
+t.do('where x > 5')                # SQL snippet (from _ is prepended)
+t.do('queries/transform.sql')      # .sql file path (loaded and executed)
 ```
 
-**Convert to other formats:**
+**Composition:**
 
 ```python
-t.do('pandas')   # returns a Pandas DataFrame
-t.do('arrow')    # returns a PyArrow Table
+t.do(my_func)                      # callable — receives Table, returns Table
+t.do([step1, step2, step3])        # list — applied recursively as a pipeline
+t.do({'zones': zones_df})          # dict — registers named tables for next step
+t.do(uck.rename('trips'))          # rename — gives _ a name, removes auto-wrap
 ```
 
-**Apply functions:**
+**Output:**
 
 ```python
-def add_col(t):
-    return t.do("select *, a + 10 as b")
-
-t.do(add_col, 'select b', int)  # 10
+t.do('select count(*)', int)       # Python int
+t.do('select distinct a', list)    # Python list
+t.do('limit 1', dict)              # Python dict
+t.do('pandas')                     # Pandas DataFrame
+t.do('arrow')                      # PyArrow Table
 ```
 
-**Run `.sql` files:**
+**Display:**
 
 ```python
-t.do('queries/transform.sql')  # loads and runs the file contents as SQL
-```
-
-**Control display with `hide` and `show`:**
-
-```python
-big = uck.Table('huge_dataset.parquet').do('hide')  # suppresses repr output
-big.do('show')  # re-enables repr
+t.do('hide')                       # suppress repr (useful for large lazy tables)
+t.do('show')                       # re-enable repr
 ```
 
 
