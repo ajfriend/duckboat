@@ -15,6 +15,7 @@ website:
       - href: index.qmd
         text: Home
       - concepts.qmd
+      - tstrings.qmd
       - duckdb_stuff.qmd
       - lazy.qmd
       - section: "Tutorials"
@@ -30,6 +31,7 @@ website:
         contents:
           - ramble.qmd
           - todo.qmd
+          - changelog.qmd
 
   navbar:
     tools:

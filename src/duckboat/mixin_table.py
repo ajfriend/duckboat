@@ -9,13 +9,6 @@ class TableMixin:
         df = self.df()
         return dict(df.iloc[0])
 
-    def hold(self, kind='arrow'):
-        if kind == 'arrow':
-            return self.arrow()
-        if kind == 'pandas':
-            return self.df()
-        raise ValueError(f'Unknown kind: {kind!r}')
-
     def df(self):
         return self.rel.df()
 

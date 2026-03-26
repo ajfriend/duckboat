@@ -7,19 +7,12 @@ numbersections: false
 
 # Background
 
-duckboat currently has two main objects:
+duckboat previously had two main objects: `Table` and `Database`. `Database`
+existed only to give tables names for SQL queries (joins). Stage 1 replaced it
+with dict-in-chain dispatch and `uck.rename()`, simplifying the API to a single
+entry point: `do()`.
 
-- **`Table`:** A single lazy DuckDB relation. `Table.do()` chains SQL snippets,
-  auto-wrapping each as `SELECT * FROM _prev_ <step>`.
-- **`Database`:** A named dict of tables. `Database.do()` and `Database.sql()`
-  run SQL with explicit table names. Used for joins.
-
-There is also `alias`, which wraps a single `Table` into a `Database` with a
-given name (used for self-joins).
-
-The `Database` object exists only to give tables names for SQL queries. This
-proposal replaces it with two simpler mechanisms in the `do()` chain, rolled out
-in two stages.
+This document covers both Stage 1 (implemented) and Stage 2 (planned).
 
 
 # Stage 1: Dict dispatch (any Python version)
@@ -129,7 +122,7 @@ SQL with `from _`.
 - **Consistent context type:** currently the internal context (`ctx`) is a dict
   most of the time, but materializers return raw values (int, DataFrame, etc.),
   breaking the invariant. Consider wrapping materializer returns as
-  `{_PREV: raw_value}` and only unwrapping at the end of `_do()`. This would
+  `{'_': raw_value}` and only unwrapping at the end of `_do()`. This would
   make `ctx` always a dict, remove the `isinstance(ctx, dict)` guard in
   `_do_one`, and make the variable name honest. Rename to `env` or `scope` to
   reflect that it's a name-to-table mapping.
@@ -141,39 +134,80 @@ Stage 2 depends on Stage 1 being stable. It adds t-string as another dispatch
 type---syntactic sugar that builds the dict automatically from interpolated
 variables.
 
+## Backwards compatibility
+
+The library never contains t-string syntax itself. It only receives `Template`
+objects from user code. The `Template` class is imported with a try/except
+guard:
+
+```python
+try:
+    from string.templatelib import Template as _Template
+except ImportError:
+    _Template = type(None)  # will never match isinstance
+```
+
+On Python < 3.14, `_Template` is `type(None)`, so the `isinstance` check in
+`_do_one` never matches. On 3.14+, users can pass `t'...'` and it works. No
+version-specific files, no feature flags. The library works on all supported
+Python versions.
+
 ## What changes
 
 A [t-string](https://peps.python.org/pep-0750/) (template string, Python 3.14)
 in the `do()` chain is processed as follows:
 
 1. Walk the template's interpolations.
-2. For each interpolation, use `.expression` as the table name and `.value` as
-   the data.
-3. Build a dict from these pairs.
-4. Merge into the current context.
-5. Reconstruct the SQL from the template's static strings and expression names.
-6. Execute and return a `Table`.
+2. For each interpolation, dispatch on the **value type**:
+   - **Scalar** (`int`, `float`, `bool`): inline as a SQL literal.
+   - **String** (`str`): inline as a quoted SQL string.
+   - **Table-like** (DataFrame, Table, Arrow, etc.): register as a named table.
+     If `.expression` is a valid Python identifier (checked via
+     `str.isidentifier()`), use it as the table name. Otherwise, generate a
+     unique random name.
+3. Reconstruct the SQL from the template's static strings and resolved
+   fragments.
+4. Merge any registered tables into the current context.
+5. Execute and return a `Table`.
 
-This is exactly the dict step from Stage 1, with the dict built implicitly from
-variable names.
+This means t-strings handle both table references and parameterized values:
+
+```python
+# Table references
+t.do(t'join {customers} using (id)')
+# customers is a DataFrame → registered as 'customers'
+# becomes: join customers using (id)
+
+# Scalar parameters
+name = 'Alice'
+min_age = 25
+t.do(t'where name = {name} and age > {min_age}')
+# becomes: where name = 'Alice' and age > 25
+```
 
 ```python
 # Multi-table join
 uck.do(
-    t"select * from {orders} join {customers} using (id)",
+    t'select * from {orders} join {customers} using (id)',
     'where total > 100',
 )
 
 # Mid-chain join
 t1.do(
     'where total_amount > 0',
-    t"join {zones} on zid = zones.id",
+    t'join {zones} on zid = zones.id',
     'select zone_name, avg(total_amount) group by 1',
 )
 
-# Self-join (same variable referenced twice is fine)
+# Self-join (start from uck.do, no _ in context)
+uck.do(
+    t'select * from {t1} a join {t1} b using (hexid)',
+)
+
+# Self-join (mid-chain, use rename to name the current table)
 t1.do(
-    t"select * from {t1} a join {t1} b using (hexid)",
+    uck.rename('t1'),
+    t'from t1 as a join t1 as b using (hexid)',
 )
 ```
 
@@ -190,11 +224,11 @@ t1.do(
 
 ## Relationship between dict and t-string
 
-The t-string step is equivalent to a dict step followed by a SQL string step.
-This t-string:
+For table references, the t-string step is equivalent to a dict step followed by
+a SQL string step. This t-string:
 
 ```python
-t1.do(t"join {zones} on zid = zones.id")
+t1.do(t'join {zones} on zid = zones.id')
 ```
 
 is equivalent to:
@@ -203,13 +237,31 @@ is equivalent to:
 t1.do({'zones': zones}, 'join zones on zid = zones.id')
 ```
 
-The t-string just infers the dict and reconstructs the SQL from the template.
+For scalar parameters, t-strings have no dict equivalent---they inline values
+directly into the SQL. This replaces what users currently do with f-strings, but
+with the safety of type-based dispatch instead of raw string interpolation.
 
-## Open question for Stage 2
+## Testing
 
-- **Minimum Python version:** should duckboat bump `requires-python` to 3.14
-  when t-string support ships, or should t-strings be an optional feature that
-  works if available?
+T-string syntax won't parse on Python < 3.14, so t-string tests live in a
+separate file from the dict tests:
+
+```
+tests/test_db.py           # dict tests (all versions)
+tests/test_tstrings.py     # t-string tests (3.14+ only)
+```
+
+`test_tstrings.py` has a module-level skip at the top:
+
+```python
+import sys
+import pytest
+if sys.version_info < (3, 14):
+    pytest.skip('t-strings require 3.14+', allow_module_level=True)
+```
+
+Each t-string test mirrors a corresponding dict test in `test_db.py`, making it
+easy to verify they produce the same results.
 
 
 # Dispatch rules (both stages combined)
@@ -225,7 +277,7 @@ SQL snippets when `'_'` is in the context.
 | DataFrame, filename, or Arrow object        | --    | Wrap as a `Table`, set as `{'_': table}`                                                            |
 | SQL string                                  | --    | If `'_'` in context, prepend `from _`. Execute against named tables. Result becomes `{'_': result}` |
 | Dict                                        | 1     | Merge into the current context. Names available for the next SQL step only                          |
-| T-string                                    | 2     | Build dict from interpolations, merge, reconstruct SQL, execute. Result becomes `{'_': result}`     |
+| T-string                                    | 2     | Scalars inline as literals, tables registered by name, SQL reconstructed and executed               |
 | `uck.rename('name')`                        | 1     | Rename `'_'` to `'name'` in context, removing `'_'`. Enables self-joins with natural SQL            |
 | List                                        | --    | Recursively call `do()` with the list contents (reusable pipeline fragments)                        |
 | Callable                                    | --    | Call with the current table, result becomes `{'_': result}`                                         |

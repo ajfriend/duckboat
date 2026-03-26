@@ -29,9 +29,3 @@ def test_unexpected_argument():
     t = uck.Table(pd.DataFrame({'a': [0]}))
     with pytest.raises(ValueError, match='Unexpected argument'):
         t.do(42)
-
-
-def test_hold_unknown_kind():
-    t = uck.Table(pd.DataFrame({'a': [0]}))
-    with pytest.raises(ValueError, match='Unknown kind'):
-        t.hold('json')

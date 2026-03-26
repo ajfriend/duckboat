@@ -1,0 +1,98 @@
+---
+title: "T-strings (Python 3.14+)"
+---
+
+Python 3.14 introduces [template strings](https://peps.python.org/pep-0750/)
+(t-strings), which duckboat can use as an alternative to the dict syntax for
+joins and parameterized queries.
+
+T-string support is optional --- duckboat works on Python 3.10+ without it.
+
+## Table references
+
+Instead of passing a dict to register named tables, interpolate them directly:
+
+```python
+# dict syntax (any Python version)
+uck.do(
+    {'orders': orders, 'customers': customers},
+    'select * from orders join customers using (id)',
+)
+
+# t-string syntax (Python 3.14+)
+uck.do(
+    t'select * from {orders} join {customers} using (id)',
+)
+```
+
+The variable name becomes the table name in SQL. If the expression isn't a
+simple variable name (e.g., `{my_dict['orders']}`), a random name is generated
+automatically.
+
+## Scalar parameters
+
+Scalars are inlined directly into the SQL:
+
+```python
+name = 'Alice'
+min_age = 25
+
+t.do(t'where name = {name} and age > {min_age}')
+# becomes: where name = 'Alice' and age > 25
+```
+
+Type dispatch:
+
+- `int`, `float` --- inlined as literals
+- `bool` --- inlined as `TRUE` / `FALSE`
+- `str` --- inlined as a quoted string (single quotes escaped)
+
+## Mid-chain joins
+
+T-strings work mid-chain, just like the dict syntax:
+
+```python
+t1.do(
+    'where total_amount > 0',
+    t'join {zones} on zid = zones.id',
+    'select zone_name, avg(total_amount) group by 1',
+)
+```
+
+## Self-joins
+
+Start from `uck.do` so there is no implicit `_` table:
+
+```python
+uck.do(
+    t'select * from {t1} a join {t1} b using (hexid)',
+)
+```
+
+Or mid-chain, use `uck.rename()`:
+
+```python
+t1.do(
+    uck.rename('t1'),
+    t'from t1 as a join t1 as b using (hexid)',
+)
+```
+
+You can also self-join using `_` directly without t-strings, since the current
+table is always registered as `_`:
+
+```python
+t1.do('as a join _ as b using (hexid)')
+```
+
+## Mixing with regular strings
+
+T-strings and regular strings can be mixed freely in a `do()` chain:
+
+```python
+uck.do(
+    t'select * from {orders} join {customers} using (id)',
+    'where amount > 10',
+    'order by name',
+)
+```

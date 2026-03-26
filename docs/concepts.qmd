@@ -52,8 +52,8 @@ execution.
 ```python
 import duckboat as uck
 
-# uck.Table('https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2010-01.parquet')
-uck.Table('yellow_tripdata_2010-01.parquet').do(
+# uck.do('https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2010-01.parquet')
+uck.do('yellow_tripdata_2010-01.parquet').do(
     'select *, pickup_latitude as lat, pickup_longitude as lng',
     'select *, h3_latlng_to_cell(lat, lng, 8) as hexid',
     'select hexid, avg(tip_amount) as tip  group by 1',
@@ -103,7 +103,7 @@ Gives the output:
 You can also chain by calling `.do()` multiple times:
 
 ```python
-uck.Table('data/yellow_tripdata_2010-01.parquet').do(
+uck.do('data/yellow_tripdata_2010-01.parquet').do(
     'select *, pickup_latitude as lat, pickup_longitude as lng',
 ).do(
     'select *, h3_latlng_to_cell(lat, lng, 8) as hexid',
@@ -123,38 +123,32 @@ uck.Table('data/yellow_tripdata_2010-01.parquet').do(
 You can store a sequence of steps as a function:
 
 ```python
-def foo(rel, res=6):
-    return rel.do(
-        'select pickup_latitude as lat, pickup_longitude as lng, tip_amount',
-        f'select h3_latlng_to_cell(lat, lng, {res}) as hexid, tip_amount as tip',
-        'select hexid, avg(tip) as tip group by 1',
-        'select h3_h3_to_string(hexid) as hexid, tip',
-        'where tip > 0',
+def heavy_penguins(t):
+    return t.do(
+        'where body_mass_g > 4000',
+        'select species, island, body_mass_g',
     )
 ```
 
 Then apply it with:
 
 ```python
-table.do(foo)
+uck.examples.penguins().do(heavy_penguins)
 ```
 
 Alternatively, store it as a list of SQL strings:
 
 ```python
-foo_list = [
-    'select pickup_latitude as lat, pickup_longitude as lng, tip_amount',
-    'select h3_latlng_to_cell(lat, lng, 6) as hexid, tip_amount as tip',
-    'select hexid, avg(tip) as tip group by 1',
-    'select h3_h3_to_string(hexid) as hexid, tip',
-    'where tip > 0',
+heavy_steps = [
+    'where body_mass_g > 4000',
+    'select species, island, body_mass_g',
 ]
 ```
 
 Then apply it with:
 
 ```python
-table.do(foo_list)
+uck.examples.penguins().do(heavy_steps)
 # or equivalently:
-table.do(*foo_list)
+uck.examples.penguins().do(*heavy_steps)
 ```

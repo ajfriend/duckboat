@@ -2,10 +2,48 @@
 title: "DuckDB Integration"
 ---
 
-`duckboat` is a thin wrapper around DuckDB's [relational API](https://duckdb.org/docs/api/python/relational_api).
-When you need to drop down to DuckDB directly, duckboat exposes its internals as escape hatches.
+`duckboat` is a thin wrapper around DuckDB's excellent
+[relational API](https://duckdb.org/docs/api/python/relational_api). All the
+heavy lifting --- parsing, optimization, execution --- is DuckDB. Duckboat just
+provides a composition layer on top.
+
+## How duckboat differs from raw DuckDB
+
+**Explicit table registration.** DuckDB's Python API uses "replacement scans"
+to find DataFrames by looking up variable names in the caller's Python
+environment. This is convenient but implicit --- it can be surprising when a
+query picks up a variable you didn't intend, or breaks when you rename one.
+
+Duckboat requires you to explicitly register tables, either by passing data
+directly to `do()` or by providing a dict of named tables. Only what you
+register is visible to the query.
+
+```python
+# DuckDB: implicitly finds `df` in the Python environment
+duckdb.sql('select * from df')
+
+# duckboat: explicitly pass data
+uck.do(df, 'select *')
+uck.do({'orders': df1, 'customers': df2}, 'select * from orders join customers ...')
+```
+
+**SQL snippet chaining.** DuckDB's relational API requires writing complete SQL
+queries or manually managing relation objects. Duckboat's `do()` lets you chain
+SQL snippets --- each step takes the previous result as input, with `from _`
+prepended automatically.
+
+```python
+# DuckDB: one monolithic query or manual chaining
+rel = con.sql('select * from df where x > 5')
+rel2 = rel.query('t', 'from t select x, count(*) group by 1')
+
+# duckboat: snippet chain
+uck.do(df, 'where x > 5', 'select x, count(*) group by 1')
+```
 
 ## Escape hatches
+
+When you need to drop down to DuckDB directly, duckboat exposes its internals:
 
 ### `uck.con` -- the DuckDB connection
 
@@ -45,7 +83,7 @@ rel = uck.query('select * from df where x > 1', df=df)
 Every `Table` wraps a `DuckDBPyRelation`. Access it directly for DuckDB-native operations:
 
 ```python
-t = uck.Table({'x': [1, 2, 3]})
+t = uck.do({'x': [1, 2, 3]})
 
 t.rel              # the DuckDBPyRelation
 t.rel.columns      # column names

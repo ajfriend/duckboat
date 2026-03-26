@@ -2,7 +2,7 @@
 
 *Ugly to some, but gets the job done.*
 
-[GitHub](https://github.com/ajfriend/duckboat) | [Docs](https://ajfriend.com/duckboat/) | [PyPI](https://pypi.org/project/duckboat/)
+[GitHub](https://github.com/ajfriend/duckboat) | [Docs](https://ajfriend.com/duckboat/) | [PyPI](https://pypi.org/project/duckboat/) | [![coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](https://github.com/ajfriend/duckboat/actions/workflows/coverage.yml)
 
 Duckboat is a SQL-based Python dataframe library for ergonomic interactive
 data analysis and exploration.
@@ -204,11 +204,13 @@ uck.do(
 You can also join mid-chain. The current table is always available as `_`:
 
 ```python
-t1.do(
-    'where total_amount > 0',
-    {'zones': zones_df},
-    'join zones on zid = zones.id',
-    'select zone_name, avg(total_amount) group by 1',
+store = uck.examples.store()
+
+store['orders'].do(
+    'where amount > 10',
+    {'customers': store['customers']},
+    'join customers on customer_id = customers.id',
+    'select name, sum(amount) as total group by 1',
 )
 ```
 
@@ -244,9 +246,15 @@ t.do('queries/transform.sql')      # .sql file path (loaded and executed)
 ```python
 t.do(my_func)                      # callable — receives Table, returns Table
 t.do([step1, step2, step3])        # list — applied recursively as a pipeline
-t.do({'zones': zones_df})          # dict — registers named tables for next step
+t.do({'other': other_df})          # dict — registers named tables for next step
 t.do(uck.rename('trips'))          # rename — gives _ a name, removes auto-wrap
 ```
+
+**T-strings (Python 3.14+):**
+
+On Python 3.14+, t-strings can replace the dict syntax for joins and inline
+scalar parameters. See the [t-string guide](https://ajfriend.com/duckboat/tstrings.html)
+for details.
 
 **Output:**
 
@@ -276,12 +284,7 @@ through `do()`:
 ```python
 t = uck.do('data.parquet')
 t = uck.do(pd.DataFrame({'x': [1, 2, 3]}))
-```
-
-You can also use the `Table` constructor directly:
-
-```python
-t = uck.Table('data.parquet')
+t = uck.do('https://example.com/data.csv')
 ```
 
 `.do()` chains operations and dispatches on argument type (strings, functions,
@@ -295,7 +298,7 @@ Calling `repr()` on a `Table` triggers query evaluation. In Jupyter, this happen
 Use `hide()` to suppress evaluation:
 
 ```python
-big = uck.Table('huge_dataset.parquet').do('hide')
+big = uck.examples.penguins().do('hide')
 # Positron's variable explorer will see: <Table(..., _hide=True)>
 # instead of evaluating the full query
 ```

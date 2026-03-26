@@ -33,6 +33,9 @@ reinstall:
 test: reinstall
     uv run pytest
 
+coverage:
+    uvx --with tox-uv tox -e py313,py314,report
+
 lint:
     uv run ruff check
 

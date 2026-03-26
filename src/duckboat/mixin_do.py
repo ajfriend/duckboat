@@ -2,6 +2,13 @@ from pathlib import Path
 
 from .ddb import query
 
+try:
+    from string.templatelib import Template as _Template
+    from ._tstrings import _process_template
+except ImportError:
+    _Template = type(None)
+    _process_template = None
+
 _PREV = '_'
 
 
@@ -65,14 +72,22 @@ def _do_one(ctx, x):
         tbl = ctx.pop(_PREV)
         return {**ctx, x.name: tbl}
 
+    if isinstance(x, _Template):
+        sql, tables = _process_template(x)
+        if tables:
+            ctx = _do_one(ctx, tables)
+        return _do_one(ctx, sql)
+
     tbl = ctx.get(_PREV)
 
     if isinstance(x, (str, Path)):
         x = _read_file(x)
         s = x.strip()
 
-        if s in ('arrow', 'pandas'):
-            return tbl.hold(kind=s)
+        if s == 'arrow':
+            return tbl.arrow()
+        if s == 'pandas':
+            return tbl.df()
         if s == 'hide':
             return {_PREV: tbl.hide()}
         if s == 'show':
@@ -109,7 +124,10 @@ def _do_one(ctx, x):
 
 
 def _do(A, *xs):
-    ctx = _to_context(A)
+    if isinstance(A, _Template):
+        ctx = _do_one({}, A)
+    else:
+        ctx = _to_context(A)
     for x in xs:
         ctx = _do_one(ctx, x)
     if isinstance(ctx, dict) and _PREV in ctx:

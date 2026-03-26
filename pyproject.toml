@@ -1,6 +1,6 @@
 [project]
 name = 'duckboat'
-version = '0.19.0'
+version = '0.20.0'
 description = 'A SQL-based Python dataframe library for ergonomic interactive data analysis and exploration.'
 authors = [
     { name = 'AJ Friend', email = 'ajfriend@gmail.com' }
@@ -18,7 +18,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    'pytest', 'pytest-cov', 'ruff',
+    'pytest', 'coverage', 'ruff',
     'jupyterlab', 'ipykernel', 'jupyterlab_execute_time',
     'matplotlib',
     'polars',
@@ -38,8 +38,9 @@ build-backend = 'hatchling.build'
 [tool.ruff]
 src = ['src']
 exclude = [
-    'notebooks/'
+    'notebooks/',
 ]
+target-version = 'py314'
 line-length = 88
 
 [tool.ruff.lint]
@@ -94,7 +95,35 @@ include = [
 
 
 [tool.pytest.ini_options]
-addopts = "--cov=duckboat --cov=tests --cov-report=term-missing --cov-fail-under=100"
 
 [tool.coverage.run]
-omit = []
+source = ['duckboat', 'tests']
+parallel = true
+
+[tool.coverage.paths]
+source = [
+    'src/duckboat',
+    '.tox/*/lib/*/site-packages/duckboat',
+]
+tests = [
+    'tests',
+]
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+
+[tool.tox]
+requires = ['tox-uv']
+
+[tool.tox.env_run_base]
+runner = 'uv-venv-runner'
+deps = ['pytest', 'coverage']
+commands = [['coverage', 'run', '-m', 'pytest']]
+
+[tool.tox.env.report]
+deps = ['coverage']
+commands = [
+    ['coverage', 'combine'],
+    ['coverage', 'report'],
+]

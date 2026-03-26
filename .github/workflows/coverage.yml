@@ -1,0 +1,24 @@
+name: coverage
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Install Pythons
+        run: uv python install 3.13 3.14
+
+      # 100% coverage required (configured in pyproject.toml [tool.coverage.report])
+      - name: Run coverage
+        run: uvx --with tox-uv tox -e py313,py314,report
