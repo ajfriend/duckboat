@@ -48,10 +48,6 @@ class TableMixin:
 
         return out
 
-    def alias(self, name):
-        from .database import Database
-        return Database(**{name: self})
-
     @property
     def columns(self):
         # NOTE: is this an example where direct access to the relation is helpful?

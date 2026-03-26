@@ -23,3 +23,9 @@ def test_list():
 
     with pytest.raises(ValueError):
         t.do(list)
+
+
+def test_unexpected_argument():
+    t = uck.Table(pd.DataFrame({'a': [0]}))
+    with pytest.raises(ValueError, match='Unexpected argument'):
+        t.do(42)

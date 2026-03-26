@@ -2,29 +2,7 @@ import duckboat as uck
 import pandas as pd
 
 
-def dedent_helper(s):
-    from textwrap import dedent
-    s = dedent(s)
-    s = s.strip()
-    # s += '\n'
-    return s
-
-
-def test_db():
-    a = pd.DataFrame({'x': range(10)})
-    b = pd.DataFrame({'x': range(20)})
-    db = uck.Database(a=a, b=b)
-
-    out = db.do("""
-    select count(*) from a
-    union all
-    select count(*) from b
-    """, list)
-
-    assert out == [10, 20]
-
-
-def test_db2():
+def test_dict_join():
     a = pd.DataFrame({'x': range(10)})
     b = pd.DataFrame({'x': range(20)})
 
@@ -39,28 +17,35 @@ def test_db2():
     )
     assert out == [10, 20]
 
+
+def test_dict_chain():
+    a = pd.DataFrame({'x': range(10)})
+    b = pd.DataFrame({'x': range(20)})
+
     out = uck.do({'a': a, 'b': b}, 'select * from a', 'pandas', list)
     assert out == list(range(10))
 
 
-def test_hide_show():
-    a = pd.DataFrame({'x': range(10)})
-    b = pd.DataFrame({'x': range(20)})
+def test_mid_chain_join():
+    t1 = pd.DataFrame({'x': range(10), 'y': range(10)})
+    t2 = pd.DataFrame({'x': range(5), 'z': [100, 200, 300, 400, 500]})
 
-    db = uck.Database(a=a, b=b)
+    out = uck.Table(t1).do(
+        'where x < 5',
+        {'t2': t2},
+        'join t2 using (x)',
+        'select sum(z)',
+        int,
+    )
+    assert out == 1500
 
-    s_hide = dedent_helper("""
-    Database:
-        a: <Table(..., _hide=True)>
-        b: <Table(..., _hide=True)>
-    """)
 
-    assert repr(db.hide()) == s_hide
+def test_self_join():
+    df = pd.DataFrame({'x': [1, 2, 3]})
 
-    s_show = dedent_helper("""
-    Database:
-        a: 10 x ['x']
-        b: 20 x ['x']
-    """)
-
-    assert repr(db.show()) == s_show
+    out = uck.do(
+        {'t': df},
+        'select count(*) from t a cross join t b',
+        int,
+    )
+    assert out == 9

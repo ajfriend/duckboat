@@ -127,6 +127,13 @@ two parallel class hierarchies (`Table` and `Database`), each with their own
 
 - **Arrow detection:** detect `__arrow_c_stream__` on dict values to accept any
   Arrow-compatible tabular object. Separate PR.
+- **Consistent context type:** currently the internal context (`ctx`) is a dict
+  most of the time, but materializers return raw values (int, DataFrame, etc.),
+  breaking the invariant. Consider wrapping materializer returns as
+  `{_PREV: raw_value}` and only unwrapping at the end of `_do()`. This would
+  make `ctx` always a dict, remove the `isinstance(ctx, dict)` guard in
+  `_do_one`, and make the variable name honest. Rename to `env` or `scope` to
+  reflect that it's a name-to-table mapping.
 
 
 # Stage 2: T-string syntactic sugar (Python 3.14+)
