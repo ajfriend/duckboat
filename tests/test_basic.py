@@ -76,6 +76,9 @@ def test_dfs():
 
 def test_long_sql_string():
     """SQL string too long for a filename doesn't crash the file check."""
+    from duckboat.mixin_do import _is_file
+    assert not _is_file('a' * 500)
+
     t = uck.Table(pd.DataFrame({'a': [0]}))
     long_sql = 'select ' + ', '.join(f'a as a{i}' for i in range(200))
     result = t.do(long_sql)

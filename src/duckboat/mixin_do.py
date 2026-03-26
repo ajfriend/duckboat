@@ -16,17 +16,18 @@ def rename(name):
     return _Rename(name)
 
 
+def _is_file(s):
+    if len(s) > 255:
+        return False
+    return Path(s).is_file()
+
+
 def _read_file(s):
     if isinstance(s, Path):
         return s.read_text()
 
-    if isinstance(s, str):
-        try:
-            p = Path(s)
-            if p.is_file():
-                return p.read_text()
-        except OSError:
-            pass
+    if isinstance(s, str) and _is_file(s):
+        return Path(s).read_text()
 
     return s
 
