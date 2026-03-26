@@ -2,7 +2,7 @@
 
 *Ugly to some, but gets the job done.*
 
-[GitHub](https://github.com/ajfriend/duckboat) | [Docs](https://ajfriend.com/duckboat/) | [PyPI](https://pypi.org/project/duckboat/) | [![coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](https://github.com/ajfriend/duckboat/actions/workflows/coverage.yml)
+[GitHub](https://github.com/ajfriend/duckboat) | [Docs](https://ajfriend.com/duckboat/) | [PyPI](https://pypi.org/project/duckboat/) | [![coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](https://github.com/ajfriend/duckboat/actions/workflows/coverage.yml) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ajfriend/duckboat/blob/main/notebooks/demo.ipynb)
 
 Duckboat is a SQL-based Python dataframe library for ergonomic interactive
 data analysis and exploration.

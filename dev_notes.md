@@ -38,3 +38,13 @@ just publish
 This renders the Quarto docs and pushes to the `gh-pages` branch, which deploys to https://ajfriend.com/duckboat/.
 
 Note: `tut_nyc_join.qmd` executes Python code against large parquet files in `docs/data/` (gitignored, ~1.4GB). You need those files locally for the tutorial to render.
+
+## Demo notebooks
+
+```
+uv run jupyter lab notebooks/demo.ipynb        # Jupyter
+uvx marimo edit notebooks/demo.py              # Marimo
+```
+
+The Jupyter notebook is linked from the readme via an "Open in Colab" badge.
+The Marimo notebook is local-only (no hosted equivalent due to duckdb WASM limitations).
