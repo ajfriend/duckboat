@@ -1,3 +1,11 @@
+# v0.21.0 (2026-03-26)
+
+- `Table` implements `__arrow_c_stream__`, making it consumable by any Arrow-aware library
+- input accepts any object implementing `__arrow_c_stream__` (pandas, Polars, PyArrow, cuDF, etc.)
+- explicit type validation with clear error messages for unsupported inputs
+- improved error messages when file/URL reads fail
+- polars added to test matrix
+
 # v0.20.0 (2026-03-26)
 
 - t-string support (Python 3.14+): `t'select * from {orders} join {customers} using (id)'`

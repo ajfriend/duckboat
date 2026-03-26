@@ -57,7 +57,7 @@ uck.do(
 
 ### To and from other data formats
 
-We can translate to and from other data formats like Pandas DataFrames, Polars, or Arrow Tables.
+`Table` implements the [Arrow PyCapsule Interface](https://arrow.apache.org/docs/format/CDataInterface/PyCapsuleInterface.html) (`__arrow_c_stream__`), so it interoperates with any Arrow-compatible library---pandas, Polars, PyArrow, cuDF.
 
 ```python
 import pandas as pd

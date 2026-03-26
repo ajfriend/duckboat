@@ -21,6 +21,32 @@ t.do('pandas')  # Pandas DataFrame
 t.do('arrow')   # PyArrow Table
 ```
 
+## Arrow PyCapsule compatibility
+
+`Table` accepts any object implementing `__arrow_c_stream__` as input---pandas,
+Polars, PyArrow, cuDF, or any other Arrow-compatible library:
+
+```python
+import polars as pl
+
+df = pl.DataFrame({'a': [1, 2, 3]})
+t = uck.do(df, 'select sum(a)', int)  # 6
+```
+
+`Table` also implements `__arrow_c_stream__` itself, so other libraries can
+consume it directly:
+
+```python
+import pyarrow as pa
+
+t = uck.do('data/penguins.parquet')
+pa.RecordBatchReader.from_stream(t)  # zero-copy
+pl.from_arrow(t)                     # zero-copy
+```
+
+This means duckboat interoperates with the Arrow ecosystem in both
+directions without explicit conversion.
+
 ## Table
 
 `Table` is the core object---it wraps a DuckDB `DuckDBPyRelation`. You get one
