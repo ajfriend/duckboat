@@ -1,9 +1,9 @@
 import random
-import string as string_mod
+from string import ascii_lowercase
 
 
 def _random_name():
-    return '_t_' + ''.join(random.choices(string_mod.ascii_lowercase, k=8))
+    return '_t_' + ''.join(random.choices(ascii_lowercase, k=8))
 
 
 def _process_template(template):
