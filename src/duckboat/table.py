@@ -35,15 +35,6 @@ class Table(TableMixin, DoMixin):
     def show(self):
         return Table(self, _hide=False)
 
-    def sql(self, s: str):
-        """
-        Run a SQL snippet via DuckDB, prepended with `from <table_name>`,
-        where `<table_name>` will be a unique and random name to avoid collisions.
-        """
-        name = TableMixin.random_table_name()
-        rel = self.rel.query(name, f'from {name} ' + s)
-        return Table(rel)
-
     def rowcols(self):
         if self._hide:
             s = '<Table(..., _hide=True)>'

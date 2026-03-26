@@ -61,10 +61,10 @@ Duckboat adds a few ergonomic improvements over using DuckDB's Python API direct
 | Feature                   | DuckDB relational API            | Duckboat                                     |
 |---------------------------|----------------------------------|----------------------------------------------|
 | **Connection management** | Must create and pass connections | Shared connection handled automatically      |
-| **SQL `from` clause**     | Must write full SQL              | Auto-prepended by `Table.sql()`              |
+| **SQL `from` clause**     | Must write full SQL              | Auto-prepended by `do()`                     |
 | **Chaining**              | `.query()` with manual naming    | `.do()` chains snippets, functions, and more |
 | **Output conversion**     | `.df()`, `.arrow()`, etc.        | Also via `do('pandas')`, `do('arrow')`       |
-| **Multi-table queries**   | Register tables manually         | `Database(name=data)` handles registration   |
+| **Multi-table queries**   | Register tables manually         | Pass a dict to `do()` for named tables       |
 | **Repr safety**           | Not addressed                    | `hide()`/`show()` for lazy repr control      |
 
 ## Useful DuckDB references

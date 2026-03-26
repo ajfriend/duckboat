@@ -2,13 +2,7 @@ from pathlib import Path
 
 from .ddb import query
 
-
-class _Prev:
-    __slots__ = ()
-    def __repr__(self):  # pragma: no cover
-        return '_Prev'
-
-_PREV = _Prev()
+_PREV = '_'
 
 
 def _is_file(s: str) -> bool:
@@ -37,15 +31,6 @@ def _to_context(A):
     if isinstance(A, Table):
         return {_PREV: A}
     return {_PREV: Table(A)}
-
-
-def _sql_with_prev(tbl, s, **named):
-    from .table import Table
-
-    name = tbl.random_table_name()
-    sql = f'from {name} ' + s
-    rel = query(sql, **{name: tbl.rel, **named})
-    return Table(rel)
 
 
 def _do_one(ctx, x):
@@ -82,12 +67,12 @@ def _do_one(ctx, x):
             return {_PREV: tbl.show()}
 
         # SQL execution
+        named = {k: v.rel for k, v in ctx.items()}
         if _PREV in ctx:
-            named = {k: v.rel for k, v in ctx.items() if k is not _PREV}
-            result = _sql_with_prev(tbl, s, **named)
+            sql = f'from _ ' + s
         else:
-            named = {k: v.rel for k, v in ctx.items()}
-            result = Table(query(s, **named))
+            sql = s
+        result = Table(query(sql, **named))
         return {_PREV: result}
 
     # Type materializers

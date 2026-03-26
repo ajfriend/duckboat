@@ -72,10 +72,3 @@ def test_dfs():
         'select *'
     )
     assert isinstance(out, uck.Table)
-
-
-def test_table_sql():
-    t = uck.Table(pd.DataFrame({'a': [0]}))
-    t2 = t.sql('select a + 1 as a')
-    assert isinstance(t2, uck.Table)
-    assert t2.do(int) == 1

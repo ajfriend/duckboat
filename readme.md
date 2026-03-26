@@ -63,7 +63,7 @@ We can translate to and from other data formats like Pandas DataFrames, Polars, 
 import pandas as pd
 
 df = pd.DataFrame({'a': [0]})
-t = uck.Table(df)
+t = uck.do(df)
 t
 ```
 
@@ -76,11 +76,9 @@ t
 └───────┘
 ```
 
-Translate back to a pandas dataframe with any of the following:
+Translate back to a pandas dataframe:
 
 ```python
-t.df()
-t.hold('pandas')
 t.do('pandas')
 ```
 
@@ -165,28 +163,23 @@ uck.do(df, foo, [f, foo])
 ```
 
 
-### Databases and joins
+### Joins
 
-Use `Database` to work with multiple named tables and write full SQL (including joins):
+Pass a dict to register named tables, then write SQL that references them:
 
 ```python
-import pandas as pd
-
 orders = pd.DataFrame({'id': [1, 2, 3], 'customer_id': [10, 20, 10], 'amount': [5.0, 12.0, 8.0]})
 customers = pd.DataFrame({'id': [10, 20], 'name': ['Alice', 'Bob']})
 
-db = uck.Database(orders=orders, customers=customers)
-```
-
-Unlike `Table.sql()`, `Database.sql()` requires explicit table names:
-
-```python
-db.sql('''
+uck.do(
+    {'orders': orders, 'customers': customers},
+    '''
     select c.name, sum(o.amount) as total
     from orders o
     join customers c on o.customer_id = c.id
     group by 1
-''')
+    ''',
+)
 ```
 
 ```
@@ -199,28 +192,22 @@ db.sql('''
 └─────────┴────────┘
 ```
 
-`Database.do()` works the same way, chaining full SQL expressions:
+You can also join mid-chain. The current table is always available as `_`:
 
 ```python
-db.do(
-    'select c.name, o.amount from orders o join customers c on o.customer_id = c.id',
-    'order by amount desc',
+t1.do(
+    'where total_amount > 0',
+    {'zones': zones_df},
+    'join zones on zid = zones.id',
+    'select zone_name, avg(total_amount) group by 1',
 )
 ```
 
-You can also create a `Database` inline via `do()` by passing a dict:
+For self-joins, the current table is `_`, and `from _` is always prepended.
+Alias both sides to get two references:
 
 ```python
-uck.do(
-    {'orders': orders, 'customers': customers},
-    'select c.name, sum(o.amount) as total from orders o join customers c on o.customer_id = c.id group by 1',
-)
-```
-
-Or alias a single table into a database for joins with itself:
-
-```python
-t.do('alias my_table')
+t.do('as a join _ as b using (hexid)')
 ```
 
 ### Extravagant affordances
@@ -269,34 +256,27 @@ big.do('show')  # re-enables repr
 
 #### Table
 
-`Table` wraps a DuckDB `DuckDBPyRelation`. Create one from a file path, URL, Pandas DataFrame, Arrow Table, or dict:
+`Table` wraps a DuckDB `DuckDBPyRelation`. The easiest way to create one is
+through `do()`:
+
+```python
+t = uck.do('data.parquet')
+t = uck.do(pd.DataFrame({'x': [1, 2, 3]}))
+```
+
+You can also use the `Table` constructor directly:
 
 ```python
 t = uck.Table('data.parquet')
-t = uck.Table(pd.DataFrame({'x': [1, 2, 3]}))
 ```
 
-The core method is `.sql()`, which auto-prepends `from <table>` so you can write SQL snippets:
-
-```python
-t.sql('select x + 1 as x')  # becomes: from <table> select x + 1 as x
-```
-
-`.do()` chains operations and dispatches on argument type (strings, functions, lists, type conversions). Access the underlying DuckDB relation with `t.rel`.
-
-#### Database
-
-`Database` is a named dictionary of tables:
-
-```python
-db = uck.Database(orders=orders_df, customers=customers_df)
-```
-
-Unlike `Table`, `Database.sql()` requires explicit table names since there's no single table to auto-prepend. Only the tables in the `Database` are visible to the query. Access individual tables with `db['table_name']`.
+`.do()` chains operations and dispatches on argument type (strings, functions,
+lists, dicts, type conversions). Access the underlying DuckDB relation with
+`t.rel`.
 
 #### Eager evaluation and `hide`/`show`
 
-Calling `repr()` on a `Table` or `Database` triggers query evaluation. In Jupyter, this happens when an object is the last expression in a cell. In IDEs like Positron, the variable explorer proactively inspects objects, which can trigger expensive computations.
+Calling `repr()` on a `Table` triggers query evaluation. In Jupyter, this happens when an object is the last expression in a cell. In IDEs like Positron, the variable explorer proactively inspects objects, which can trigger expensive computations.
 
 Use `hide()` to suppress evaluation:
 
@@ -315,7 +295,7 @@ Duckboat bets that SQL is already the right language for tabular data manipulati
 **Strengths:**
 
 - **Zero new API to learn.** If you know SQL, you know duckboat. There are no new method chains, expression builders, or DSLs to memorize.
-- **Minimal surface area.** The library is essentially `Table`, `Database`, and `.do()`. The codebase is small and stays out of your way.
+- **Minimal surface area.** The library is essentially `Table` and `.do()`. The codebase is small and stays out of your way.
 - **Snippet composability.** SQL fragments chain naturally through `do()`, letting you build complex queries incrementally and interactively.
 
 **Tradeoffs:**

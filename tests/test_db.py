@@ -49,3 +49,40 @@ def test_self_join():
         int,
     )
     assert out == 9
+
+
+def test_chained_steps_no_collision():
+    """Ensure _ doesn't collide across chained steps."""
+    df = pd.DataFrame({'a': [1, 2, 3]})
+
+    out = uck.Table(df).do(
+        'select a + 1 as a',
+        'select a + 1 as a',
+        'select a + 1 as a',
+        'select sum(a)',
+        int,
+    )
+    assert out == 15  # (1+3) + (2+3) + (3+3)
+
+
+def test_self_join_underscore():
+    df = pd.DataFrame({'x': [1, 2, 3]})
+
+    out = uck.Table(df).do(
+        'as a cross join _ as b select count(*)',
+        int,
+    )
+    assert out == 9
+
+
+def test_self_join_after_chain():
+    """Ensure _ refers to the correct table after multiple chained steps."""
+    df = pd.DataFrame({'x': [1, 2, 3, 4, 5]})
+
+    out = uck.Table(df).do(
+        'where x <= 3',
+        'as a cross join _ as b select count(*)',
+        int,
+    )
+    # after filter: 3 rows, cross join: 3*3 = 9
+    assert out == 9
