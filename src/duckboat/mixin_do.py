@@ -5,20 +5,17 @@ from .ddb import query
 _PREV = '_'
 
 
-def _is_file(s: str) -> bool:
-    try:
-        return Path(s).is_file()
-    except (OSError, TypeError):
-        return False
-
-
-def _get_if_file(s) -> str:
+def _read_file(s):
     if isinstance(s, Path):
-        s = s.read_text()
+        return s.read_text()
 
-    if _is_file(s):
-        with open(s) as f:
-            s = f.read()
+    if isinstance(s, str):
+        try:
+            if Path(s).is_file():
+                with open(s) as f:
+                    return f.read()
+        except OSError:
+            pass
 
     return s
 
@@ -28,35 +25,28 @@ def _to_context(A):
 
     if isinstance(A, dict):
         return {k: Table(v) for k, v in A.items()}
-    if isinstance(A, Table):
-        return {_PREV: A}
     return {_PREV: Table(A)}
 
 
 def _do_one(ctx, x):
     from .table import Table
 
-    # If ctx is not a dict, wrap it back into one
     if not isinstance(ctx, dict):
         ctx = _to_context(ctx)
 
-    # Dict: merge named tables into context for next step
     if isinstance(x, dict):
         named = {k: Table(v) for k, v in x.items()}
         return {**ctx, **named}
 
-    # List: recursively apply as pipeline fragment
     if isinstance(x, list):
         for item in x:
             ctx = _do_one(ctx, item)
         return ctx
 
-    x = _get_if_file(x)
-
     tbl = ctx.get(_PREV)
 
-    # String dispatch
-    if isinstance(x, str):
+    if isinstance(x, (str, Path)):
+        x = _read_file(x)
         s = x.strip()
 
         if s in ('arrow', 'pandas'):
@@ -66,7 +56,6 @@ def _do_one(ctx, x):
         if s == 'show':
             return {_PREV: tbl.show()}
 
-        # SQL execution
         named = {k: v.rel for k, v in ctx.items()}
         if _PREV in ctx:
             sql = f'from _ ' + s
@@ -75,7 +64,6 @@ def _do_one(ctx, x):
         result = Table(query(sql, **named))
         return {_PREV: result}
 
-    # Type materializers
     if tbl is not None:
         if x in {int, str, bool, float}:
             return x(tbl.asitem())
@@ -84,7 +72,6 @@ def _do_one(ctx, x):
         if x is dict:
             return tbl.asdict()
 
-    # Callable
     if callable(x):
         result = x(tbl)
         if isinstance(result, Table):

@@ -3,26 +3,18 @@ from .ddb import query
 
 class TableMixin:
     def asitem(self):
-        """Transform a df with one row and one column to single element"""
-        # _insist_single_row(df)
-        # _insist_single_col(df)
         return self.aslist()[0]
 
     def asdict(self):
-        """Transform a df with one row to a dict
-        """
-        # TODO: _insist_single_row(df)
         df = self.df()
         return dict(df.iloc[0])
 
     def hold(self, kind='arrow'):
-        """
-        Materialize the Table as a PyArrow Table or Pandas DataFrame.
-        """
         if kind == 'arrow':
             return self.arrow()
         if kind == 'pandas':
             return self.df()
+        raise ValueError(f'Unknown kind: {kind!r}')
 
     def df(self):
         return self.rel.df()
@@ -31,7 +23,6 @@ class TableMixin:
         return self.rel.to_arrow_table()
 
     def aslist(self):
-        """Transform a df with one row or one column to a list"""
         df = self.df()
         if len(df.columns) == 1:
             col = df.columns[0]
@@ -40,18 +31,15 @@ class TableMixin:
             out = list(df.loc[0])
         else:
             raise ValueError(
-                'DataFrame should have a single row or column,'
-                f'but has shape f{df.shape}'
+                'DataFrame should have a single row or column, '
+                f'but has shape {df.shape}'
             )
 
         return out
 
     @property
     def columns(self):
-        # NOTE: is this an example where direct access to the relation is helpful?
-        rel = self.rel.query('_x_', 'select column_name from (describe from _x_)')
-        df = rel.df()
-        return list(df['column_name'])
+        return self.rel.columns
 
     def save_parquet(self, filename):
         _save_format(self, filename, '(format parquet)')
