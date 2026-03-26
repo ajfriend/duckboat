@@ -248,6 +248,12 @@ t.do({'zones': zones_df})          # dict — registers named tables for next st
 t.do(uck.rename('trips'))          # rename — gives _ a name, removes auto-wrap
 ```
 
+**T-strings (Python 3.14+):**
+
+On Python 3.14+, t-strings can replace the dict syntax for joins and inline
+scalar parameters. See the [t-string guide](https://ajfriend.com/duckboat/tstrings.html)
+for details.
+
 **Output:**
 
 ```python

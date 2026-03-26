@@ -38,8 +38,9 @@ build-backend = 'hatchling.build'
 [tool.ruff]
 src = ['src']
 exclude = [
-    'notebooks/'
+    'notebooks/',
 ]
+target-version = 'py314'
 line-length = 88
 
 [tool.ruff.lint]
@@ -97,4 +98,4 @@ include = [
 addopts = "--cov=duckboat --cov=tests --cov-report=term-missing --cov-fail-under=100"
 
 [tool.coverage.run]
-omit = []
+omit = ['src/duckboat/_tstrings.py']

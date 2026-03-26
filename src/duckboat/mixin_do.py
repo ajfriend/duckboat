@@ -2,6 +2,13 @@ from pathlib import Path
 
 from .ddb import query
 
+try:
+    from string.templatelib import Template as _Template  # pragma: no cover
+    from ._tstrings import _process_template  # pragma: no cover
+except ImportError:  # pragma: no cover
+    _Template = type(None)  # pragma: no cover
+    _process_template = None  # pragma: no cover
+
 _PREV = '_'
 
 
@@ -65,6 +72,12 @@ def _do_one(ctx, x):
         tbl = ctx.pop(_PREV)
         return {**ctx, x.name: tbl}
 
+    if isinstance(x, _Template):  # pragma: no cover
+        sql, tables = _process_template(x)  # pragma: no cover
+        if tables:  # pragma: no cover
+            ctx = _do_one(ctx, tables)  # pragma: no cover
+        return _do_one(ctx, sql)  # pragma: no cover
+
     tbl = ctx.get(_PREV)
 
     if isinstance(x, (str, Path)):
@@ -109,7 +122,10 @@ def _do_one(ctx, x):
 
 
 def _do(A, *xs):
-    ctx = _to_context(A)
+    if isinstance(A, _Template):  # pragma: no cover
+        ctx = _do_one({}, A)  # pragma: no cover
+    else:
+        ctx = _to_context(A)
     for x in xs:
         ctx = _do_one(ctx, x)
     if isinstance(ctx, dict) and _PREV in ctx:

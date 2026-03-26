@@ -1,0 +1,31 @@
+import random
+import string as string_mod
+
+
+def _random_name():
+    return '_t_' + ''.join(random.choices(string_mod.ascii_lowercase, k=8))
+
+
+def _process_template(template):
+    parts = []
+    tables = {}
+
+    for item in template:
+        if isinstance(item, str):
+            parts.append(item)
+        else:
+            value = item.value
+            if isinstance(value, bool):
+                parts.append(str(value).upper())
+            elif isinstance(value, (int, float)):
+                parts.append(str(value))
+            elif isinstance(value, str):
+                escaped = value.replace("'", "''")
+                parts.append(f"'{escaped}'")
+            else:
+                expr = item.expression
+                name = expr if expr.isidentifier() else _random_name()
+                tables[name] = value
+                parts.append(name)
+
+    return ''.join(parts), tables
