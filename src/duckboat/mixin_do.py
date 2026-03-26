@@ -1,84 +1,120 @@
 from pathlib import Path
 
+from .ddb import query
 
-def _is_file(s: str) -> bool:
-    try:
-        return Path(s).is_file()
-    except (OSError, TypeError):
-        # catches `OSError: [Errno 63] File name too long`
+_PREV = '_'
+
+
+class _Rename:
+    __slots__ = ('name',)
+
+    def __init__(self, name):
+        self.name = name
+
+
+def rename(name):
+    return _Rename(name)
+
+
+def _is_file(s):
+    if len(s) > 255:
         return False
+    return Path(s).is_file()
 
 
-def _get_if_file(s) -> str:
+def _read_file(s):
     if isinstance(s, Path):
-        s = s.read_text()
+        return s.read_text()
 
-    if _is_file(s):
-        with open(s) as f:
-            s = f.read()
+    if isinstance(s, str) and _is_file(s):
+        return Path(s).read_text()
 
     return s
 
 
-def _convert_A(A):
+def _wrap_tables(d):
     from .table import Table
-    from .database import Database
+    return {k: Table(v) for k, v in d.items()}
+
+
+def _to_context(A):
+    from .table import Table
 
     if isinstance(A, dict):
-        A = Database(**A)
-
-    if not isinstance(A, (Table, Database)):
-        A = Table(A)  # maybe this works? if not, should error
-        # raise ValueError(f'Expected to be Table or Database: {A}')
-
-    return A
+        return _wrap_tables(A)
+    return {_PREV: Table(A)}
 
 
-def do_one(A, x):
+def _do_one(ctx, x):
     from .table import Table
 
-    A = _convert_A(A)
+    if not isinstance(ctx, dict):
+        ctx = _to_context(ctx)
 
-    x = _get_if_file(x)
+    if isinstance(x, dict):
+        return {**ctx, **_wrap_tables(x)}
 
-    if (x == 'arrow') or (x == 'pandas'):
-        return A.hold(kind=x)
-    if x == 'hide':
-        return A.hide()
-    if x == 'show':
-        return A.show()
     if isinstance(x, list):
-        return A.do(*x)
+        for item in x:
+            ctx = _do_one(ctx, item)
+        return ctx
 
-    if isinstance(A, Table):
-        if isinstance(x, str):
-            s = x.strip()
+    if isinstance(x, _Rename):
+        if _PREV not in ctx:
+            raise ValueError('rename: no implicit table to rename')
+        tbl = ctx.pop(_PREV)
+        return {**ctx, x.name: tbl}
 
-            if s.startswith('alias '):
-                name = s[6:].strip()
-                return A.alias(name)
+    tbl = ctx.get(_PREV)
 
+    if isinstance(x, (str, Path)):
+        x = _read_file(x)
+        s = x.strip()
+
+        if s in ('arrow', 'pandas'):
+            return tbl.hold(kind=s)
+        if s == 'hide':
+            return {_PREV: tbl.hide()}
+        if s == 'show':
+            return {_PREV: tbl.show()}
+
+        # TODO: if DuckDB ever exposes a way to detect whether SQL already
+        # has a FROM clause (e.g., parse AST), we could skip prepending
+        # 'from _' when the user writes a complete query like
+        # 'select * from _ as a join _ as b ...'. For now, users write
+        # 'as a join _ as b ...' and we prepend 'from _' unconditionally.
+        named = {k: v.rel for k, v in ctx.items()}
+        if _PREV in ctx:
+            sql = 'from _ ' + s
+        else:
+            sql = s
+        result = Table(query(sql, **named))
+        return {_PREV: result}
+
+    if tbl is not None:
         if x in {int, str, bool, float}:
-            return x(A.asitem())
+            return x(tbl.asitem())
         if x is list:
-            return A.aslist()
+            return tbl.aslist()
         if x is dict:
-            return A.asdict()
-
-    # if isinstance(A, Database):
-    #     pass
+            return tbl.asdict()
 
     if callable(x):
-        return x(A)
+        result = x(tbl)
+        if isinstance(result, Table):
+            return {_PREV: result}
+        return result
 
-    return A.sql(x)
+    raise ValueError(f'Unexpected argument in do() chain: {x!r}')
 
 
 def _do(A, *xs):
-    A = _convert_A(A)
+    ctx = _to_context(A)
     for x in xs:
-        A = do_one(A, x)
-    return A
+        ctx = _do_one(ctx, x)
+    if isinstance(ctx, dict) and _PREV in ctx:
+        return ctx[_PREV]
+    return ctx
 
 
 class DoMixin:

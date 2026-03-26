@@ -2,60 +2,44 @@
 title: "Concepts"
 ---
 
-## Loading, saving, and transferring tables
+## Loading and converting data
+
+`uck.do()` is the main entry point. It accepts file paths, URLs, DataFrames, Arrow Tables, and more:
 
 ```python
 import duckboat as uck
 
-# read from a remote CSV file
-tbl = uck.Table('https://raw.githubusercontent.com/mcnakhaee/palmerpenguins/refs/heads/master/palmerpenguins/data/penguins.csv')
-tbl = uck.Table('data/penguins.csv')  # read from a local CSV file
-
-df = tbl.df()  # write to Pandas DataFrame
-uck.Table(df)  # read from Pandas DataFrame
-
-df.to_parquet('data/penguins.parquet')  # use Pandas to write to a Parquet file
-tbl = uck.Table('data/penguins.parquet')  # read from a local Parquet file
-
-tbl_arrow = tbl.arrow()  # write to an Arrow Table
-tbl = uck.Table(tbl_arrow)  # read from an Arrow Table
+t = uck.do('data/penguins.csv')
+t = uck.do('data/penguins.parquet')
+t = uck.do(pd.DataFrame({'a': [1, 2, 3]}))
 ```
 
-You can also convert via `do()`:
+Convert back to other formats:
 
 ```python
-tbl.do('pandas')  # Pandas DataFrame
-tbl.do('arrow')   # PyArrow Table
+t.do('pandas')  # Pandas DataFrame
+t.do('arrow')   # PyArrow Table
 ```
 
+## Table
 
-## Databases and Tables
+`Table` is the core object---it wraps a DuckDB `DuckDBPyRelation`. You get one
+back from `uck.do()` or `Table.do()`. You can also create one directly with
+`uck.Table(...)`, but `uck.do()` is the recommended entry point.
 
-The library revolves around two objects: `Table` and `Database`.
-
-- `Table` wraps a DuckDB `DuckDBPyRelation`. Its core method is `.sql()`, which auto-prepends `from <table>` so you can write SQL snippets without specifying a source table. `.do()` chains operations and dispatches on argument type (strings, functions, lists, type conversions).
-- `Database` is a named dictionary of tables. Its `.sql()` method requires explicit table names, since there's no single table to auto-prepend. Only the tables in the `Database` are visible to the query. Useful for joins and multi-table queries.
-
+`.do()` chains operations by dispatching on argument type: strings are SQL
+snippets, dicts register named tables for joins, functions are applied, and
+lists are reusable pipeline fragments.
 
 ## Laziness
 
-Since all operations are done through `DuckDBPyRelation`, expressions are evaluated lazily -- only when you want to display results or materialize output.
-
-If you would like to materialize a `Table` or `Database` concretely, use `hold()`:
-
-```python
-x.hold(kind='arrow')   # PyArrow Table (or dict of them for Database)
-x.hold(kind='pandas')  # Pandas DataFrame (or dict of them for Database)
-```
-
-Or equivalently via `do()`:
+Expressions are evaluated lazily---only when you display results or materialize
+output:
 
 ```python
-x.do('arrow')
-x.do('pandas')
+t.do('arrow')   # PyArrow Table
+t.do('pandas')  # Pandas DataFrame
 ```
-
-When you materialize a `Database`, you get a dict of materialized tables. Access individual tables with `db['table_name']`.
 
 ## Examples
 

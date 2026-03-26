@@ -17,6 +17,3 @@ try looking for file `data/yellow_tripdata_2010-01.parquet`. If no file exists, 
 
 
 TODO: can we also allow for mixing in pandas/polars/ibis code? maybe a function wrapper? That would be crazy powerful!
-
-
-- as or alias?

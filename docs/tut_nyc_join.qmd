@@ -216,61 +216,34 @@ t2 = t2.do(f)
 t2
 ```
 
-To perform a join, we need two tables in hand, which we can do with `duckboat.Database()`:
+To perform a join, pass a dict to `do()` to register named tables:
 
 ```{python}
-db = uck.Database(t1=t1, t2=t2)
-```
-
-```{python}
-db['t1']
-```
-
-
-Note that because evaluation is lazy, the expressions to build each table in
-the database will recompute each time you compute or view a derived expression.
-If you want to avoid that, you can materialize the computation and create a new database.
-There is no need to do this if you don't mind recomputing.
-
-
-```{python}
-db = uck.Database(**db.hold())
-```
-
-```{python}
-db
-```
-
-The following will run quickly.
-
-```{python}
-db.do('from t1')
-```
-
-You can run DuckDB SQL on a `duckboat.Database`, but now you should explicitly mention the table(s) you want to work with (but that's usually what you want anyway when doing a join.)
-
-```{python}
-out = db.do("""
-select
-      hexid
-    , t1.amount
-        as fare_jan
-    , t2.amount
-        as fare_feb
-from
-    t1
-inner join
-    t2
-using
-    (hexid)
-""").do("""
-select
-      *
-    , fare_feb - fare_jan
-        as fare_change
-order by
-    fare_change
-""")
+out = uck.do(
+    {'t1': t1, 't2': t2},
+    """
+    select
+          hexid
+        , t1.amount
+            as fare_jan
+        , t2.amount
+            as fare_feb
+    from
+        t1
+    inner join
+        t2
+    using
+        (hexid)
+    """,
+    """
+    select
+          *
+        , fare_feb - fare_jan
+            as fare_change
+    order by
+        fare_change
+    """,
+)
 out
 ```
 
@@ -304,12 +277,12 @@ core_with_filters = [
     'where num > 100',
 ]
 
-db = uck.Database(
-    t1 = uck.Table('data/yellow_tripdata_2010-01.parquet').do(core_with_filters),
-    t2 = uck.Table('data/yellow_tripdata_2010-02.parquet').do(core_with_filters),
-)
+t1 = uck.do('data/yellow_tripdata_2010-01.parquet', core_with_filters)
+t2 = uck.do('data/yellow_tripdata_2010-02.parquet', core_with_filters)
 
-db.do("""
+uck.do(
+    {'t1': t1, 't2': t2},
+    """
     select
         hexid,
         t1.amount  as  fare_jan,
@@ -317,7 +290,7 @@ db.do("""
     from        t1
     inner join  t2
     using       (hexid)
-""",
+    """,
     'select *, fare_feb - fare_jan as fare_change',
     'order by fare_change',
 )

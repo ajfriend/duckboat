@@ -52,8 +52,6 @@ t.do('arrow')
 t.do('pandas')
 ```
 
-For a `Database`, `hold()` materializes all tables and returns a dict.
-
 ## Gotchas
 
 ### Notebook cells

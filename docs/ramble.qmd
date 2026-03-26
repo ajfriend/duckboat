@@ -8,7 +8,7 @@ Duckboat is an experiment in taking SQL seriously as a dataframe API. Rather tha
 
 Most Python dataframe libraries (Pandas, Polars, Ibis) create a new API layer on top of SQL. You learn their expression syntax, their method names, their way of doing group-bys and joins. This gives you IDE autocomplete, type checking, and discoverability -- real benefits.
 
-Duckboat takes a different route: SQL is already a great DSL for data. Millions of people already know it. DuckDB has made it [friendlier than ever](https://duckdb.org/2022/05/04/friendlier-sql.html). The missing piece is composability -- raw SQL strings aren't naturally composable. Duckboat's `Table.sql()` fixes this with one trick: auto-prepending `from <table>`, which turns SQL snippets into composable fragments.
+Duckboat takes a different route: SQL is already a great DSL for data. Millions of people already know it. DuckDB has made it [friendlier than ever](https://duckdb.org/2022/05/04/friendlier-sql.html). The missing piece is composability -- raw SQL strings aren't naturally composable. Duckboat's `do()` fixes this with one trick: auto-prepending `from _`, which turns SQL snippets into composable fragments.
 
 ## Snippet composability
 
@@ -27,13 +27,12 @@ Each string is a SQL fragment. Duckboat prepends the `from` clause, chains them 
 
 ## Minimal API surface
 
-The entire library is essentially three things:
+The entire library is essentially two things:
 
 - `Table` -- wraps a DuckDB relation
-- `Database` -- a named dict of tables for multi-table queries
 - `do()` -- chains operations and dispatches on argument type
 
-That's it. There are no expression builders, no column reference objects, no custom aggregation APIs. The "API" is SQL.
+That's it. There are no expression builders, no column reference objects, no custom aggregation APIs. The "API" is SQL. For multi-table queries, pass a dict to `do()` to register named tables.
 
 ## Tradeoffs
 

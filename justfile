@@ -40,7 +40,7 @@ fix:
     uv run ruff check --fix
 
 [group('extra')]
-lab:
+lab: reinstall
     uv run jupyter lab
 
 

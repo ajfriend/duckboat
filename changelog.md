@@ -1,3 +1,12 @@
+# v0.19.0
+
+- remove `Database`, `alias`, and `Table.sql()` from the API
+- `do()` is now the single entry point for everything
+- pass a dict to `do()` to register named tables for joins
+- the current table is always available as `_` in SQL
+- self-joins via `_` or `uck.rename()`
+- step-level context dict replaces the `Table`/`Database` split
+
 # v0.18.1
 
 - fix CI publish workflow filename
