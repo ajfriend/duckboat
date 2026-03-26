@@ -383,21 +383,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 └───────────────────────────────────────────────────────────┘</code></pre>
 </div>
 </div>
-<div id="cell-9" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-09T05:28:58.295869Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-09T05:28:58.295801Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-09T05:28:58.299874Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-09T05:28:58.299660Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-09T05:28:58.295862Z&quot;}" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>t2 <span class="op">=</span> t1.alias(<span class="st">'tbl1'</span>).do(<span class="st">"""</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="st">select</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="st">      a.hexid</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="st">    , a.ts as ts1</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="st">    , b.ts as ts2</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="st">    , a.amt as amt1</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="st">    , b.amt as amt2</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="st">from</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="st">    tbl1 as a</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="st">inner join</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="st">    tbl1 as b</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="st">using</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="st">    (hexid)</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>).hide()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-9" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-09T05:28:58.295869Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-09T05:28:58.295801Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-09T05:28:58.299874Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-09T05:28:58.299660Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-09T05:28:58.295862Z&quot;}">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>t2 <span class="op">=</span> t1.do(<span class="st">"""as ainner join    _ as busing    (hexid)select      a.hexid    , a.ts as ts1    , b.ts as ts2    , a.amt as amt1    , b.amt as amt2"""</span>, <span class="st">'hide'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Even though the computation for <code>t2</code> is complex, we can compute a preview fairly quickly. The following runs in about 2 seconds on my laptop.</p>
 <div id="cell-11" class="cell" data-execution="{&quot;iopub.execute_input&quot;:&quot;2024-12-09T05:28:58.300248Z&quot;,&quot;iopub.status.busy&quot;:&quot;2024-12-09T05:28:58.300171Z&quot;,&quot;iopub.status.idle&quot;:&quot;2024-12-09T05:28:59.907331Z&quot;,&quot;shell.execute_reply&quot;:&quot;2024-12-09T05:28:59.907025Z&quot;,&quot;shell.execute_reply.started&quot;:&quot;2024-12-09T05:28:58.300240Z&quot;}" data-execution_count="9">

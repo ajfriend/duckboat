@@ -339,7 +339,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td><strong>SQL <code>from</code> clause</strong></td>
 <td>Must write full SQL</td>
-<td>Auto-prepended by <code>Table.sql()</code></td>
+<td>Auto-prepended by <code>do()</code></td>
 </tr>
 <tr class="odd">
 <td><strong>Chaining</strong></td>
@@ -354,7 +354,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td><strong>Multi-table queries</strong></td>
 <td>Register tables manually</td>
-<td><code>Database(name=data)</code> handles registration</td>
+<td>Pass a dict to <code>do()</code> for named tables</td>
 </tr>
 <tr class="even">
 <td><strong>Repr safety</strong></td>

@@ -6,9 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-03-25">
 
-<title>DuckDB’s Arrow API Change: RecordBatchReader – duckboat</title>
+<title>Guide – duckboat</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -147,7 +146,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">DuckDB’s Arrow API Change: RecordBatchReader</li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./guide.html">Guide</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -171,6 +170,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Home</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./guide.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Guide</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -260,7 +265,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">DuckDB’s Arrow API Change: RecordBatchReader</h1>
+<h1 class="title">Guide</h1>
 </div>
 
 
@@ -268,12 +273,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="quarto-title-meta">
 
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">March 25, 2026</p>
-    </div>
-  </div>
   
     
   </div>
@@ -283,151 +282,78 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="what-is-recordbatchreader" class="level1">
-<h1>What is RecordBatchReader?</h1>
-<p><code>RecordBatchReader</code> is a <strong>PyArrow type</strong> (<code>pyarrow.RecordBatchReader</code>), not a DuckDB type. It is a streaming interface—a lazy iterator that yields <code>pyarrow.RecordBatch</code> objects one at a time. Data is not materialized until you explicitly consume it.</p>
-<p>Key methods:</p>
-<ul>
-<li><code>read_all()</code>: consumes the entire stream and returns a <code>pyarrow.Table</code></li>
-<li><code>read_next_batch()</code>: returns the next <code>RecordBatch</code>; raises <code>StopIteration</code> at end</li>
-<li><code>schema</code>: property returning the shared schema of the stream</li>
-</ul>
+<section id="chaining-sql-snippets" class="level2">
+<h2 class="anchored" data-anchor-id="chaining-sql-snippets">Chaining SQL snippets</h2>
+<p><code>do()</code> chains SQL snippets into a pipeline. Each snippet gets <code>from _</code> prepended automatically, so you can write just the interesting part:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> duckboat <span class="im">as</span> uck</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>uck.do(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'data/trips.parquet'</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'where total_amount &gt; 0'</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select *, pickup_zone_id as zid'</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select zid, avg(total_amount) as avg_fare group by 1'</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by avg_fare desc'</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Each step takes the previous result as input. You build up complex queries incrementally — no subqueries, no CTEs, no nesting.</p>
+<p>The result is a <code>Table</code> object, which is a lazy DuckDB relation. Nothing executes until you display it or materialize it:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> uck.do(df, <span class="st">'where x &gt; 5'</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'pandas'</span>)  <span class="co"># Pandas DataFrame</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'arrow'</span>)   <span class="co"># PyArrow Table</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>t.do(<span class="bu">int</span>)       <span class="co"># single scalar</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>t.do(<span class="bu">list</span>)      <span class="co"># single column or row as a list</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="pyarrows-type-hierarchy" class="level1">
-<h1>PyArrow’s Type Hierarchy</h1>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 17%">
-<col style="width: 46%">
-<col style="width: 35%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Type</th>
-<th>Description</th>
-<th>Memory Model</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>RecordBatch</code></td>
-<td>A single contiguous chunk of columnar data</td>
-<td>Fully materialized, single chunk</td>
-</tr>
-<tr class="even">
-<td><code>Table</code></td>
-<td>A logical table of one or more <code>RecordBatch</code> chunks</td>
-<td>Fully materialized, possibly multi-chunk</td>
-</tr>
-<tr class="odd">
-<td><code>RecordBatchReader</code></td>
-<td>A streaming iterator yielding <code>RecordBatch</code>es lazily</td>
-<td>Lazy/streaming, one batch at a time</td>
-</tr>
-</tbody>
-</table>
-<p>A <code>Table</code> is like a list of <code>RecordBatch</code>es glued together. A <code>RecordBatchReader</code> is a generator that produces them lazily.</p>
+<section id="reusable-fragments" class="level2">
+<h2 class="anchored" data-anchor-id="reusable-fragments">Reusable fragments</h2>
+<p>Store steps as lists or functions and compose them:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>clean <span class="op">=</span> [</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'where total_amount &gt; 0'</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'where pickup_longitude != 0'</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>summarize <span class="op">=</span> [</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select zone_id, avg(total_amount) as avg_fare group by 1'</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by avg_fare desc'</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>uck.do(<span class="st">'data/trips.parquet'</span>, clean, summarize)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="what-changed-in-duckdb" class="level1">
-<h1>What Changed in DuckDB</h1>
-<p>DuckDB’s <code>.arrow()</code> method historically returned a <code>pyarrow.Table</code>. <a href="https://github.com/duckdb/duckdb/pull/18642">PR #18642</a> (by Pedro Holanda, merged Aug 19, 2025) changed it to return a <code>pyarrow.RecordBatchReader</code>. This shipped in <strong>DuckDB 1.4.0</strong> (Sep 16, 2025).</p>
-<section id="motivation" class="level2">
-<h2 class="anchored" data-anchor-id="motivation">Motivation</h2>
-<p>From the PR description:</p>
-<blockquote class="blockquote">
-<p>“Users mostly want to interact with arrow in a streaming fashion. This is especially important to avoid OOM of naively calling <code>arrow()</code>.”</p>
-</blockquote>
-<p>The core reasons:</p>
-<ul>
-<li><strong>Memory efficiency:</strong> users would call <code>.arrow()</code> on large datasets, materializing everything into memory and getting OOM errors. <code>RecordBatchReader</code> streams data in batches.</li>
-<li><strong>Streaming-first philosophy:</strong> DuckDB’s Arrow integration is designed around zero-copy streaming. Returning a reader aligns with this.</li>
-<li><strong>Dedicated alternatives exist:</strong> <code>fetch_arrow_table()</code> was already available for users who explicitly wanted full materialization.</li>
-</ul>
+<section id="full-sql-with-named-tables" class="level2">
+<h2 class="anchored" data-anchor-id="full-sql-with-named-tables">Full SQL with named tables</h2>
+<p>Pass a dict to register named tables, then write standard SQL:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>orders <span class="op">=</span> pd.DataFrame({<span class="st">'id'</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], <span class="st">'customer_id'</span>: [<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">10</span>], <span class="st">'amount'</span>: [<span class="fl">5.0</span>, <span class="fl">12.0</span>, <span class="fl">8.0</span>]})</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>customers <span class="op">=</span> pd.DataFrame({<span class="st">'id'</span>: [<span class="dv">10</span>, <span class="dv">20</span>], <span class="st">'name'</span>: [<span class="st">'Alice'</span>, <span class="st">'Bob'</span>]})</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>uck.do(</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    {<span class="st">'orders'</span>: orders, <span class="st">'customers'</span>: customers},</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'''</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="st">    select c.name, sum(o.amount) as total</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="st">    from orders o</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="st">    join customers c on o.customer_id = c.id</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="st">    group by 1</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="st">    '''</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by total desc'</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>When you start with a dict, there is no implicit table — your SQL runs as written. You can still chain additional snippets after the first query.</p>
 </section>
-<section id="duckdb-1.5.0-api-cleanup-mar-9-2026" class="level2">
-<h2 class="anchored" data-anchor-id="duckdb-1.5.0-api-cleanup-mar-9-2026">DuckDB 1.5.0 API Cleanup (Mar 9, 2026)</h2>
-<p>The change was a breaking change that was not well documented initially, causing significant user confusion (<a href="https://github.com/duckdb/duckdb-python/issues/71">#71</a>, <a href="https://github.com/duckdb/duckdb-python/issues/85">#85</a>, <a href="https://github.com/duckdb/duckdb-python/issues/95">#95</a> in duckdb-python).</p>
-<p>DuckDB 1.5.0 cleaned up the API:</p>
-<ul>
-<li><code>to_arrow_reader()</code> -&gt; <code>RecordBatchReader</code> (new, preferred)</li>
-<li><code>to_arrow_table()</code> -&gt; <code>Table</code> (new, preferred)</li>
-<li><code>arrow()</code> -&gt; <code>RecordBatchReader</code> (kept but discouraged)</li>
-<li>Deprecated: <code>fetch_record_batch()</code>, <code>fetch_arrow_table()</code>, <code>fetch_arrow_reader()</code></li>
-</ul>
+<section id="mid-chain-joins" class="level2">
+<h2 class="anchored" data-anchor-id="mid-chain-joins">Mid-chain joins</h2>
+<p>Add tables mid-chain with a dict. The current table stays available as <code>_</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>t1 <span class="op">=</span> uck.do(<span class="st">'data/trips.parquet'</span>, <span class="st">'where total_amount &gt; 0'</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>t1.do(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select *, pickup_zone_id as zid'</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    {<span class="st">'zones'</span>: zones_df},</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'join zones on zid = zones.id'</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select zone_name, avg(total_amount) as avg_fare group by 1'</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by avg_fare desc'</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-</section>
-<section id="why-this-causes-problems" class="level1">
-<h1>Why This Causes Problems</h1>
-<section id="one-shot-consumption" class="level2">
-<h2 class="anchored" data-anchor-id="one-shot-consumption">One-shot consumption</h2>
-<p>A <code>RecordBatchReader</code> is <strong>single-use</strong>. Once you have read from it, the stream is exhausted. You cannot rewind or re-read. If you pass a <code>RecordBatchReader</code> to DuckDB as input (e.g., <code>SELECT * FROM reader</code>), DuckDB will consume it. Any subsequent query against it finds an empty stream.</p>
-</section>
-<section id="deadlocks" class="level2">
-<h2 class="anchored" data-anchor-id="deadlocks">Deadlocks</h2>
-<p>When DuckDB returns a <code>RecordBatchReader</code>, it holds a <strong>streaming query</strong> on that connection. The reader is backed by a <code>StreamQueryResult</code> which starts an execution pipeline that blocks until batches are consumed.</p>
-<p>If you then try to execute a new query on the <strong>same connection</strong> that scans that <code>RecordBatchReader</code>, two things happen:</p>
-<ol type="1">
-<li>The new query needs the <code>ClientContextLock</code> to execute.</li>
-<li>The <code>RecordBatchReader</code>’s <code>GetNextChunk</code> also needs the <code>ClientContextLock</code> to produce data.</li>
-</ol>
-<p>This creates a deadlock: the new query holds the lock waiting for data from the reader, while the reader needs the lock to produce data. This was documented in <a href="https://github.com/duckdb/duckdb-python/issues/85">duckdb-python #85</a>, where stack traces showed two threads deadlocked on <code>ResultArrowArrayStreamWrapper::MyStreamGetNext</code> and <code>ArrowArrayStreamWrapper::GetNextChunk</code>.</p>
-</section>
-<section id="workarounds" class="level2">
-<h2 class="anchored" data-anchor-id="workarounds">Workarounds</h2>
-<ol type="1">
-<li><strong>Materialize first:</strong> call <code>.read_all()</code> to consume the reader into a <code>Table</code> before passing it back to DuckDB.</li>
-<li><strong>Use <code>to_arrow_table()</code></strong> (1.5.0+) to get a <code>Table</code> directly, bypassing the <code>RecordBatchReader</code> entirely.</li>
-<li><strong>Use separate connections</strong> if streaming is needed.</li>
-</ol>
-</section>
-</section>
-<section id="version-timeline" class="level1">
-<h1>Version Timeline</h1>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 13%">
-<col style="width: 22%">
-<col style="width: 63%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Version</th>
-<th>Date</th>
-<th><code>.arrow()</code> returns</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>&lt;= 1.3</td>
-<td>through May 2025</td>
-<td><code>pyarrow.Table</code></td>
-</tr>
-<tr class="even">
-<td><strong>1.4.0</strong></td>
-<td><strong>Sep 16, 2025</strong></td>
-<td><strong><code>RecordBatchReader</code></strong> (breaking change)</td>
-</tr>
-<tr class="odd">
-<td><strong>1.5.0</strong></td>
-<td><strong>Mar 9, 2026</strong></td>
-<td><code>RecordBatchReader</code> + new <code>to_arrow_table()</code> API</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="converting-between-types" class="level1">
-<h1>Converting Between Types</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># RecordBatchReader -&gt; Table (consumes the stream)</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>table <span class="op">=</span> reader.read_all()</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Table -&gt; RecordBatchReader (zero-copy)</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>reader <span class="op">=</span> table.to_reader()</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Table -&gt; list of RecordBatches</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>batches <span class="op">=</span> table.to_batches()</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># list of RecordBatches -&gt; Table</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>table <span class="op">=</span> pa.Table.from_batches(batches)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="self-joins" class="level2">
+<h2 class="anchored" data-anchor-id="self-joins">Self-joins</h2>
+<p>The current table is always registered as <code>_</code>, and <code>from _</code> is always prepended. For a self-join, alias both sides:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'as a join _ as b using (hexid)'</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># executes as: from _ as a join _ as b using (hexid)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 
 </section>
@@ -525,7 +451,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp("https:\/\/ajfriend\.github\.io\/duckboat\/");
+      var filterRegex = new RegExp("https:\/\/ajfriend\.com\/duckboat\/");
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
@@ -858,4 +784,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/duckboat/edit/main/docs/duckdb_arrow_change.md" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/duckboat/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/duckboat/edit/main/docs/guide.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/duckboat/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

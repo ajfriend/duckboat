@@ -280,7 +280,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="sql-first" class="level2">
 <h2 class="anchored" data-anchor-id="sql-first">SQL-first</h2>
 <p>Most Python dataframe libraries (Pandas, Polars, Ibis) create a new API layer on top of SQL. You learn their expression syntax, their method names, their way of doing group-bys and joins. This gives you IDE autocomplete, type checking, and discoverability – real benefits.</p>
-<p>Duckboat takes a different route: SQL is already a great DSL for data. Millions of people already know it. DuckDB has made it <a href="https://duckdb.org/2022/05/04/friendlier-sql.html">friendlier than ever</a>. The missing piece is composability – raw SQL strings aren’t naturally composable. Duckboat’s <code>Table.sql()</code> fixes this with one trick: auto-prepending <code>from &lt;table&gt;</code>, which turns SQL snippets into composable fragments.</p>
+<p>Duckboat takes a different route: SQL is already a great DSL for data. Millions of people already know it. DuckDB has made it <a href="https://duckdb.org/2022/05/04/friendlier-sql.html">friendlier than ever</a>. The missing piece is composability – raw SQL strings aren’t naturally composable. Duckboat’s <code>do()</code> fixes this with one trick: auto-prepending <code>from _</code>, which turns SQL snippets into composable fragments.</p>
 </section>
 <section id="snippet-composability" class="level2">
 <h2 class="anchored" data-anchor-id="snippet-composability">Snippet composability</h2>
@@ -295,13 +295,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="minimal-api-surface" class="level2">
 <h2 class="anchored" data-anchor-id="minimal-api-surface">Minimal API surface</h2>
-<p>The entire library is essentially three things:</p>
+<p>The entire library is essentially two things:</p>
 <ul>
 <li><code>Table</code> – wraps a DuckDB relation</li>
-<li><code>Database</code> – a named dict of tables for multi-table queries</li>
 <li><code>do()</code> – chains operations and dispatches on argument type</li>
 </ul>
-<p>That’s it. There are no expression builders, no column reference objects, no custom aggregation APIs. The “API” is SQL.</p>
+<p>That’s it. There are no expression builders, no column reference objects, no custom aggregation APIs. The “API” is SQL. For multi-table queries, pass a dict to <code>do()</code> to register named tables.</p>
 </section>
 <section id="tradeoffs" class="level2">
 <h2 class="anchored" data-anchor-id="tradeoffs">Tradeoffs</h2>

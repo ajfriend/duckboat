@@ -297,7 +297,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame({<span class="st">'a'</span>: [<span class="dv">0</span>]})</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> uck.Table(df)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> uck.do(df)</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>t</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>┌───────┐
 │   a   │
@@ -305,16 +305,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 ├───────┤
 │     0 │
 └───────┘</code></pre>
-<p>Translate back to a pandas dataframe with any of the following:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>t.df()</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>t.hold(<span class="st">'pandas'</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'pandas'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Translate back to a pandas dataframe:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'pandas'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You can mix duckboat with pandas or polars mid-workflow. Do the heavy lifting in SQL, pop into pandas for fiddly column operations, then come back:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> t.do(<span class="st">'where body_mass_g between 3500 and 4000'</span>, <span class="st">'pandas'</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.rename(columns<span class="op">=</span><span class="bu">str</span>.upper)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> uck.do(df, <span class="st">'select SPECIES, count(*) as n group by 1'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="chaining-expressions" class="level3">
 <h3 class="anchored" data-anchor-id="chaining-expressions">Chaining expressions</h3>
 <p>You can chain calls to <code>Table.do()</code>:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="st">'select a + 1 as a'</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>t.do(f).do(f).do(f)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="st">'select a + 1 as a'</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>t.do(f).do(f).do(f)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>┌───────┐
 │   a   │
 │ int64 │
@@ -324,12 +326,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Alternatively, <code>Table.do()</code> accepts a sequence of arguments:</p>
 <pre><code>t.do(f, f, f)</code></pre>
 <p>It also accepts lists of expressions, and will apply them recursively:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fs <span class="op">=</span> [f, f, f]</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>t.do(fs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fs <span class="op">=</span> [f, f, f]</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>t.do(fs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Note, you could also still call this as:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>t.do(<span class="op">*</span>fs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>t.do(<span class="op">*</span>fs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Use lists to group expressions, which Duckboat will apply recursively:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>t.do(f, [f], [f, [[f, f], f]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>t.do(f, [f], [f, [[f, f], f]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>┌───────┐
 │   a   │
 │ int64 │
@@ -337,14 +339,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 │     6 │
 └───────┘</code></pre>
 <p>Duckboat will also apply functions:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> foo(x):</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x.do(<span class="st">'select a + 2 as a'</span>)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># the following are equivalent</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>foo(t)</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>t.do(foo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> foo(x):</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x.do(<span class="st">'select a + 2 as a'</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># the following are equivalent</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>foo(t)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>t.do(foo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Of course, you can mix functions, SQL strings, and lists:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>uck.do(df, foo, [f, foo])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>uck.do(df, foo, [f, foo])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>┌───────┐
 │   a   │
 │ int64 │
@@ -352,22 +354,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 │     5 │
 └───────┘</code></pre>
 </section>
-<section id="databases-and-joins" class="level3">
-<h3 class="anchored" data-anchor-id="databases-and-joins">Databases and joins</h3>
-<p>Use <code>Database</code> to work with multiple named tables and write full SQL (including joins):</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>orders <span class="op">=</span> pd.DataFrame({<span class="st">'id'</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], <span class="st">'customer_id'</span>: [<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">10</span>], <span class="st">'amount'</span>: [<span class="fl">5.0</span>, <span class="fl">12.0</span>, <span class="fl">8.0</span>]})</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>customers <span class="op">=</span> pd.DataFrame({<span class="st">'id'</span>: [<span class="dv">10</span>, <span class="dv">20</span>], <span class="st">'name'</span>: [<span class="st">'Alice'</span>, <span class="st">'Bob'</span>]})</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>db <span class="op">=</span> uck.Database(orders<span class="op">=</span>orders, customers<span class="op">=</span>customers)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Unlike <code>Table.sql()</code>, <code>Database.sql()</code> requires explicit table names:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>db.sql(<span class="st">'''</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="st">    select c.name, sum(o.amount) as total</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="st">    from orders o</span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="st">    join customers c on o.customer_id = c.id</span></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="st">    group by 1</span></span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="st">'''</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="joins" class="level3">
+<h3 class="anchored" data-anchor-id="joins">Joins</h3>
+<p>Pass a dict to register named tables, then write SQL that references them:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>orders <span class="op">=</span> pd.DataFrame({<span class="st">'id'</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], <span class="st">'customer_id'</span>: [<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">10</span>], <span class="st">'amount'</span>: [<span class="fl">5.0</span>, <span class="fl">12.0</span>, <span class="fl">8.0</span>]})</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>customers <span class="op">=</span> pd.DataFrame({<span class="st">'id'</span>: [<span class="dv">10</span>, <span class="dv">20</span>], <span class="st">'name'</span>: [<span class="st">'Alice'</span>, <span class="st">'Bob'</span>]})</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>uck.do(</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    {<span class="st">'orders'</span>: orders, <span class="st">'customers'</span>: customers},</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'''</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="st">    select c.name, sum(o.amount) as total</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="st">    from orders o</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="st">    join customers c on o.customer_id = c.id</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="st">    group by 1</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="st">    '''</span>,</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>┌─────────┬────────┐
 │  name   │ total  │
 │ varchar │ double │
@@ -375,64 +376,60 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 │ Alice   │   13.0 │
 │ Bob     │   12.0 │
 └─────────┴────────┘</code></pre>
-<p><code>Database.do()</code> works the same way, chaining full SQL expressions:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>db.do(</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select c.name, o.amount from orders o join customers c on o.customer_id = c.id'</span>,</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by amount desc'</span>,</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>You can also create a <code>Database</code> inline via <code>do()</code> by passing a dict:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>uck.do(</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    {<span class="st">'orders'</span>: orders, <span class="st">'customers'</span>: customers},</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select c.name, sum(o.amount) as total from orders o join customers c on o.customer_id = c.id group by 1'</span>,</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Or alias a single table into a database for joins with itself:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'alias my_table'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You can also join mid-chain. The current table is always available as <code>_</code>:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>t1.do(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'where total_amount &gt; 0'</span>,</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    {<span class="st">'zones'</span>: zones_df},</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'join zones on zid = zones.id'</span>,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select zone_name, avg(total_amount) group by 1'</span>,</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Since <code>from _</code> is always prepended, you can also self-join by aliasing both sides directly:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'as a join _ as b using (hexid)'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Or use <code>uck.rename()</code> to give the current table a name and write full SQL:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>t.do(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    uck.rename(<span class="st">'trips'</span>),</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'from trips as a join trips as b using (hexid)'</span>,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="extravagant-affordances" class="level3">
-<h3 class="anchored" data-anchor-id="extravagant-affordances">Extravagant affordances</h3>
-<p><code>do()</code> dispatches on the type of its arguments, providing some handy shortcuts.</p>
-<p><strong>Extract scalars, lists, and dicts:</strong></p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'select count(*)'</span>, <span class="bu">int</span>)       <span class="co"># returns a Python int</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'select distinct a'</span>, <span class="bu">list</span>)    <span class="co"># returns a Python list</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'limit 1'</span>, <span class="bu">dict</span>)              <span class="co"># returns a Python dict</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><strong>Convert to other formats:</strong></p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'pandas'</span>)   <span class="co"># returns a Pandas DataFrame</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'arrow'</span>)    <span class="co"># returns a PyArrow Table</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><strong>Apply functions:</strong></p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add_col(t):</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> t.do(<span class="st">"select *, a + 10 as b"</span>)</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>t.do(add_col, <span class="st">'select b'</span>, <span class="bu">int</span>)  <span class="co"># 10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><strong>Run <code>.sql</code> files:</strong></p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'queries/transform.sql'</span>)  <span class="co"># loads and runs the file contents as SQL</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><strong>Control display with <code>hide</code> and <code>show</code>:</strong></p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>big <span class="op">=</span> uck.Table(<span class="st">'huge_dataset.parquet'</span>).do(<span class="st">'hide'</span>)  <span class="co"># suppresses repr output</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>big.do(<span class="st">'show'</span>)  <span class="co"># re-enables repr</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="dispatch-rules" class="level3">
+<h3 class="anchored" data-anchor-id="dispatch-rules">Dispatch rules</h3>
+<p><code>do()</code> dispatches on the type of each argument.</p>
+<p><strong>SQL:</strong></p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'where x &gt; 5'</span>)                <span class="co"># SQL snippet (from _ is prepended)</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'queries/transform.sql'</span>)      <span class="co"># .sql file path (loaded and executed)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Composition:</strong></p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>t.do(my_func)                      <span class="co"># callable — receives Table, returns Table</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>t.do([step1, step2, step3])        <span class="co"># list — applied recursively as a pipeline</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>t.do({<span class="st">'zones'</span>: zones_df})          <span class="co"># dict — registers named tables for next step</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>t.do(uck.rename(<span class="st">'trips'</span>))          <span class="co"># rename — gives _ a name, removes auto-wrap</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Output:</strong></p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'select count(*)'</span>, <span class="bu">int</span>)       <span class="co"># Python int</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'select distinct a'</span>, <span class="bu">list</span>)    <span class="co"># Python list</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'limit 1'</span>, <span class="bu">dict</span>)              <span class="co"># Python dict</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'pandas'</span>)                     <span class="co"># Pandas DataFrame</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'arrow'</span>)                      <span class="co"># PyArrow Table</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Display:</strong></p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'hide'</span>)                       <span class="co"># suppress repr (useful for large lazy tables)</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'show'</span>)                       <span class="co"># re-enable repr</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="objects" class="level3">
 <h3 class="anchored" data-anchor-id="objects">Objects</h3>
 <section id="table" class="level4">
 <h4 class="anchored" data-anchor-id="table">Table</h4>
-<p><code>Table</code> wraps a DuckDB <code>DuckDBPyRelation</code>. Create one from a file path, URL, Pandas DataFrame, Arrow Table, or dict:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> uck.Table(<span class="st">'data.parquet'</span>)</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> uck.Table(pd.DataFrame({<span class="st">'x'</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]}))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The core method is <code>.sql()</code>, which auto-prepends <code>from &lt;table&gt;</code> so you can write SQL snippets:</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>t.sql(<span class="st">'select x + 1 as x'</span>)  <span class="co"># becomes: from &lt;table&gt; select x + 1 as x</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><code>.do()</code> chains operations and dispatches on argument type (strings, functions, lists, type conversions). Access the underlying DuckDB relation with <code>t.rel</code>.</p>
-</section>
-<section id="database" class="level4">
-<h4 class="anchored" data-anchor-id="database">Database</h4>
-<p><code>Database</code> is a named dictionary of tables:</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>db <span class="op">=</span> uck.Database(orders<span class="op">=</span>orders_df, customers<span class="op">=</span>customers_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Unlike <code>Table</code>, <code>Database.sql()</code> requires explicit table names since there’s no single table to auto-prepend. Only the tables in the <code>Database</code> are visible to the query. Access individual tables with <code>db['table_name']</code>.</p>
+<p><code>Table</code> wraps a DuckDB <code>DuckDBPyRelation</code>. The easiest way to create one is through <code>do()</code>:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> uck.do(<span class="st">'data.parquet'</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> uck.do(pd.DataFrame({<span class="st">'x'</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]}))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You can also use the <code>Table</code> constructor directly:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> uck.Table(<span class="st">'data.parquet'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>.do()</code> chains operations and dispatches on argument type (strings, functions, lists, dicts, type conversions). Access the underlying DuckDB relation with <code>t.rel</code>.</p>
 </section>
 <section id="eager-evaluation-and-hideshow" class="level4">
 <h4 class="anchored" data-anchor-id="eager-evaluation-and-hideshow">Eager evaluation and <code>hide</code>/<code>show</code></h4>
-<p>Calling <code>repr()</code> on a <code>Table</code> or <code>Database</code> triggers query evaluation. In Jupyter, this happens when an object is the last expression in a cell. In IDEs like Positron, the variable explorer proactively inspects objects, which can trigger expensive computations.</p>
+<p>Calling <code>repr()</code> on a <code>Table</code> triggers query evaluation. In Jupyter, this happens when an object is the last expression in a cell. In IDEs like Positron, the variable explorer proactively inspects objects, which can trigger expensive computations.</p>
 <p>Use <code>hide()</code> to suppress evaluation:</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>big <span class="op">=</span> uck.Table(<span class="st">'huge_dataset.parquet'</span>).do(<span class="st">'hide'</span>)</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Positron's variable explorer will see: &lt;Table(..., _hide=True)&gt;</span></span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="co"># instead of evaluating the full query</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>big <span class="op">=</span> uck.Table(<span class="st">'huge_dataset.parquet'</span>).do(<span class="st">'hide'</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Positron's variable explorer will see: &lt;Table(..., _hide=True)&gt;</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co"># instead of evaluating the full query</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Call <code>show()</code> (or <code>.do('show')</code>) when you’re ready to see results.</p>
 </section>
 </section>
@@ -443,7 +440,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong>Strengths:</strong></p>
 <ul>
 <li><strong>Zero new API to learn.</strong> If you know SQL, you know duckboat. There are no new method chains, expression builders, or DSLs to memorize.</li>
-<li><strong>Minimal surface area.</strong> The library is essentially <code>Table</code>, <code>Database</code>, and <code>.do()</code>. The codebase is small and stays out of your way.</li>
+<li><strong>Minimal surface area.</strong> The library is essentially <code>Table</code> and <code>.do()</code>. The codebase is small and stays out of your way.</li>
 <li><strong>Snippet composability.</strong> SQL fragments chain naturally through <code>do()</code>, letting you build complex queries incrementally and interactively.</li>
 </ul>
 <p><strong>Tradeoffs:</strong></p>
