@@ -141,39 +141,74 @@ Stage 2 depends on Stage 1 being stable. It adds t-string as another dispatch
 type---syntactic sugar that builds the dict automatically from interpolated
 variables.
 
+## Backwards compatibility
+
+The library never contains t-string syntax itself. It only receives `Template`
+objects from user code. The `Template` class is imported with a try/except
+guard:
+
+```python
+try:
+    from string.templatelib import Template as _Template
+except ImportError:
+    _Template = type(None)  # will never match isinstance
+```
+
+On Python < 3.14, `_Template` is `type(None)`, so the `isinstance` check in
+`_do_one` never matches. On 3.14+, users can pass `t'...'` and it works. No
+version-specific files, no feature flags. The library works on all supported
+Python versions.
+
 ## What changes
 
 A [t-string](https://peps.python.org/pep-0750/) (template string, Python 3.14)
 in the `do()` chain is processed as follows:
 
 1. Walk the template's interpolations.
-2. For each interpolation, use `.expression` as the table name and `.value` as
-   the data.
-3. Build a dict from these pairs.
-4. Merge into the current context.
-5. Reconstruct the SQL from the template's static strings and expression names.
-6. Execute and return a `Table`.
+2. For each interpolation, dispatch on the **value type**:
+   - **Scalar** (`int`, `float`, `bool`): inline as a SQL literal.
+   - **String** (`str`): inline as a quoted SQL string.
+   - **Table-like** (DataFrame, Table, Arrow, etc.): register as a named table.
+     If `.expression` is a valid Python identifier (checked via
+     `str.isidentifier()`), use it as the table name. Otherwise, generate a
+     unique random name.
+3. Reconstruct the SQL from the template's static strings and resolved
+   fragments.
+4. Merge any registered tables into the current context.
+5. Execute and return a `Table`.
 
-This is exactly the dict step from Stage 1, with the dict built implicitly from
-variable names.
+This means t-strings handle both table references and parameterized values:
+
+```python
+# Table references
+t.do(t'join {customers} using (id)')
+# customers is a DataFrame → registered as 'customers'
+# becomes: join customers using (id)
+
+# Scalar parameters
+name = 'Alice'
+min_age = 25
+t.do(t'where name = {name} and age > {min_age}')
+# becomes: where name = 'Alice' and age > 25
+```
 
 ```python
 # Multi-table join
 uck.do(
-    t"select * from {orders} join {customers} using (id)",
+    t'select * from {orders} join {customers} using (id)',
     'where total > 100',
 )
 
 # Mid-chain join
 t1.do(
     'where total_amount > 0',
-    t"join {zones} on zid = zones.id",
+    t'join {zones} on zid = zones.id',
     'select zone_name, avg(total_amount) group by 1',
 )
 
 # Self-join (same variable referenced twice is fine)
 t1.do(
-    t"select * from {t1} a join {t1} b using (hexid)",
+    t'select * from {t1} a join {t1} b using (hexid)',
 )
 ```
 
@@ -194,7 +229,7 @@ The t-string step is equivalent to a dict step followed by a SQL string step.
 This t-string:
 
 ```python
-t1.do(t"join {zones} on zid = zones.id")
+t1.do(t'join {zones} on zid = zones.id')
 ```
 
 is equivalent to:
@@ -225,7 +260,7 @@ SQL snippets when `'_'` is in the context.
 | DataFrame, filename, or Arrow object        | --    | Wrap as a `Table`, set as `{'_': table}`                                                            |
 | SQL string                                  | --    | If `'_'` in context, prepend `from _`. Execute against named tables. Result becomes `{'_': result}` |
 | Dict                                        | 1     | Merge into the current context. Names available for the next SQL step only                          |
-| T-string                                    | 2     | Build dict from interpolations, merge, reconstruct SQL, execute. Result becomes `{'_': result}`     |
+| T-string                                    | 2     | Scalars inline as literals, tables registered by name, SQL reconstructed and executed               |
 | `uck.rename('name')`                        | 1     | Rename `'_'` to `'name'` in context, removing `'_'`. Enables self-joins with natural SQL            |
 | List                                        | --    | Recursively call `do()` with the list contents (reusable pipeline fragments)                        |
 | Callable                                    | --    | Call with the current table, result becomes `{'_': result}`                                         |
