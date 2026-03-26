@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Guide – duckboat</title>
+<title>Changelog – duckboat</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,40 +19,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -146,7 +112,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./guide.html">Guide</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ramble.html">Development</a></li><li class="breadcrumb-item"><a href="./changelog.html">Changelog</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -174,14 +140,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./guide.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Guide</span></a>
+  <a href="./concepts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Concepts</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./concepts.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Concepts</span></a>
+  <a href="./tstrings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">T-strings (Python 3.14+)</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -252,6 +218,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">TODO</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./changelog.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Changelog</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -263,9 +235,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ramble.html">Development</a></li><li class="breadcrumb-item"><a href="./changelog.html">Changelog</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Guide</h1>
+<h1 class="title">Changelog</h1>
 </div>
 
 
@@ -282,78 +254,55 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="chaining-sql-snippets" class="level2">
-<h2 class="anchored" data-anchor-id="chaining-sql-snippets">Chaining SQL snippets</h2>
-<p><code>do()</code> chains SQL snippets into a pipeline. Each snippet gets <code>from _</code> prepended automatically, so you can write just the interesting part:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> duckboat <span class="im">as</span> uck</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>uck.do(</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'data/trips.parquet'</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'where total_amount &gt; 0'</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select *, pickup_zone_id as zid'</span>,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select zid, avg(total_amount) as avg_fare group by 1'</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by avg_fare desc'</span>,</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Each step takes the previous result as input. You build up complex queries incrementally — no subqueries, no CTEs, no nesting.</p>
-<p>The result is a <code>Table</code> object, which is a lazy DuckDB relation. Nothing executes until you display it or materialize it:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> uck.do(df, <span class="st">'where x &gt; 5'</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'pandas'</span>)  <span class="co"># Pandas DataFrame</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'arrow'</span>)   <span class="co"># PyArrow Table</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>t.do(<span class="bu">int</span>)       <span class="co"># single scalar</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>t.do(<span class="bu">list</span>)      <span class="co"># single column or row as a list</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="v0.20.0-2026-03-26" class="level1">
+<h1>v0.20.0 (2026-03-26)</h1>
+<ul>
+<li>t-string support (Python 3.14+): <code>t'select * from {orders} join {customers} using (id)'</code></li>
+<li>scalars, strings, and tables dispatch automatically in t-strings</li>
+<li><code>uck.examples</code> module: <code>penguins()</code> dataset and <code>store()</code> synthetic join data</li>
+<li>remove <code>hold()</code> method; use <code>do('pandas')</code> and <code>do('arrow')</code> instead</li>
+<li>multi-version coverage via tox (3.13 + 3.14 combined, 100% coverage required)</li>
+<li>documentation rewrite</li>
+</ul>
 </section>
-<section id="reusable-fragments" class="level2">
-<h2 class="anchored" data-anchor-id="reusable-fragments">Reusable fragments</h2>
-<p>Store steps as lists or functions and compose them:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>clean <span class="op">=</span> [</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'where total_amount &gt; 0'</span>,</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'where pickup_longitude != 0'</span>,</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>summarize <span class="op">=</span> [</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select zone_id, avg(total_amount) as avg_fare group by 1'</span>,</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by avg_fare desc'</span>,</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>uck.do(<span class="st">'data/trips.parquet'</span>, clean, summarize)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="v0.19.0-2026-03-26" class="level1">
+<h1>v0.19.0 (2026-03-26)</h1>
+<ul>
+<li>remove <code>Database</code>, <code>alias</code>, and <code>Table.sql()</code> from the API</li>
+<li><code>do()</code> is now the single entry point for everything</li>
+<li>pass a dict to <code>do()</code> to register named tables for joins</li>
+<li>the current table is always available as <code>_</code> in SQL</li>
+<li>self-joins via <code>_</code> or <code>uck.rename()</code></li>
+<li>step-level context dict replaces the <code>Table</code>/<code>Database</code> split</li>
+</ul>
 </section>
-<section id="full-sql-with-named-tables" class="level2">
-<h2 class="anchored" data-anchor-id="full-sql-with-named-tables">Full SQL with named tables</h2>
-<p>Pass a dict to register named tables, then write standard SQL:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>orders <span class="op">=</span> pd.DataFrame({<span class="st">'id'</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], <span class="st">'customer_id'</span>: [<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">10</span>], <span class="st">'amount'</span>: [<span class="fl">5.0</span>, <span class="fl">12.0</span>, <span class="fl">8.0</span>]})</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>customers <span class="op">=</span> pd.DataFrame({<span class="st">'id'</span>: [<span class="dv">10</span>, <span class="dv">20</span>], <span class="st">'name'</span>: [<span class="st">'Alice'</span>, <span class="st">'Bob'</span>]})</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>uck.do(</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    {<span class="st">'orders'</span>: orders, <span class="st">'customers'</span>: customers},</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'''</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="st">    select c.name, sum(o.amount) as total</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="st">    from orders o</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="st">    join customers c on o.customer_id = c.id</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="st">    group by 1</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="st">    '''</span>,</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by total desc'</span>,</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>When you start with a dict, there is no implicit table — your SQL runs as written. You can still chain additional snippets after the first query.</p>
+<section id="v0.18.1-2026-03-25" class="level1">
+<h1>v0.18.1 (2026-03-25)</h1>
+<ul>
+<li>fix CI publish workflow filename</li>
+</ul>
 </section>
-<section id="mid-chain-joins" class="level2">
-<h2 class="anchored" data-anchor-id="mid-chain-joins">Mid-chain joins</h2>
-<p>Add tables mid-chain with a dict. The current table stays available as <code>_</code>:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>t1 <span class="op">=</span> uck.do(<span class="st">'data/trips.parquet'</span>, <span class="st">'where total_amount &gt; 0'</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>t1.do(</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select *, pickup_zone_id as zid'</span>,</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    {<span class="st">'zones'</span>: zones_df},</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'join zones on zid = zones.id'</span>,</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select zone_name, avg(total_amount) as avg_fare group by 1'</span>,</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by avg_fare desc'</span>,</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="v0.18.0-2026-03-25" class="level1">
+<h1>v0.18.0 (2026-03-25)</h1>
+<ul>
+<li>require Python &gt;= 3.10</li>
+<li>require duckdb &gt;= 1.5</li>
+<li>use <code>to_arrow_table()</code> for Arrow export (fixes deadlock with DuckDB 1.5)</li>
+<li>documentation updated</li>
+</ul>
 </section>
-<section id="self-joins" class="level2">
-<h2 class="anchored" data-anchor-id="self-joins">Self-joins</h2>
-<p>The current table is always registered as <code>_</code>, and <code>from _</code> is always prepended. For a self-join, alias both sides:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'as a join _ as b using (hexid)'</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># executes as: from _ as a join _ as b using (hexid)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="v0.17.0-2025-03-01" class="level1">
+<h1>v0.17.0 (2025-03-01)</h1>
+<ul>
+<li>try to convert leading argument to <code>Database</code> or <code>Table</code> if possible</li>
+</ul>
+</section>
+<section id="v0.16.0-2025-02-28" class="level1">
+<h1>v0.16.0 (2025-02-28)</h1>
+<ul>
+<li>add <code>duckboat.do()</code> function</li>
+<li>try to convert leading arguments to <code>Table</code> if possible</li>
+</ul>
 
 
 </section>
@@ -784,4 +733,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/duckboat/edit/main/docs/guide.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/duckboat/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/duckboat/edit/main/docs/changelog.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/duckboat/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

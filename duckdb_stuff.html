@@ -180,6 +180,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./tstrings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">T-strings (Python 3.14+)</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./duckdb_stuff.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">DuckDB Integration</span></a>
   </div>
@@ -246,6 +252,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">TODO</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./changelog.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Changelog</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -276,42 +288,61 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><code>duckboat</code> is a thin wrapper around DuckDB’s <a href="https://duckdb.org/docs/api/python/relational_api">relational API</a>. When you need to drop down to DuckDB directly, duckboat exposes its internals as escape hatches.</p>
+<p><code>duckboat</code> is a thin wrapper around DuckDB’s excellent <a href="https://duckdb.org/docs/api/python/relational_api">relational API</a>. All the heavy lifting — parsing, optimization, execution — is DuckDB. Duckboat just provides a composition layer on top.</p>
+<section id="how-duckboat-differs-from-raw-duckdb" class="level2">
+<h2 class="anchored" data-anchor-id="how-duckboat-differs-from-raw-duckdb">How duckboat differs from raw DuckDB</h2>
+<p><strong>Explicit table registration.</strong> DuckDB’s Python API uses “replacement scans” to find DataFrames by looking up variable names in the caller’s Python environment. This is convenient but implicit — it can be surprising when a query picks up a variable you didn’t intend, or breaks when you rename one.</p>
+<p>Duckboat requires you to explicitly register tables, either by passing data directly to <code>do()</code> or by providing a dict of named tables. Only what you register is visible to the query.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># DuckDB: implicitly finds `df` in the Python environment</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>duckdb.sql(<span class="st">'select * from df'</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># duckboat: explicitly pass data</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>uck.do(df, <span class="st">'select *'</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>uck.do({<span class="st">'orders'</span>: df1, <span class="st">'customers'</span>: df2}, <span class="st">'select * from orders join customers ...'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>SQL snippet chaining.</strong> DuckDB’s relational API requires writing complete SQL queries or manually managing relation objects. Duckboat’s <code>do()</code> lets you chain SQL snippets — each step takes the previous result as input, with <code>from _</code> prepended automatically.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># DuckDB: one monolithic query or manual chaining</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>rel <span class="op">=</span> con.sql(<span class="st">'select * from df where x &gt; 5'</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>rel2 <span class="op">=</span> rel.query(<span class="st">'t'</span>, <span class="st">'from t select x, count(*) group by 1'</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># duckboat: snippet chain</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>uck.do(df, <span class="st">'where x &gt; 5'</span>, <span class="st">'select x, count(*) group by 1'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
 <section id="escape-hatches" class="level2">
 <h2 class="anchored" data-anchor-id="escape-hatches">Escape hatches</h2>
+<p>When you need to drop down to DuckDB directly, duckboat exposes its internals:</p>
 <section id="uck.con-the-duckdb-connection" class="level3">
 <h3 class="anchored" data-anchor-id="uck.con-the-duckdb-connection"><code>uck.con</code> – the DuckDB connection</h3>
 <p>Access the underlying <code>DuckDBPyConnection</code> directly:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> duckboat <span class="im">as</span> uck</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>uck.con  <span class="co"># the shared in-memory DuckDB connection</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Install and load extensions</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>uck.con.install_extension(<span class="st">'spatial'</span>)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>uck.con.load_extension(<span class="st">'spatial'</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Execute arbitrary SQL</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>uck.con.execute(<span class="st">"CREATE TABLE foo AS SELECT 42 AS x"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> duckboat <span class="im">as</span> uck</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>uck.con  <span class="co"># the shared in-memory DuckDB connection</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Install and load extensions</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>uck.con.install_extension(<span class="st">'spatial'</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>uck.con.load_extension(<span class="st">'spatial'</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Execute arbitrary SQL</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>uck.con.execute(<span class="st">"CREATE TABLE foo AS SELECT 42 AS x"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="uck.query-raw-sql-queries" class="level3">
 <h3 class="anchored" data-anchor-id="uck.query-raw-sql-queries"><code>uck.query()</code> – raw SQL queries</h3>
 <p>Run a SQL query directly on the connection and get back a <code>DuckDBPyRelation</code>:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rel <span class="op">=</span> uck.query(<span class="st">'select 1 + 1 as result'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>rel <span class="op">=</span> uck.query(<span class="st">'select 1 + 1 as result'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>You can pass keyword arguments to make Python objects available as table names:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame({<span class="st">'x'</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]})</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>rel <span class="op">=</span> uck.query(<span class="st">'select * from df where x &gt; 1'</span>, df<span class="op">=</span>df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame({<span class="st">'x'</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]})</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>rel <span class="op">=</span> uck.query(<span class="st">'select * from df where x &gt; 1'</span>, df<span class="op">=</span>df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="t.rel-the-underlying-relation" class="level3">
 <h3 class="anchored" data-anchor-id="t.rel-the-underlying-relation"><code>t.rel</code> – the underlying relation</h3>
 <p>Every <code>Table</code> wraps a <code>DuckDBPyRelation</code>. Access it directly for DuckDB-native operations:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> uck.Table({<span class="st">'x'</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]})</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>t.rel              <span class="co"># the DuckDBPyRelation</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>t.rel.columns      <span class="co"># column names</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>t.rel.dtypes       <span class="co"># column types</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>t.rel.describe()   <span class="co"># summary statistics</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>t.rel.explain()    <span class="co"># query execution plan</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> uck.do({<span class="st">'x'</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]})</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>t.rel              <span class="co"># the DuckDBPyRelation</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>t.rel.columns      <span class="co"># column names</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>t.rel.dtypes       <span class="co"># column types</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>t.rel.describe()   <span class="co"># summary statistics</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>t.rel.explain()    <span class="co"># query execution plan</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 </section>
 <section id="whats-different-from-duckdbs-relational-api" class="level2">

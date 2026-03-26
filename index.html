@@ -180,6 +180,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./tstrings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">T-strings (Python 3.14+)</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./duckdb_stuff.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">DuckDB Integration</span></a>
   </div>
@@ -246,6 +252,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">TODO</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./changelog.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Changelog</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -263,7 +275,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="duckboat" class="level1">
 <h1>Duckboat</h1>
 <p><em>Ugly to some, but gets the job done.</em></p>
-<p><a href="https://github.com/ajfriend/duckboat">GitHub</a> | <a href="https://ajfriend.com/duckboat/">Docs</a> | <a href="https://pypi.org/project/duckboat/">PyPI</a></p>
+<p><a href="https://github.com/ajfriend/duckboat">GitHub</a> | <a href="https://ajfriend.com/duckboat/">Docs</a> | <a href="https://pypi.org/project/duckboat/">PyPI</a> | <a href="https://github.com/ajfriend/duckboat/actions/workflows/coverage.yml"><img src="https://img.shields.io/badge/coverage-100%25-brightgreen.png" class="img-fluid" alt="coverage"></a></p>
 <p>Duckboat is a SQL-based Python dataframe library for ergonomic interactive data analysis and exploration.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pip install duckboat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Duckboat allows you to chain SQL snippets (meaning you can usually omit <code>select *</code> and <code>from ...</code>) to incrementally and lazily build up complex queries.</p>
@@ -377,12 +389,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 │ Bob     │   12.0 │
 └─────────┴────────┘</code></pre>
 <p>You can also join mid-chain. The current table is always available as <code>_</code>:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>t1.do(</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'where total_amount &gt; 0'</span>,</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    {<span class="st">'zones'</span>: zones_df},</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'join zones on zid = zones.id'</span>,</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select zone_name, avg(total_amount) group by 1'</span>,</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>store <span class="op">=</span> uck.examples.store()</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>store[<span class="st">'orders'</span>].do(</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'where amount &gt; 10'</span>,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    {<span class="st">'customers'</span>: store[<span class="st">'customers'</span>]},</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'join customers on customer_id = customers.id'</span>,</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select name, sum(amount) as total group by 1'</span>,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Since <code>from _</code> is always prepended, you can also self-join by aliasing both sides directly:</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'as a join _ as b using (hexid)'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Or use <code>uck.rename()</code> to give the current table a name and write full SQL:</p>
@@ -400,8 +414,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong>Composition:</strong></p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>t.do(my_func)                      <span class="co"># callable — receives Table, returns Table</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>t.do([step1, step2, step3])        <span class="co"># list — applied recursively as a pipeline</span></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>t.do({<span class="st">'zones'</span>: zones_df})          <span class="co"># dict — registers named tables for next step</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>t.do({<span class="st">'other'</span>: other_df})          <span class="co"># dict — registers named tables for next step</span></span>
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>t.do(uck.rename(<span class="st">'trips'</span>))          <span class="co"># rename — gives _ a name, removes auto-wrap</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>T-strings (Python 3.14+):</strong></p>
+<p>On Python 3.14+, t-strings can replace the dict syntax for joins and inline scalar parameters. See the <a href="https://ajfriend.com/duckboat/tstrings.html">t-string guide</a> for details.</p>
 <p><strong>Output:</strong></p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'select count(*)'</span>, <span class="bu">int</span>)       <span class="co"># Python int</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>t.do(<span class="st">'select distinct a'</span>, <span class="bu">list</span>)    <span class="co"># Python list</span></span>
@@ -418,18 +434,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="anchored" data-anchor-id="table">Table</h4>
 <p><code>Table</code> wraps a DuckDB <code>DuckDBPyRelation</code>. The easiest way to create one is through <code>do()</code>:</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> uck.do(<span class="st">'data.parquet'</span>)</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> uck.do(pd.DataFrame({<span class="st">'x'</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]}))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>You can also use the <code>Table</code> constructor directly:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> uck.Table(<span class="st">'data.parquet'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> uck.do(pd.DataFrame({<span class="st">'x'</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]}))</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> uck.do(<span class="st">'https://example.com/data.csv'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><code>.do()</code> chains operations and dispatches on argument type (strings, functions, lists, dicts, type conversions). Access the underlying DuckDB relation with <code>t.rel</code>.</p>
 </section>
 <section id="eager-evaluation-and-hideshow" class="level4">
 <h4 class="anchored" data-anchor-id="eager-evaluation-and-hideshow">Eager evaluation and <code>hide</code>/<code>show</code></h4>
 <p>Calling <code>repr()</code> on a <code>Table</code> triggers query evaluation. In Jupyter, this happens when an object is the last expression in a cell. In IDEs like Positron, the variable explorer proactively inspects objects, which can trigger expensive computations.</p>
 <p>Use <code>hide()</code> to suppress evaluation:</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>big <span class="op">=</span> uck.Table(<span class="st">'huge_dataset.parquet'</span>).do(<span class="st">'hide'</span>)</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Positron's variable explorer will see: &lt;Table(..., _hide=True)&gt;</span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co"># instead of evaluating the full query</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>big <span class="op">=</span> uck.examples.penguins().do(<span class="st">'hide'</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Positron's variable explorer will see: &lt;Table(..., _hide=True)&gt;</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co"># instead of evaluating the full query</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Call <code>show()</code> (or <code>.do('show')</code>) when you’re ready to see results.</p>
 </section>
 </section>

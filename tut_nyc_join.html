@@ -180,6 +180,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./tstrings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">T-strings (Python 3.14+)</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./duckdb_stuff.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">DuckDB Integration</span></a>
   </div>
@@ -246,6 +252,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">TODO</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./changelog.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Changelog</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -294,7 +306,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="loading-data" class="level1">
 <h1>Loading data</h1>
 <p>First, load a table from a local Parquet file and preview its contents.</p>
-<div id="fd917642" class="cell" data-execution_count="1">
+<div id="ac6f5ff3" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> duckboat <span class="im">as</span> uck</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>t1 <span class="op">=</span> uck.Table(<span class="st">'data/yellow_tripdata_2010-01.parquet'</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>t2 <span class="op">=</span> uck.Table(<span class="st">'data/yellow_tripdata_2010-02.parquet'</span>)</span>
@@ -315,7 +327,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>We can get a list of columns with <code>t1.columns</code>.</p>
-<div id="f7db74a5" class="cell" data-execution_count="2">
+<div id="6afcad77" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>t1.columns</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
 <pre><code>['vendor_id',
@@ -349,7 +361,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 <p>We’ll see a few examples of what we can do below.</p>
 <p>Convert pickup latitude/longitude locations to resolution 8 H3 cells. Resolution 8 cells are about 0.7 km^2 in size.</p>
-<div id="53ec72fb" class="cell" data-execution_count="3">
+<div id="b6ed9be1" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> t1.do(<span class="st">"""</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="st">select</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="st">    *,</span></span>
@@ -368,7 +380,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Compute the average of <code>total_amount</code> for each H3 cell, along with the number of trips:</p>
-<div id="e4c791e9" class="cell" data-execution_count="4">
+<div id="5e8b70c7" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> x.do(<span class="st">"""</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="st">select</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="st">    hexid,</span></span>
@@ -385,13 +397,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 │       hexid        │       amount       │  num   │
 │       uint64       │       double       │ int64  │
 ├────────────────────┼────────────────────┼────────┤
-│ 613229524244496383 │ 10.816309067189668 │ 666127 │
-│ 613229524210941951 │ 10.594611812368374 │ 185619 │
+│ 613229522984108031 │  9.949875167611046 │ 346785 │
+│ 613229551278882815 │ 10.650209316209915 │ 308194 │
 └────────────────────┴────────────────────┴────────┘</code></pre>
 </div>
 </div>
 <p>Convert the H3 cell id to its hexadecimal representation:</p>
-<div id="36eba121" class="cell" data-execution_count="5">
+<div id="eac2104d" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> x.do(<span class="st">"""</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="st">select</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="st">    h3_h3_to_string(hexid)</span></span>
@@ -405,8 +417,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 │      hexid      │       amount       │  num   │
 │     varchar     │       double       │ int64  │
 ├─────────────────┼────────────────────┼────────┤
-│ 882a100d6dfffff │  9.794619010597284 │ 142773 │
-│ 882a107219fffff │ 10.439549116797137 │ 104506 │
+│ 882a100893fffff │  9.661533032430293 │ 426051 │
+│ 882a10725bfffff │ 10.288604039526437 │ 421287 │
 └─────────────────┴────────────────────┴────────┘</code></pre>
 </div>
 </div>
@@ -414,7 +426,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="grouping-transforms-with-lists-and-functions" class="level1">
 <h1>Grouping transforms with lists and functions</h1>
 <p>Note that <code>Table.do()</code> also accepts a sequence of strings, so you could write all of the previous steps with a single function call.</p>
-<div id="71f1a36f" class="cell" data-execution_count="6">
+<div id="af95bfe5" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>t1.do(</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select *, h3_latlng_to_cell(pickup_latitude, pickup_longitude, 8) as hexid'</span>,</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select hexid, avg(total_amount) as amount, count(*) as num group by 1'</span>,</span>
@@ -426,16 +438,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 │      hexid      │       amount       │  num   │
 │     varchar     │       double       │ int64  │
 ├─────────────────┼────────────────────┼────────┤
-│ 882a1072c9fffff │ 10.324864870461473 │ 386333 │
-│ 882a100883fffff │  9.985855459480879 │ 222512 │
-│ 882a10089bfffff │ 10.686034118679832 │ 252882 │
-│ 882a10725bfffff │ 10.288604039526435 │ 421287 │
+│ 882a1072c9fffff │ 10.324864870461468 │ 386333 │
+│ 882a10725bfffff │ 10.288604039526438 │ 421287 │
 │ 882a107281fffff │ 14.549411366436937 │  73849 │
+│ 882a100893fffff │   9.66153303243029 │ 426051 │
+│ 882a100883fffff │  9.985855459480879 │ 222512 │
 └─────────────────┴────────────────────┴────────┘</code></pre>
 </div>
 </div>
 <p>To help organize things, we can collect a sequence of steps as a list of strings.</p>
-<div id="8ad1bcda" class="cell" data-execution_count="7">
+<div id="253b93e5" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>avg_list <span class="op">=</span> [</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select *, h3_latlng_to_cell(pickup_latitude, pickup_longitude, 8) as hexid'</span>,</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select hexid, avg(total_amount) as amount, count(*) as num group by 1'</span>,</span>
@@ -443,14 +455,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We can apply the sequence of steps in <code>avg_list</code> to table <code>t1</code> in multiple ways. If <code>Table.do()</code> encounters a list, it will apply each element of the list in sequence recursively, which means each of the following are equivalent:</p>
-<div id="00247361" class="cell" data-execution_count="8">
+<div id="ef0fe797" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>t1.do(<span class="op">*</span>avg_list)</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>t1.do(avg_list)</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>t1.do([avg_list])</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>t1.do([[avg_list]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We can also wrap operations in a Python function, which <code>Table.do()</code> can also handle.</p>
-<div id="85316239" class="cell" data-execution_count="9">
+<div id="cd56ccc9" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> avg_func(tbl):</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">    tbl: [pickup_latitude, pickup_longitude, total_amount]</span></span>
@@ -459,13 +471,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> tbl.do(avg_list)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The following are equivalent:</p>
-<div id="a515d44e" class="cell" data-execution_count="10">
+<div id="d91da138" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>avg_func(t1)</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>t1.do(avg_func)</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>t1.do([avg_func])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We can build up complex nested expressions by combining functions, query strings, and lists, so the following are equivalent:</p>
-<div id="4373493e" class="cell" data-execution_count="11">
+<div id="22a3b70b" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>t1.do(avg_func, <span class="st">'where num &gt; 100'</span>)</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>t1.do(avg_list, <span class="st">'where num &gt; 100'</span>)</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>t1.do([avg_func, <span class="st">'where num &gt; 100'</span>])</span>
@@ -475,7 +487,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="exploration-and-filtering" class="level1">
 <h1>Exploration and filtering</h1>
 <p>Exploring the data, we notice there are many trips in February that have zero or negative fare. We’ll want to filter those out.</p>
-<div id="d08e0df0" class="cell" data-execution_count="12">
+<div id="48d61f20" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>t2.do(<span class="st">"""</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="st">select</span></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="st">    total_amount &gt; 0,</span></span>
@@ -494,7 +506,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>We also spot many trips where the lat/lng is erroneously listed as <code>(0,0)</code>:</p>
-<div id="f7aad654" class="cell" data-execution_count="13">
+<div id="0a782241" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>t1.do(<span class="st">"""</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="st">select</span></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="st">    (pickup_longitude = 0) or (pickup_latitude = 0),</span></span>
@@ -507,13 +519,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 │ ((pickup_longitude = 0) OR (pickup_latitude = 0)) │ count_star() │
 │                      boolean                      │    int64     │
 ├───────────────────────────────────────────────────┼──────────────┤
-│ true                                              │       268338 │
 │ false                                             │     14595440 │
+│ true                                              │       268338 │
 └───────────────────────────────────────────────────┴──────────────┘</code></pre>
 </div>
 </div>
 <p>After aggregating, we also notice there are lots of hexes with only a few trips. Let’s say we’ll only look at hexes with at least 100 trips.</p>
-<div id="86957750" class="cell" data-execution_count="14">
+<div id="6167c141" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>t1.do(</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    avg_func,</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"""</span></span>
@@ -544,7 +556,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="joins" class="level1">
 <h1>Joins</h1>
 <p>We want to compute average fares for hexes and compare them across January and February. We compute the averages like above, but also want to exlude hexes with only a few trips. So we extend the data pipeline to filter out such hexes, and apply the same operation to the datasets for each month.</p>
-<div id="6b015f4c" class="cell" data-execution_count="15">
+<div id="bfaeb324" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>t1 <span class="op">=</span> uck.Table(<span class="st">'data/yellow_tripdata_2010-01.parquet'</span>)</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>t2 <span class="op">=</span> uck.Table(<span class="st">'data/yellow_tripdata_2010-02.parquet'</span>)</span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -564,35 +576,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 │      hexid      │       amount       │  num   │
 │     varchar     │       double       │ int64  │
 ├─────────────────┼────────────────────┼────────┤
-│ 882a103b1dfffff │   41.6084385790656 │  42282 │
-│ 882a10721bfffff │ 10.803940138613441 │ 244565 │
-│ 882a100f65fffff │ 19.754570858283437 │    501 │
-│ 882a107219fffff │ 10.513909327172973 │  86575 │
-│ 882a100d4dfffff │ 10.600163596315596 │  49940 │
-│ 882a1008b3fffff │ 10.126875919361238 │ 260371 │
-│ 882a100895fffff │ 10.017064441077808 │  73928 │
-│ 882a100d6dfffff │  9.909450343300936 │ 106612 │
-│ 882a1072ddfffff │  11.15063906545267 │  17463 │
-│ 882a100de9fffff │ 11.959380390075628 │   7537 │
+│ 882a100d69fffff │   9.00223088744128 │ 313001 │
+│ 882a107289fffff │ 13.817384161180895 │ 125325 │
+│ 882a1008b1fffff │ 10.179238418121875 │  52798 │
+│ 882a1072cdfffff │ 10.630242212783148 │ 276864 │
+│ 882a107251fffff │ 10.911573480812043 │  59308 │
+│ 882a100d23fffff │  9.907107156892392 │ 310442 │
+│ 882a1072c1fffff │ 10.879886217377141 │ 257948 │
+│ 882a100d2bfffff │  9.804291920508977 │ 177932 │
+│ 882a103b03fffff │ 44.360947338358656 │  45517 │
+│ 882a100d11fffff │ 13.061607992388202 │   1051 │
 │        ·        │          ·         │     ·  │
 │        ·        │          ·         │     ·  │
 │        ·        │          ·         │     ·  │
-│ 882a107287fffff │ 10.399017857142857 │    112 │
-│ 882a100e83fffff │ 12.862045454545454 │    132 │
-│ 882a1001adfffff │ 13.096517857142857 │    112 │
-│ 882a100513fffff │ 10.839266055045872 │    109 │
-│ 882a100ac1fffff │ 12.430202702702703 │    148 │
-│ 882a100f01fffff │ 10.771111111111109 │    135 │
-│ 882a107455fffff │  11.83666666666667 │    252 │
-│ 882a106de1fffff │ 10.531418439716312 │    141 │
+│ 882a107455fffff │ 11.836666666666668 │    252 │
+│ 882a100f01fffff │  10.77111111111111 │    135 │
 │ 882a10744dfffff │ 12.780797546012273 │    163 │
-│ 882a100dcdfffff │ 10.698049999999999 │    200 │
+│ 882a107287fffff │ 10.399017857142857 │    112 │
+│ 882a100ed5fffff │           12.81928 │    125 │
+│ 882a10771dfffff │ 10.645851851851852 │    135 │
+│ 882a1008e9fffff │        14.00984375 │    128 │
+│ 882a100dc9fffff │ 12.224074074074073 │    108 │
+│ 882a100513fffff │ 10.839266055045872 │    109 │
+│ 882a106de1fffff │ 10.531418439716312 │    141 │
 └─────────────────┴────────────────────┴────────┘
   444 rows (20 shown)                 3 columns</code></pre>
 </div>
 </div>
 <p>To perform a join, pass a dict to <code>do()</code> to register named tables:</p>
-<div id="34a39c6a" class="cell" data-execution_count="16">
+<div id="8c61826d" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> uck.do(</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    {<span class="st">'t1'</span>: t1, <span class="st">'t2'</span>: t2},</span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"""</span></span>
@@ -624,34 +636,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 │      hexid      │      fare_jan      │      fare_feb      │     fare_change     │
 │     varchar     │       double       │       double       │       double        │
 ├─────────────────┼────────────────────┼────────────────────┼─────────────────────┤
-│ 882a1071adfffff │  69.73084615384614 │ 58.737914798206276 │ -10.992931355639868 │
-│ 882a100c01fffff │ 27.110503597122307 │ 20.741372549019605 │  -6.369131048102702 │
-│ 882a100e37fffff │   33.0306355140187 │  28.06555765595463 │  -4.965077858064067 │
-│ 882a1072e7fffff │ 42.255209580838326 │  38.42423076923077 │  -3.830978811607558 │
-│ 882a1008e9fffff │ 17.742466666666665 │ 14.009843750000002 │ -3.7326229166666636 │
+│ 882a1071adfffff │  69.73084615384617 │ 58.737914798206276 │ -10.992931355639897 │
+│ 882a100c01fffff │ 27.110503597122303 │  20.74137254901961 │  -6.369131048102695 │
+│ 882a100e37fffff │   33.0306355140187 │ 28.065557655954635 │  -4.965077858064063 │
+│ 882a1072e7fffff │ 42.255209580838326 │  38.42423076923076 │  -3.830978811607565 │
+│ 882a1008e9fffff │ 17.742466666666665 │        14.00984375 │ -3.7326229166666653 │
 │ 882a1008e7fffff │ 14.852932330827068 │ 11.121284403669726 │ -3.7316479271573417 │
 │ 882a107207fffff │ 16.860051282051284 │ 13.165116279069768 │ -3.6949350029815164 │
-│ 882a100e85fffff │ 29.665849999999995 │  26.64545454545455 │ -3.0203954545454437 │
+│ 882a100e85fffff │           29.66585 │  26.64545454545455 │ -3.0203954545454472 │
 │ 882a100cc1fffff │ 18.814318181818184 │  15.84008695652174 │ -2.9742312252964442 │
 │ 882a10705bfffff │  25.10495283018868 │ 22.228385650224215 │ -2.8765671799644643 │
-│        ·        │          ·         │          ·         │           ·         │
-│        ·        │          ·         │          ·         │           ·         │
-│        ·        │          ·         │          ·         │           ·         │
-│ 882a10723bfffff │  36.69252998909488 │ 42.577538896746816 │   5.885008907651937 │
-│ 882a1072e3fffff │ 22.588899676375405 │ 28.593956521739123 │   6.005056845363718 │
-│ 882a107239fffff │ 30.491762376237617 │ 36.845988023952096 │   6.354225647714479 │
-│ 882a107231fffff │  25.71543147208122 │  33.13404255319149 │   7.418611081110271 │
-│ 882a103b61fffff │   38.6792192513369 │  46.58243243243243 │  7.9032131810955235 │
-│ 882a100ee5fffff │ 13.650664869721473 │  21.77017857142857 │   8.119513701707097 │
+│        ·        │          ·         │          ·         │            ·        │
+│        ·        │          ·         │          ·         │            ·        │
+│        ·        │          ·         │          ·         │            ·        │
+│ 882a10723bfffff │  36.69252998909488 │  42.57753889674681 │    5.88500890765193 │
+│ 882a1072e3fffff │   22.5888996763754 │  28.59395652173912 │   6.005056845363718 │
+│ 882a107239fffff │ 30.491762376237624 │   36.8459880239521 │   6.354225647714479 │
+│ 882a107231fffff │ 25.715431472081217 │  33.13404255319149 │   7.418611081110274 │
+│ 882a103b61fffff │ 38.679219251336896 │  46.58243243243243 │   7.903213181095531 │
+│ 882a100ee5fffff │ 13.650664869721473 │ 21.770178571428573 │     8.1195137017071 │
 │ 882a107209fffff │ 16.478663594470046 │ 24.767259036144576 │    8.28859544167453 │
 │ 882a100813fffff │ 16.437430167597768 │ 25.611982758620687 │    9.17455259102292 │
-│ 882a100d03fffff │  12.00419037199124 │ 21.602025227750527 │   9.597834855759286 │
-│ 882a100ebbfffff │ 39.366319648093864 │  53.30473029045642 │  13.938410642362555 │
+│ 882a100d03fffff │ 12.004190371991244 │ 21.602025227750524 │    9.59783485575928 │
+│ 882a100ebbfffff │  39.36631964809386 │  53.30473029045644 │  13.938410642362584 │
 └─────────────────┴────────────────────┴────────────────────┴─────────────────────┘
   426 rows (20 shown)                                                   4 columns</code></pre>
 </div>
 </div>
-<div id="d40f0e58" class="cell" data-execution_count="17">
+<div id="c236774d" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> out.df()</span>
@@ -671,7 +683,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="end-to-end-example" class="level1">
 <h1>End-to-end example</h1>
-<div id="f027b4c3" class="cell" data-execution_count="18">
+<div id="b9000f00" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> duckboat <span class="im">as</span> uck</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>core <span class="op">=</span> [</span>
@@ -709,13 +721,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 │      hexid      │      fare_jan      │      fare_feb      │     fare_change     │
 │     varchar     │       double       │       double       │       double        │
 ├─────────────────┼────────────────────┼────────────────────┼─────────────────────┤
-│ 882a1071adfffff │  69.73084615384614 │ 58.737914798206276 │ -10.992931355639868 │
-│ 882a100c01fffff │ 27.110503597122303 │ 20.741372549019605 │  -6.369131048102698 │
-│ 882a100e37fffff │  33.03063551401869 │  28.06555765595463 │   -4.96507785806406 │
-│ 882a1072e7fffff │ 42.255209580838326 │  38.42423076923077 │  -3.830978811607558 │
-│ 882a1008e9fffff │  17.74246666666666 │ 14.009843750000002 │   -3.73262291666666 │
+│ 882a1071adfffff │  69.73084615384616 │ 58.737914798206276 │ -10.992931355639882 │
+│ 882a100c01fffff │ 27.110503597122307 │ 20.741372549019605 │  -6.369131048102702 │
+│ 882a100e37fffff │   33.0306355140187 │ 28.065557655954635 │  -4.965077858064063 │
+│ 882a1072e7fffff │  42.25520958083832 │  38.42423076923076 │  -3.830978811607558 │
+│ 882a1008e9fffff │ 17.742466666666665 │ 14.009843750000002 │ -3.7326229166666636 │
 │ 882a1008e7fffff │ 14.852932330827068 │ 11.121284403669724 │ -3.7316479271573435 │
-│ 882a107207fffff │ 16.860051282051284 │ 13.165116279069766 │ -3.6949350029815182 │
+│ 882a107207fffff │ 16.860051282051284 │ 13.165116279069768 │ -3.6949350029815164 │
 │ 882a100e85fffff │ 29.665849999999995 │  26.64545454545455 │ -3.0203954545454437 │
 │ 882a100cc1fffff │ 18.814318181818184 │  15.84008695652174 │ -2.9742312252964442 │
 │ 882a10705bfffff │  25.10495283018868 │ 22.228385650224215 │ -2.8765671799644643 │
@@ -723,15 +735,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 │        ·        │          ·         │          ·         │           ·         │
 │        ·        │          ·         │          ·         │           ·         │
 │ 882a10723bfffff │  36.69252998909488 │ 42.577538896746816 │   5.885008907651937 │
-│ 882a1072e3fffff │  22.58889967637541 │  28.59395652173912 │   6.005056845363711 │
-│ 882a107239fffff │ 30.491762376237624 │ 36.845988023952096 │   6.354225647714472 │
-│ 882a107231fffff │  25.71543147208122 │  33.13404255319149 │   7.418611081110271 │
-│ 882a103b61fffff │   38.6792192513369 │  46.58243243243244 │   7.903213181095538 │
+│ 882a1072e3fffff │ 22.588899676375405 │ 28.593956521739123 │   6.005056845363718 │
+│ 882a107239fffff │  30.49176237623762 │ 36.845988023952096 │   6.354225647714475 │
+│ 882a107231fffff │ 25.715431472081217 │  33.13404255319149 │   7.418611081110274 │
+│ 882a103b61fffff │  38.67921925133689 │  46.58243243243243 │   7.903213181095538 │
 │ 882a100ee5fffff │ 13.650664869721473 │  21.77017857142857 │   8.119513701707097 │
 │ 882a107209fffff │ 16.478663594470046 │ 24.767259036144576 │    8.28859544167453 │
-│ 882a100813fffff │ 16.437430167597764 │ 25.611982758620687 │   9.174552591022923 │
-│ 882a100d03fffff │ 12.004190371991244 │ 21.602025227750527 │   9.597834855759283 │
-│ 882a100ebbfffff │ 39.366319648093864 │  53.30473029045644 │  13.938410642362577 │
+│ 882a100813fffff │ 16.437430167597768 │  25.61198275862069 │   9.174552591022923 │
+│ 882a100d03fffff │ 12.004190371991244 │  21.60202522775052 │   9.597834855759276 │
+│ 882a100ebbfffff │  39.36631964809386 │  53.30473029045643 │  13.938410642362577 │
 └─────────────────┴────────────────────┴────────────────────┴─────────────────────┘
   426 rows (20 shown)                                                   4 columns</code></pre>
 </div>

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Related Projects – duckboat</title>
+<title>T-strings (Python 3.14+) – duckboat</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -112,7 +146,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./related.html">Related Projects</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./tstrings.html">T-strings (Python 3.14+)</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -146,7 +180,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./tstrings.html" class="sidebar-item-text sidebar-link">
+  <a href="./tstrings.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">T-strings (Python 3.14+)</span></a>
   </div>
 </li>
@@ -193,7 +227,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./related.html" class="sidebar-item-text sidebar-link active">
+  <a href="./related.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Related Projects</span></a>
   </div>
 </li>
@@ -237,7 +271,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Related Projects</h1>
+<h1 class="title">T-strings (Python 3.14+)</h1>
 </div>
 
 
@@ -254,35 +288,69 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Duckboat exists in a rich ecosystem of Python dataframe and SQL tools. Here’s how it relates to some of them.</p>
-<section id="pandas" class="level3">
-<h3 class="anchored" data-anchor-id="pandas"><a href="https://pandas.pydata.org/">Pandas</a></h3>
-<p>The most widely-used Python dataframe library. Pandas uses a method-chaining API with eager evaluation. Duckboat differs in using SQL strings instead of Python method calls, and in evaluating lazily via DuckDB. Convert between them with <code>t.do('pandas')</code> or <code>uck.Table(df)</code>.</p>
+<p>Python 3.14 introduces <a href="https://peps.python.org/pep-0750/">template strings</a> (t-strings), which duckboat can use as an alternative to the dict syntax for joins and parameterized queries.</p>
+<p>T-string support is optional — duckboat works on Python 3.10+ without it.</p>
+<section id="table-references" class="level2">
+<h2 class="anchored" data-anchor-id="table-references">Table references</h2>
+<p>Instead of passing a dict to register named tables, interpolate them directly:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># dict syntax (any Python version)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>uck.do(</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    {<span class="st">'orders'</span>: orders, <span class="st">'customers'</span>: customers},</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select * from orders join customers using (id)'</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># t-string syntax (Python 3.14+)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>uck.do(</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    t<span class="st">'select * from </span><span class="sc">{orders}</span><span class="st"> join </span><span class="sc">{customers}</span><span class="st"> using (id)'</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The variable name becomes the table name in SQL. If the expression isn’t a simple variable name (e.g., <code>{my_dict['orders']}</code>), a random name is generated automatically.</p>
 </section>
-<section id="polars" class="level3">
-<h3 class="anchored" data-anchor-id="polars"><a href="https://pola.rs/">Polars</a></h3>
-<p>A modern, fast dataframe library with a fluent expression API and lazy evaluation. Polars provides strong IDE support with autocomplete on column operations. Duckboat trades that discoverability for zero new API – you write SQL directly instead of learning Polars expressions.</p>
-</section>
-<section id="ibis" class="level3">
-<h3 class="anchored" data-anchor-id="ibis"><a href="https://ibis-project.org/">Ibis</a></h3>
-<p>A portable dataframe API that compiles to SQL for various backends (DuckDB, Postgres, BigQuery, etc.). Ibis provides a Python expression API with IDE support and backend portability. Duckboat is simpler and more direct – you write SQL snippets rather than building expressions through a Python API.</p>
-</section>
-<section id="duckdb" class="level3">
-<h3 class="anchored" data-anchor-id="duckdb"><a href="https://duckdb.org/">DuckDB</a></h3>
-<p>Duckboat is a thin wrapper around DuckDB’s <a href="https://duckdb.org/docs/api/python/relational_api">relational API</a>. DuckDB provides the query engine; duckboat adds ergonomic SQL snippet chaining, automatic <code>from</code> prepending, and the <code>do()</code> dispatch mechanism. See the <a href="./duckdb_stuff.html">DuckDB integration</a> page for details.</p>
+<section id="scalar-parameters" class="level2">
+<h2 class="anchored" data-anchor-id="scalar-parameters">Scalar parameters</h2>
+<p>Scalars are inlined directly into the SQL:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>name <span class="op">=</span> <span class="st">'Alice'</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>min_age <span class="op">=</span> <span class="dv">25</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>t.do(t<span class="st">'where name = </span><span class="sc">{name}</span><span class="st"> and age &gt; </span><span class="sc">{min_age}</span><span class="st">'</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># becomes: where name = 'Alice' and age &gt; 25</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Type dispatch:</p>
 <ul>
-<li><a href="https://duckdb.org/2022/05/04/friendlier-sql.html">Friendlier SQL</a></li>
-<li><a href="https://duckdb.org/2023/08/23/even-friendlier-sql.html">Even Friendlier SQL</a></li>
-<li><a href="https://duckdb.org/docs/sql/dialect/friendly_sql.html">Friendly SQL reference</a></li>
+<li><code>int</code>, <code>float</code> — inlined as literals</li>
+<li><code>bool</code> — inlined as <code>TRUE</code> / <code>FALSE</code></li>
+<li><code>str</code> — inlined as a quoted string (single quotes escaped)</li>
 </ul>
 </section>
-<section id="prql" class="level3">
-<h3 class="anchored" data-anchor-id="prql"><a href="https://prql-lang.org/">PRQL</a></h3>
-<p>A pipelined query language that compiles to SQL. PRQL redesigns SQL syntax to be composable and top-to-bottom readable. Duckboat takes a different approach: rather than replacing SQL syntax, it makes standard SQL composable by chaining snippets through Python.</p>
+<section id="mid-chain-joins" class="level2">
+<h2 class="anchored" data-anchor-id="mid-chain-joins">Mid-chain joins</h2>
+<p>T-strings work mid-chain, just like the dict syntax:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>t1.do(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'where total_amount &gt; 0'</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    t<span class="st">'join </span><span class="sc">{zones}</span><span class="st"> on zid = zones.id'</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'select zone_name, avg(total_amount) group by 1'</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="googles-pipe-syntax-for-sql" class="level3">
-<h3 class="anchored" data-anchor-id="googles-pipe-syntax-for-sql"><a href="https://research.google/pubs/sql-has-problems-we-can-fix-them-pipe-syntax-in-sql/">Google’s Pipe Syntax for SQL</a></h3>
-<p>A research proposal for adding pipe operators directly to SQL. Duckboat achieves a similar result at the Python level – <code>do()</code> chains SQL snippets in a way that’s semantically close to what pipe syntax would provide natively.</p>
+<section id="self-joins" class="level2">
+<h2 class="anchored" data-anchor-id="self-joins">Self-joins</h2>
+<p>Start from <code>uck.do</code> so there is no implicit <code>_</code> table:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>uck.do(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    t<span class="st">'select * from </span><span class="sc">{t1}</span><span class="st"> a join </span><span class="sc">{t1}</span><span class="st"> b using (hexid)'</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Or mid-chain, use <code>uck.rename()</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>t1.do(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    uck.rename(<span class="st">'t1'</span>),</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    t<span class="st">'from t1 as a join t1 as b using (hexid)'</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You can also self-join using <code>_</code> directly without t-strings, since the current table is always registered as <code>_</code>:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>t1.do(<span class="st">'as a join _ as b using (hexid)'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="mixing-with-regular-strings" class="level2">
+<h2 class="anchored" data-anchor-id="mixing-with-regular-strings">Mixing with regular strings</h2>
+<p>T-strings and regular strings can be mixed freely in a <code>do()</code> chain:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>uck.do(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    t<span class="st">'select * from </span><span class="sc">{orders}</span><span class="st"> join </span><span class="sc">{customers}</span><span class="st"> using (id)'</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'where amount &gt; 10'</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'order by name'</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 
 </section>
@@ -713,4 +781,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/duckboat/edit/main/docs/related.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/duckboat/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/ajfriend/duckboat/edit/main/docs/tstrings.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ajfriend/duckboat/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
