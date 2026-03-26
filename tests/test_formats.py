@@ -28,7 +28,7 @@ def test_bad_object():
         uck.Table(df).do(foo, 'select *')
 
 
-def test_hold():
+def test_pandas():
     from pandas.testing import assert_frame_equal
 
     df = pd.DataFrame({'a': [0]})

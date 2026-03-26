@@ -83,7 +83,7 @@ rel = uck.query('select * from df where x > 1', df=df)
 Every `Table` wraps a `DuckDBPyRelation`. Access it directly for DuckDB-native operations:
 
 ```python
-t = uck.Table({'x': [1, 2, 3]})
+t = uck.do({'x': [1, 2, 3]})
 
 t.rel              # the DuckDBPyRelation
 t.rel.columns      # column names

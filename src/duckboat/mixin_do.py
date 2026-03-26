@@ -84,8 +84,10 @@ def _do_one(ctx, x):
         x = _read_file(x)
         s = x.strip()
 
-        if s in ('arrow', 'pandas'):
-            return tbl.hold(kind=s)
+        if s == 'arrow':
+            return tbl.arrow()
+        if s == 'pandas':
+            return tbl.df()
         if s == 'hide':
             return {_PREV: tbl.hide()}
         if s == 'show':
