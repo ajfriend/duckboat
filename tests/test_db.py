@@ -1,5 +1,6 @@
 import duckboat as uck
 import pandas as pd
+import pytest
 
 
 def test_dict_join():
@@ -86,3 +87,29 @@ def test_self_join_after_chain():
     )
     # after filter: 3 rows, cross join: 3*3 = 9
     assert out == 9
+
+
+def test_rename_self_join():
+    df = pd.DataFrame({'x': [1, 2, 3]})
+    out = uck.Table(df).do(
+        uck.rename('t'),
+        'from t as a cross join t as b select count(*)',
+        int,
+    )
+    assert out == 9
+
+
+def test_rename_after_chain():
+    df = pd.DataFrame({'x': [1, 2, 3, 4, 5]})
+    out = uck.Table(df).do(
+        'where x <= 3',
+        uck.rename('t'),
+        'from t as a cross join t as b select count(*)',
+        int,
+    )
+    assert out == 9
+
+
+def test_rename_no_table():
+    with pytest.raises(ValueError, match='no implicit table'):
+        uck.do({'a': pd.DataFrame({'x': [1]})}, uck.rename('b'))

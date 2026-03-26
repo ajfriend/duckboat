@@ -5,6 +5,17 @@ from .ddb import query
 _PREV = '_'
 
 
+class _Rename:
+    __slots__ = ('name',)
+
+    def __init__(self, name):
+        self.name = name
+
+
+def rename(name):
+    return _Rename(name)
+
+
 def _read_file(s):
     if isinstance(s, Path):
         return s.read_text()
@@ -42,6 +53,11 @@ def _do_one(ctx, x):
         for item in x:
             ctx = _do_one(ctx, item)
         return ctx
+
+    if isinstance(x, _Rename):
+        if _PREV not in ctx:
+            raise ValueError('rename: no implicit table to rename')
+        return {x.name: ctx[_PREV]}
 
     tbl = ctx.get(_PREV)
 

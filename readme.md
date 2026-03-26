@@ -203,11 +203,20 @@ t1.do(
 )
 ```
 
-For self-joins, the current table is `_`, and `from _` is always prepended.
-Alias both sides to get two references:
+Since `from _` is always prepended, you can also self-join by aliasing both
+sides directly:
 
 ```python
 t.do('as a join _ as b using (hexid)')
+```
+
+Or use `uck.rename()` to give the current table a name and write full SQL:
+
+```python
+t.do(
+    uck.rename('trips'),
+    'from trips as a join trips as b using (hexid)',
+)
 ```
 
 ### Extravagant affordances

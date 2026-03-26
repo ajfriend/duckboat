@@ -47,8 +47,11 @@ t1.do(
     'select zone_name, avg(total_amount) group by 1',
 )
 
-# Self-join (the current table is always available as _)
-t1.do('as a join _ as b using (hexid)')
+# Self-join
+t1.do(
+    uck.rename('t1'),
+    'from t1 as a join t1 as b using (hexid)',
+)
 ```
 
 ## What gets removed
@@ -79,7 +82,7 @@ uck.do({'a': df1, 'b': df2}, 'select ...')
 t.alias('name').do('select ...')
 
 # after
-t.do('as a join _ as b using (hexid)')
+t.do(uck.rename('t'), 'from t as a join t as b using (hexid)')
 ```
 
 **Materialize all tables:**
@@ -223,6 +226,7 @@ SQL snippets when `'_'` is in the context.
 | SQL string                                  | --    | If `'_'` in context, prepend `from _`. Execute against named tables. Result becomes `{'_': result}` |
 | Dict                                        | 1     | Merge into the current context. Names available for the next SQL step only                          |
 | T-string                                    | 2     | Build dict from interpolations, merge, reconstruct SQL, execute. Result becomes `{'_': result}`     |
+| `uck.rename('name')`                        | 1     | Rename `'_'` to `'name'` in context, removing `'_'`. Enables self-joins with natural SQL            |
 | List                                        | --    | Recursively call `do()` with the list contents (reusable pipeline fragments)                        |
 | Callable                                    | --    | Call with the current table, result becomes `{'_': result}`                                         |
 | Type (`list`, `dict`, `int`, etc.)          | --    | Materialize the current table as that type and return                                               |
@@ -237,8 +241,8 @@ SQL snippets when `'_'` is in the context.
   use `sql()` vs `do()`.
 - **Dict syntax works on all Python versions.** T-strings are a bonus for
   3.14+.
-- **Self-joins are natural.** The current table is `_`, so
-  `t.do('as a join _ as b using (hexid)')` just works.
+- **Self-joins are natural.** Use `uck.rename('t')` to name the current table,
+  then write standard SQL.
 - **No hidden state.** "Register, use, forget"---names exist only for the next
   step.
 - **Chaining always works.** Every step produces a `Table`.
