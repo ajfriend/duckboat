@@ -22,10 +22,15 @@ def _process_template(template):
             elif isinstance(value, str):
                 escaped = value.replace("'", "''")
                 parts.append(f"'{escaped}'")
-            else:
+            elif hasattr(value, '__arrow_c_stream__'):
                 expr = item.expression
                 name = expr if expr.isidentifier() else _random_name()
                 tables[name] = value
                 parts.append(name)
+            else:
+                raise TypeError(
+                    f'Expected a scalar or tabular object in t-string, '
+                    f'got {type(value).__name__}'
+                )
 
     return ''.join(parts), tables

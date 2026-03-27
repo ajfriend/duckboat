@@ -35,7 +35,7 @@ jobs:
       - name: Test wheel
         run: |
           uv venv
-          uv pip install dist/duckboat-*-py3-none-any.whl pytest pytest-cov
+          uv pip install "$(ls dist/duckboat-*-py3-none-any.whl)[testing]"
           .venv/bin/pytest
 
   to_pypi:

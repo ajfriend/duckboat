@@ -1,5 +1,6 @@
 import duckboat as uck
 import pandas as pd
+import pytest
 
 
 def test_tstring_join():
@@ -106,3 +107,9 @@ def test_tstring_mixed():
         list,
     )
     assert out == ['b', 'c']
+
+
+def test_tstring_bad_type():
+    bad = object()
+    with pytest.raises(TypeError, match='tabular object'):
+        uck.do(t'select * from {bad}')

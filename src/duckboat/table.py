@@ -32,6 +32,9 @@ class Table(TableMixin, DoMixin):
     def show(self):
         return Table(self, _hide=False)
 
+    def __arrow_c_stream__(self, requested_schema=None):
+        return self.rel.__arrow_c_stream__(requested_schema)
+
     def rowcols(self):
         if self._hide:
             return _HIDDEN_REPR
